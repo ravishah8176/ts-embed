@@ -29,9 +29,7 @@ export default function Home() {
           <code>@thoughtspot/visual-embed-sdk</code>.
         </p>
         <p className="home-note">
-          ⚙️ Set <code>VITE_THOUGHTSPOT_HOST</code> and{' '}
-          <code>VITE_TS_DATASOURCE_ID</code> in your <code>.env</code> file
-          before running the demos.
+          ⚙️ Set <code>VITE_THOUGHTSPOT_HOST, VITE_TS_USERNAME, VITE_TS_PASSWORD</code> in the env file
         </p>
       </header>
 

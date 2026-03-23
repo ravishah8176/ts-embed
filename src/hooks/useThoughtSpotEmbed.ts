@@ -20,9 +20,10 @@ export function useThoughtSpotEmbed<T extends AnyTsEmbed>(
     embedRef.current = embed
 
     embed.on(EmbedEvent.Load, () => setStatus('ready'))
-    embed.on(EmbedEvent.Error, () => {
-      setErrorMsg('Failed to load. Check your host URL and credentials in .env.')
-      setStatus('error')
+    embed.on(EmbedEvent.Error, (payload) => {
+      // Non-fatal: ThoughtSpot fires Error for internal navigation issues.
+      // Log it but let the iframe handle its own error UI.
+      console.warn('[ThoughtSpot] EmbedEvent.Error (non-fatal):', payload)
     })
     embed.on(EmbedEvent.AuthExpire, () => {
       setErrorMsg('Authentication expired. Check credentials in .env.')

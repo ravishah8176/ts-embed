@@ -1,9 +1,9 @@
-import type { RefObject } from 'react'
+import type { Ref } from 'react'
 import type { EmbedStatus } from '../hooks/useThoughtSpotEmbed'
 import './EmbedFrame.css'
 
 interface Props {
-  containerRef: RefObject<HTMLDivElement | null>
+  containerRef: Ref<HTMLDivElement>
   status: EmbedStatus
   errorMsg?: string
 }
