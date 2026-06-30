@@ -11,7 +11,7 @@ interface AuthState {
   username: string | null
   displayName: string | null
   loading: boolean
-  login: (username: string, password: string) => Promise<void>
+  login: (username: string, password: string, host?: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false))
   }, [])
 
-  async function login(user: string, password: string) {
+  async function login(user: string, password: string, host?: string) {
     const resp = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const data: { username: string; displayName: string } = await resp.json()
     // Session now exists — safe to init the SDK before the app (and embeds) render.
-    initThoughtSpot()
+    initThoughtSpot(host)
     setUsername(data.username)
     setDisplayName(data.displayName)
   }

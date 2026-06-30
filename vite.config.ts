@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 const SESSION_COOKIE = 'ts_app_session'
-const TOKEN_VALIDITY_SECS = 300
+const TOKEN_VALIDITY_SECS = 30000
 
 interface Session {
   username: string

@@ -1,27 +1,18 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './auth/AuthContext'
-import ProtectedLayout from './components/ProtectedLayout'
-import Home from './pages/Home'
-import FullApp from './pages/FullApp'
-import Spotter from './pages/Spotter'
-import Login from './pages/Login'
-import './App.css'
+import { AuthProvider, useAuth } from './auth/AuthContext'
+import Login from './studio/Login'
+import Studio from './studio/Studio'
+import './studio/studio.css'
 
-function App() {
+function Gate() {
+  const { username, loading } = useAuth()
+  if (loading) return <div className="route-loading">Loading…</div>
+  return username ? <Studio /> : <Login />
+}
+
+export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route element={<ProtectedLayout />}>
-            <Route index element={<Home />} />
-            <Route path="/full-app" element={<FullApp />} />
-            <Route path="/spotter" element={<Spotter />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <Gate />
     </AuthProvider>
   )
 }
-
-export default App
