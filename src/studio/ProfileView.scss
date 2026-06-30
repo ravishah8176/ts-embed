@@ -1,0 +1,268 @@
+/* Styles specific to ProfileView.
+   This component currently styles itself with inline styles + shared classes
+   from studio.scss. Add your custom ProfileView overrides here. */
+
+/* Close control for the profile slide-over sheet. */
+.sheet-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 999px;
+  color: #5a6573;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px 7px 11px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(14, 17, 22, 0.04);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  svg {
+    transition: transform 0.15s;
+  }
+
+  &:hover {
+    background: #f4f5f7;
+    color: #0e1116;
+    border-color: #d3d8e0;
+
+    svg {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+/* ── Layout: root / container / close row ───────────────────────────── */
+.pv-root {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 32px;
+}
+
+.pv-container {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.pv-close-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+/* ── Profile card + banner ──────────────────────────────────────────── */
+.pv-card {
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.pv-banner {
+  height: 104px;
+  background: linear-gradient(120deg, #0e1116, var(--accent-strong) 135%);
+}
+
+.pv-card-body {
+  padding: 0 28px 26px;
+}
+
+/* ── Header: avatar + name + email ──────────────────────────────────── */
+.pv-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  margin-top: -44px;
+}
+
+.pv-avatar {
+  width: 92px;
+  height: 92px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--accent), #7c5cfc);
+  color: #fff;
+  font-size: 32px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid #fff;
+  box-shadow: 0 8px 24px rgba(14, 17, 22, 0.16);
+  flex-shrink: 0;
+}
+
+.pv-header-text {
+  padding-bottom: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.pv-header-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pv-name {
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pv-email {
+  font-size: 14px;
+  color: #7a8694;
+}
+
+/* ── Status badge (color depends on active/inactive state) ──────────── */
+.pv-status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+.pv-status-active {
+  color: #12875a;
+  background: #e7f6ee;
+}
+
+.pv-status-inactive {
+  color: #b36b00;
+  background: #fff3e0;
+}
+
+/* ── Section titles ─────────────────────────────────────────────────── */
+.pv-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9aa4b2;
+  margin: 34px 0 12px;
+}
+
+.pv-section-title-tight {
+  margin: 24px 0 12px;
+}
+
+/* ── Field cards & grid ─────────────────────────────────────────────── */
+.pv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.pv-field-card {
+  border: 1px solid #eef0f3;
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.pv-card-spaced {
+  margin-top: 14px;
+}
+
+.pv-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9aa4b2;
+  margin-bottom: 6px;
+}
+
+.pv-field-value {
+  font-size: 14px;
+  color: #1b2530;
+  font-weight: 600;
+  word-break: break-word;
+  padding-top: 3px;
+}
+
+/* ── Mono text helper (matches former monoStyle) ────────────────────── */
+.pv-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.pv-obj-id {
+  color: #9aa4b2;
+  margin-left: 8px;
+}
+
+/* ── Cluster row ────────────────────────────────────────────────────── */
+.pv-cluster-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 3px;
+}
+
+.pv-cluster-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #12875a;
+  flex-shrink: 0;
+}
+
+.pv-cluster-host {
+  color: #3a4452;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Chips ──────────────────────────────────────────────────────────── */
+.pv-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding-top: 4px;
+}
+
+.pv-chip {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #3a4452;
+  background: #f4f5f7;
+  border: 1px solid #e4e7ec;
+  border-radius: 7px;
+  padding: 4px 10px;
+}
+
+.pv-chip-mono {
+  font-size: 11.5px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Raw JSON block for unnamed nested objects ──────────────────────── */
+.pv-raw-json {
+  margin: 0;
+  color: #3a4452;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── Sign-out button ────────────────────────────────────────────────── */
+.pv-signout-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.pv-signout-btn {
+  width: auto;
+  background: #fff;
+  color: #c0392b;
+  border: 1px solid #f1c9c4;
+  border-radius: 10px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 700;
+}
