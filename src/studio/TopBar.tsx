@@ -1,10 +1,10 @@
 import './TopBar.scss'
-import type { EmbedType } from './constants'
+import type { StudioTab } from './constants'
 import { initials } from './constants'
 
 interface Props {
-  embedType: EmbedType
-  onSwitchEmbed: (t: EmbedType) => void
+  activeTab: StudioTab
+  onSwitchEmbed: (t: StudioTab) => void
   hostShort: string
   userName: string
   userEmail: string
@@ -14,15 +14,16 @@ interface Props {
   onSignOut: () => void
 }
 
-const TAB_DEFS: { id: EmbedType; label: string; dot: string }[] = [
+const TAB_DEFS: { id: StudioTab; label: string; dot: string }[] = [
   { id: 'app', label: 'Full App', dot: '#2B5BF4' },
   { id: 'liveboard', label: 'Liveboard', dot: '#12B886' },
   { id: 'search', label: 'Search', dot: '#7C5CFC' },
   { id: 'spotter', label: 'Spotter', dot: '#EC4899' },
+  { id: 'rest', label: 'REST API', dot: '#F59E0B' },
 ]
 
 export default function TopBar({
-  embedType,
+  activeTab,
   onSwitchEmbed,
   hostShort,
   userName,
@@ -80,7 +81,7 @@ export default function TopBar({
         }}
       >
         {TAB_DEFS.map((t) => {
-          const on = embedType === t.id
+          const on = activeTab === t.id
           return (
             <button
               key={t.id}

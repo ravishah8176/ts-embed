@@ -1,6 +1,8 @@
 import { EmbedEvent, HostEvent } from '@thoughtspot/visual-embed-sdk'
 
 export type EmbedType = 'app' | 'liveboard' | 'search' | 'spotter'
+/** Top-bar tabs: the embed types plus the REST API SDK explorer. */
+export type StudioTab = EmbedType | 'rest'
 export type LogDir = 'embed' | 'host'
 
 export interface LogRow {

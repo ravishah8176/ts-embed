@@ -7,6 +7,7 @@ import {
   colorOf,
   jstr,
   type EmbedType,
+  type StudioTab,
   type LogDir,
   type LogRow,
   type Reaction,
@@ -17,6 +18,7 @@ import ComposerPanel from './ComposerPanel'
 import EmbedSurface from './EmbedSurface'
 import EventConsole, { type ConsoleState } from './EventConsole'
 import ProfileView from './ProfileView'
+import RestTab from './rest/RestTab'
 import Toast, { type ToastData } from './Toast'
 
 const LOG_CAP = 400
@@ -30,6 +32,9 @@ export default function Studio() {
 
   // ── core view state ──
   const [embedType, setEmbedType] = useState<EmbedType>('app')
+  // The REST API SDK explorer is a top-bar tab too, but it's not an iframe embed,
+  // so it overlays the workspace rather than swapping the live embed.
+  const [restMode, setRestMode] = useState(false)
   const [view, setView] = useState<'workspace' | 'profile'>('workspace')
   const [avatarOpen, setAvatarOpen] = useState(false)
 
@@ -232,10 +237,15 @@ export default function Studio() {
   }
 
   // ── avatar / profile ──
-  function onSwitchEmbed(t: EmbedType) {
+  function onSwitchTab(t: StudioTab) {
     setAvatarOpen(false)
     setView('workspace')
-    setEmbedType(t)
+    if (t === 'rest') {
+      setRestMode(true)
+    } else {
+      setRestMode(false)
+      setEmbedType(t)
+    }
   }
   async function onSignOut() {
     setAvatarOpen(false)
@@ -248,8 +258,8 @@ export default function Studio() {
     <div style={{ minHeight: '100vh', background: '#F4F5F7' }}>
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F4F5F7', overflow: 'hidden' }}>
         <TopBar
-          embedType={embedType}
-          onSwitchEmbed={onSwitchEmbed}
+          activeTab={restMode ? 'rest' : embedType}
+          onSwitchEmbed={onSwitchTab}
           hostShort={hostShort}
           userName={userName}
           userEmail={userEmail}
@@ -319,6 +329,13 @@ export default function Studio() {
               />
             </div>
           </div>
+
+          {/*
+            REST API tab (SDK explorer + embedded playground) overlays the
+            workspace, keeping the live embed iframe mounted underneath. Profile
+            sits above it via higher z-index.
+          */}
+          {restMode && <RestTab host={host ?? ''} />}
 
           {view === 'profile' && (
             <>
