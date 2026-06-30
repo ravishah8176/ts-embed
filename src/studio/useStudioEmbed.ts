@@ -1,48 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  AppEmbed,
-  EmbedEvent,
-  HostEvent,
-  LiveboardEmbed,
-  SearchEmbed,
-  SpotterEmbed,
-} from '@thoughtspot/visual-embed-sdk'
+import { EmbedEvent, HostEvent } from '@thoughtspot/visual-embed-sdk'
 import type { EmbedType } from './constants'
 import { EMBED_VALUE_TO_KEY } from './constants'
-import { embedConfig } from './config'
+import { EMBED_FACTORIES, type AnyEmbed } from './embeds'
 
-type AnyEmbed = AppEmbed | LiveboardEmbed | SearchEmbed | SpotterEmbed
 export type EmbedStatus = 'loading' | 'ready' | 'error'
 
 export interface EmbedEventInfo {
   /** Member-name key, e.g. "RouteChange" (mapped back from the runtime value). */
   name: string
   payload: unknown
-}
-
-function createEmbed(type: EmbedType, container: HTMLDivElement): AnyEmbed {
-  const frameParams = { width: '100%', height: '100%' }
-  switch (type) {
-    case 'liveboard':
-      return new LiveboardEmbed(container, {
-        frameParams,
-        liveboardId: embedConfig.liveboardId,
-        fullHeight: true,
-      })
-    case 'search':
-      return new SearchEmbed(container, {
-        frameParams,
-        dataSources: embedConfig.dataSourceId ? [embedConfig.dataSourceId] : undefined,
-      })
-    case 'spotter':
-      return new SpotterEmbed(container, {
-        frameParams,
-        worksheetId: embedConfig.worksheetId,
-      })
-    case 'app':
-    default:
-      return new AppEmbed(container, { frameParams })
-  }
 }
 
 /**
@@ -68,7 +35,7 @@ export function useStudioEmbed(embedType: EmbedType, onEvent: (e: EmbedEventInfo
     if (!container) return
     setStatus('loading')
 
-    const embed = createEmbed(embedType, container)
+    const embed = EMBED_FACTORIES[embedType](container)
     embedRef.current = embed
 
     embed.on(EmbedEvent.ALL, (payload) => {
