@@ -4,7 +4,6 @@ import { jstr, fmtTime } from '../constants'
 import { createRestClient } from './restClient'
 import {
   REST_METHODS,
-  REST_GROUP_ORDER,
   findRestMethod,
   restGroupColor,
   defaultBodyFor,
@@ -64,6 +63,11 @@ function resolveUrl(host: string, method: RestMethod, body: Record<string, unkno
 
 const LOG_CAP = 60
 
+/** Groups that actually have methods, sorted alphabetically — for the section filter. */
+const FILTER_GROUPS = Array.from(new Set(REST_METHODS.map((m) => m.group))).sort((a, b) =>
+  a.localeCompare(b),
+)
+
 /** Build a readable `await rest.method(...)` preview from the parsed args. */
 function callPreview(method: RestMethod, draft: string, noArgs: boolean): string {
   if (noArgs) return `await rest.${method.key}();`
@@ -94,6 +98,8 @@ export default function RestExplorer({ host }: Props) {
   const [methodKey, setMethodKey] = useState('getCurrentUserInfo')
   const [pickerOpen, setPickerOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const [groupFilter, setGroupFilter] = useState<string | null>(null)
+  const [sectionOpen, setSectionOpen] = useState(false)
   const [bodyDrafts, setBodyDrafts] = useState<Record<string, string>>({})
   const [running, setRunning] = useState(false)
   const [entries, setEntries] = useState<RestLogEntry[]>([])
@@ -106,6 +112,10 @@ export default function RestExplorer({ host }: Props) {
   const defaultBody = jstr(defaultBodyFor(method))
   const draft = bodyDrafts[methodKey] ?? defaultBody
 
+  const sectionCount = groupFilter
+    ? REST_METHODS.filter((m) => m.group === groupFilter).length
+    : REST_METHODS.length
+
   const groups = useMemo(() => {
     const q = search.trim().toLowerCase()
     const match = (m: RestMethod) =>
@@ -113,12 +123,16 @@ export default function RestExplorer({ host }: Props) {
       m.label.toLowerCase().includes(q) ||
       m.key.toLowerCase().includes(q) ||
       m.path.toLowerCase().includes(q)
-    return REST_GROUP_ORDER.map((g) => ({
-      label: g,
-      color: restGroupColor(g),
-      opts: REST_METHODS.filter((m) => m.group === g && match(m)),
-    })).filter((g) => g.opts.length)
-  }, [search])
+    return FILTER_GROUPS.filter((g) => !groupFilter || g === groupFilter)
+      .map((g) => ({
+        label: g,
+        color: restGroupColor(g),
+        opts: REST_METHODS.filter((m) => m.group === g && match(m)).sort((a, b) =>
+          a.label.localeCompare(b.label),
+        ),
+      }))
+      .filter((g) => g.opts.length)
+  }, [search, groupFilter])
 
   let validStatus = 'valid JSON'
   let validColor = '#12875A'
@@ -137,14 +151,31 @@ export default function RestExplorer({ host }: Props) {
     }
   }
 
-  function pickMethod(k: string) {
+  function selectMethod(k: string) {
     const m = findRestMethod(k)
     if (m && bodyDrafts[k] === undefined && !takesNoArgs(m)) {
       setBodyDrafts((d) => ({ ...d, [k]: jstr(defaultBodyFor(m)) }))
     }
     setMethodKey(k)
+  }
+
+  function pickMethod(k: string) {
+    selectMethod(k)
     setPickerOpen(false)
     setSearch('')
+  }
+
+  function pickSection(g: string | null) {
+    setGroupFilter(g)
+    setSectionOpen(false)
+    // Keep the method consistent with the section: if the current method isn't
+    // in the chosen section, jump to that section's first method.
+    if (g && method.group !== g) {
+      const first = REST_METHODS.filter((m) => m.group === g).sort((a, b) =>
+        a.label.localeCompare(b.label),
+      )[0]
+      if (first) selectMethod(first.key)
+    }
   }
 
   async function onSend() {
@@ -236,11 +267,86 @@ export default function RestExplorer({ host }: Props) {
             Call <code>@thoughtspot/rest-api-sdk</code>
           </div>
 
+          <label className="rest-label">Section</label>
+          <div className="rest-rel rest-mb12">
+            <button className="rest-select" onClick={() => setSectionOpen((o) => !o)}>
+              <span
+                className="rest-dot"
+                style={{ background: groupFilter ? restGroupColor(groupFilter) : '#9aa4b2' }}
+              />
+              <span className="rest-grow">
+                <span className="rest-select-label">{groupFilter ?? 'All sections'}</span>
+                <span className="rest-select-mono">{sectionCount} methods</span>
+              </span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#7A8694"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="rest-chevron"
+                style={{ transform: sectionOpen ? 'rotate(180deg)' : 'none' }}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+
+            {sectionOpen && (
+              <>
+                <div onClick={() => setSectionOpen(false)} className="rest-overlay" />
+                <div className="rest-dropdown anim-fade">
+                  <div className="tss rest-dropdown-list">
+                    <button
+                      className={'rest-opt' + (groupFilter === null ? ' selected' : '')}
+                      onClick={() => pickSection(null)}
+                    >
+                      <span className="rest-dot-sm" style={{ background: '#9aa4b2' }} />
+                      <span className="rest-grow">
+                        <span className="rest-opt-label">All sections</span>
+                        <span className="rest-opt-mono">{REST_METHODS.length} methods</span>
+                      </span>
+                      {groupFilter === null && (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </button>
+                    {FILTER_GROUPS.map((g) => {
+                      const selected = groupFilter === g
+                      const count = REST_METHODS.filter((m) => m.group === g).length
+                      return (
+                        <button
+                          key={g}
+                          className={'rest-opt' + (selected ? ' selected' : '')}
+                          onClick={() => pickSection(g)}
+                        >
+                          <span className="rest-dot-sm" style={{ background: restGroupColor(g) }} />
+                          <span className="rest-grow">
+                            <span className="rest-opt-label">{g}</span>
+                            <span className="rest-opt-mono">{count} methods</span>
+                          </span>
+                          {selected && (
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           <label className="rest-label">Method</label>
-          <div style={{ position: 'relative' }}>
+          <div className="rest-rel">
             <button className="rest-select" onClick={() => setPickerOpen((o) => !o)}>
               <span className="rest-dot" style={{ background: restGroupColor(method.group) }} />
-              <span style={{ flex: 1, minWidth: 0 }}>
+              <span className="rest-grow">
                 <span className="rest-select-label">{method.label}</span>
                 <span className="rest-select-mono">
                   {method.http} {method.path}
@@ -255,7 +361,8 @@ export default function RestExplorer({ host }: Props) {
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                style={{ flexShrink: 0, transform: pickerOpen ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}
+                className="rest-chevron"
+                style={{ transform: pickerOpen ? 'rotate(180deg)' : 'none' }}
               >
                 <polyline points="6 9 12 15 18 9" />
               </svg>
@@ -263,48 +370,48 @@ export default function RestExplorer({ host }: Props) {
 
             {pickerOpen && (
               <>
-                <div onClick={() => setPickerOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 25 }} />
+                <div onClick={() => setPickerOpen(false)} className="rest-overlay" />
                 <div className="rest-dropdown anim-fade">
                   <div className="rest-dropdown-search">
                     <input
                       className="ts-input"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      placeholder="Search 160 methods…"
+                      placeholder={`Search ${sectionCount} methods…`}
                       autoFocus
                     />
                   </div>
                   <div className="tss rest-dropdown-list">
                     {groups.map((g) => (
-                      <div key={g.label}>
-                        <div className="rest-group-head">
-                          <span className="rest-dot-sm" style={{ background: g.color }} />
+                      <div key={g.label} className="rest-group">
+                        <div className="rest-group-head" style={{ color: g.color }}>
                           {g.label}
                           <span className="rest-group-count">{g.opts.length}</span>
                         </div>
-                        {g.opts.map((m) => {
-                          const selected = m.key === methodKey
-                          return (
-                            <button
-                              key={m.key}
-                              className={'rest-opt' + (selected ? ' selected' : '')}
-                              onClick={() => pickMethod(m.key)}
-                            >
-                              <span className="rest-dot-sm" style={{ background: restGroupColor(m.group) }} />
-                              <span style={{ flex: 1, minWidth: 0 }}>
-                                <span className="rest-opt-label">{m.label}</span>
-                                <span className="rest-opt-mono">
-                                  {m.http} {m.path}
+                        <div className="rest-group-items" style={{ borderLeftColor: g.color }}>
+                          {g.opts.map((m) => {
+                            const selected = m.key === methodKey
+                            return (
+                              <button
+                                key={m.key}
+                                className={'rest-opt' + (selected ? ' selected' : '')}
+                                onClick={() => pickMethod(m.key)}
+                              >
+                                <span className="rest-grow">
+                                  <span className="rest-opt-label">{m.label}</span>
+                                  <span className="rest-opt-mono">
+                                    {m.http} {m.path}
+                                  </span>
                                 </span>
-                              </span>
-                              {selected && (
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                              )}
-                            </button>
-                          )
-                        })}
+                                {selected && (
+                                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12" />
+                                  </svg>
+                                )}
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
                     ))}
                     {groups.length === 0 && (
@@ -319,11 +426,11 @@ export default function RestExplorer({ host }: Props) {
 
         <div className="tss rest-panel-body">
           <div className="rest-body-head">
-            <label className="rest-label" style={{ margin: 0 }}>
+            <label className="rest-label rest-m0">
               Arguments · JSON
             </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 10.5, fontWeight: 600, color: validColor }}>{validStatus}</span>
+            <div className="rest-valid-row">
+              <span className="rest-valid-text" style={{ color: validColor }}>{validStatus}</span>
               <button
                 className="rest-link"
                 onClick={() => setBodyDrafts((d) => ({ ...d, [methodKey]: defaultBody }))}
@@ -348,7 +455,7 @@ export default function RestExplorer({ host }: Props) {
             </div>
           )}
 
-          <label className="rest-label" style={{ marginTop: 16 }}>
+          <label className="rest-label rest-mt16">
             Resulting call
           </label>
           <pre className="tss rest-code">{callPreview(method, draft, noArgs)}</pre>
@@ -399,7 +506,7 @@ export default function RestExplorer({ host }: Props) {
                     <span className="rest-row-path">
                       {en.http} {en.path}
                     </span>
-                    <span style={{ flex: 1 }} />
+                    <span className="rest-flex1" />
                     <span className="rest-row-meta">{en.durationMs}ms</span>
                     <span className="rest-row-meta">{fmtTime(en.ts)}</span>
                   </button>

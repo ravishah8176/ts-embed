@@ -29,3 +29,365 @@
 .link-btn:hover {
   text-decoration: underline;
 }
+
+/* ----------------------------------------------------------------
+   Static styles migrated from inline (prefixed cp-)
+   ---------------------------------------------------------------- */
+
+/* Root panel (flex-basis stays inline — depends on collapsed state) */
+.cp-aside {
+  min-height: 0;
+  background: #fff;
+  border-right: 1px solid #e4e7ec;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: flex-basis 0.22s ease;
+}
+
+/* Collapsed rail */
+.cp-collapsed-rail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0;
+  gap: 16px;
+}
+
+.cp-expand-btn {
+  padding: 7px;
+  line-height: 0;
+}
+
+/* Status dots (color stays inline — dynamic) */
+.cp-dot-8 {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cp-dot-9 {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cp-dot-6 {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.cp-dot-shrink {
+  flex-shrink: 0;
+}
+
+/* Header + event selector */
+.cp-header {
+  padding: 15px 16px 14px;
+  border-bottom: 1px solid #eef0f3;
+  position: relative;
+  z-index: 20;
+}
+
+.cp-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.cp-header-title {
+  flex: 1;
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.cp-collapse-btn {
+  flex-shrink: 0;
+  padding: 5px;
+  margin-top: -2px;
+}
+
+.cp-subtitle {
+  font-size: 12px;
+  color: #8a94a2;
+  margin-bottom: 13px;
+}
+
+.cp-trigger-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.cp-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3a4452;
+  margin-bottom: 7px;
+}
+
+.cp-rel {
+  position: relative;
+}
+
+/* Host-event selector button (background color is static here) */
+.cp-select-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #d7dce3;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fafbfc;
+  text-align: left;
+}
+
+.cp-select-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-select-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0e1116;
+  line-height: 1.25;
+}
+
+.cp-select-key {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: #9aa4b2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chevron (transform stays inline — dynamic) */
+.cp-select-chevron {
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+/* Dropdown */
+.cp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+}
+
+.cp-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 26;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(14, 17, 22, 0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 330px;
+}
+
+.cp-dropdown-head {
+  padding: 9px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.cp-search-icon {
+  position: absolute;
+  left: 9px;
+  top: 8px;
+}
+
+.cp-search-input {
+  padding: 7px 9px 7px 29px;
+  font-size: 13px;
+  background: #fafbfc;
+  border-radius: 8px;
+}
+
+.cp-supported {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 10.5px;
+  color: #9aa4b2;
+}
+
+.cp-supported-class {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: #3a4452;
+}
+
+.cp-opt-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.cp-group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 8px 3px;
+}
+
+.cp-group-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9aa4b2;
+}
+
+/* Option row (background stays inline — depends on selected) */
+.cp-opt {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 9px;
+  text-align: left;
+}
+
+.cp-opt-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b2530;
+  line-height: 1.2;
+}
+
+.cp-opt-key {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #aeb6c2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cp-check-icon {
+  flex-shrink: 0;
+}
+
+.cp-no-results {
+  text-align: center;
+  color: #9aa4b2;
+  font-size: 13px;
+  padding: 22px 12px;
+}
+
+/* Params + resulting call */
+.cp-params {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.cp-params-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+
+.cp-field-label-inline {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3a4452;
+}
+
+.cp-params-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Validity text (color stays inline — dynamic) */
+.cp-valid-status {
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.cp-reset-btn {
+  background: transparent;
+  border: none;
+  font-size: 11.5px;
+  color: var(--accent);
+  font-weight: 600;
+  padding: 0;
+}
+
+.cp-textarea {
+  width: 100%;
+  height: 260px;
+  resize: none;
+  overflow: auto;
+  border: 1px solid #d7dce3;
+  border-radius: 10px;
+  padding: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  outline: none;
+  color: #1b2530;
+  background: #fafbfc;
+}
+
+.cp-result-label {
+  margin: 16px 0 7px;
+}
+
+.cp-result-pre {
+  margin: 0;
+  min-height: 60px;
+  max-height: 160px;
+  overflow: auto;
+  background: #0b0e14;
+  border: 1px solid #1c2230;
+  border-radius: 10px;
+  padding: 12px 13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #9fd0a8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Footer */
+.cp-footer {
+  flex-shrink: 0;
+  padding: 13px 16px;
+  border-top: 1px solid #eef0f3;
+  background: #fff;
+}
+
+.cp-trigger-btn {
+  width: 100%;
+  font-size: 14px;
+  padding: 12px;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(43, 91, 244, 0.22);
+}

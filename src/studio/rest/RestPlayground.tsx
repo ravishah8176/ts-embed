@@ -64,8 +64,8 @@ export default function RestPlayground({ host }: { host: string }) {
             </>
           ) : (
             <>
-              <span style={{ fontSize: 26, color: '#C0392B' }}>⚠</span>
-              <div className="rest-playground-msg" style={{ color: '#C0392B' }}>
+              <span className="rest-playground-error-icon">⚠</span>
+              <div className="rest-playground-msg rest-playground-error-msg">
                 Couldn’t fetch a session token to configure the playground.
               </div>
             </>

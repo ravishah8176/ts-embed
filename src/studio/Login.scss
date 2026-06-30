@@ -1,3 +1,268 @@
 /* Styles specific to Login.
    This component currently styles itself with inline styles + shared classes
    from studio.scss. Add your custom Login overrides here. */
+
+/* ── Layout root ── */
+.login-root {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Brand panel ── */
+.login-brand {
+  flex: 1.05;
+  background: #0E1116;
+  color: #fff;
+  padding: 56px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-brand-glow-a {
+  position: absolute;
+  width: 560px;
+  height: 560px;
+  right: -180px;
+  top: -200px;
+  background: radial-gradient(circle at center, rgba(43, 91, 244, .5), transparent 60%);
+  pointer-events: none;
+}
+
+.login-brand-glow-b {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  left: -130px;
+  bottom: -150px;
+  background: radial-gradient(circle at center, rgba(124, 92, 252, .3), transparent 64%);
+  pointer-events: none;
+}
+
+.login-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.login-logo-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-logo-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #0E1116;
+}
+
+.login-logo-text {
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -.02em;
+}
+
+.login-logo-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #6b94ff;
+  border: 1px solid rgba(43, 91, 244, .5);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* ── Brand hero ── */
+.login-hero {
+  position: relative;
+  z-index: 2;
+  max-width: 470px;
+}
+
+.login-hero-eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #5B6472;
+  margin-bottom: 22px;
+}
+
+.login-hero-title {
+  font-size: 46px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  margin: 0 0 20px;
+}
+
+.login-hero-copy {
+  font-size: 16px;
+  line-height: 1.55;
+  color: #9aa3b2;
+  margin: 0 0 32px;
+  max-width: 410px;
+}
+
+.login-footer {
+  position: relative;
+  z-index: 2;
+  font-size: 12.5px;
+  color: #5B6472;
+}
+
+/* ── Form panel ── */
+.login-form-panel {
+  flex: 1;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 412px;
+}
+
+.login-form-title {
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  margin: 0 0 7px;
+}
+
+.login-form-subtitle {
+  font-size: 14px;
+  color: #5A6573;
+  margin: 0 0 26px;
+  line-height: 1.5;
+}
+
+.login-strong {
+  font-weight: 600;
+  color: #0E1116;
+}
+
+/* ── Auth method card ── */
+.login-auth-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: #F4F5F7;
+  border: 1px solid #E4E7EC;
+  border-radius: 11px;
+  padding: 11px 13px;
+  margin-bottom: 20px;
+}
+
+.login-auth-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #0E1116;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.login-auth-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.login-auth-method {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.login-auth-note {
+  font-size: 12px;
+  color: #7A8694;
+}
+
+.login-auth-pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #12875A;
+  background: #E7F6EE;
+  border-radius: 6px;
+  padding: 3px 8px;
+  flex-shrink: 0;
+}
+
+/* ── Form fields ── */
+.login-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #3A4452;
+  margin-bottom: 6px;
+}
+
+.login-field {
+  margin-bottom: 15px;
+}
+
+/* Password field bottom margin depends on whether an error is shown. */
+.login-field-tight {
+  margin-bottom: 12px;
+}
+
+.login-field-loose {
+  margin-bottom: 22px;
+}
+
+/* ── Error banner ── */
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #C0392B;
+  background: #FDECEA;
+  border: 1px solid #F1C9C4;
+  border-radius: 9px;
+  padding: 9px 12px;
+  margin-bottom: 18px;
+}
+
+.login-error-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #C0392B;
+  flex-shrink: 0;
+}
+
+/* ── Submit button ── */
+.login-submit {
+  width: 100%;
+  font-size: 15px;
+  padding: 13px;
+  box-shadow: 0 6px 18px rgba(43, 91, 244, .26);
+}
+
+.login-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, .4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: tsSpin .7s linear infinite;
+}

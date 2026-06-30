@@ -54,3 +54,277 @@
   border-color: var(--accent);
   color: #fff;
 }
+
+/* ── EventConsole: extracted static inline styles ─────────────── */
+
+/* Outer console section (height stays inline — depends on console state) */
+.ec-console {
+  flex-shrink: 0;
+  background: #0b0e14;
+  border-top: 1px solid #1c2230;
+  display: flex;
+  flex-direction: column;
+  transition: height 0.22s ease;
+}
+
+/* Shared flex spacer */
+.ec-spacer {
+  flex: 1;
+}
+
+/* Header bar */
+.ec-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 13px;
+  height: 43px;
+  border-bottom: 1px solid #1c2230;
+}
+.ec-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* live dot: background + box-shadow stay inline (paused state) */
+.ec-live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.ec-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #e6e9ef;
+}
+.ec-count {
+  font-size: 11px;
+  color: #8a94a2;
+  background: #161b26;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+/* Search field */
+.ec-search {
+  position: relative;
+  width: 172px;
+}
+.ec-search-icon {
+  position: absolute;
+  left: 9px;
+  top: 7px;
+}
+.ec-search-input {
+  width: 100%;
+  padding: 5px 8px 5px 28px;
+  font-size: 12px;
+}
+
+/* Pause button: background + color stay inline (paused state) */
+.ec-pause-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #232a38;
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Icon buttons (export / clear / resize) */
+.ec-icon-btn {
+  padding: 6px 9px;
+}
+
+/* Reactions bar */
+.ec-reactions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  border-bottom: 1px solid #1c2230;
+  overflow-x: auto;
+}
+.ec-reactions-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #6b7686;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ec-reaction-chip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #161b26;
+  border: 1px solid #2a3344;
+  border-radius: 999px;
+  padding: 4px 7px 4px 11px;
+  font-size: 12px;
+  color: #d6dbe4;
+}
+.ec-reaction-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.ec-reaction-remove {
+  background: transparent;
+  border: none;
+  color: #6b7686;
+  line-height: 0;
+  padding: 2px;
+}
+
+/* Log body */
+.ec-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+.ec-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #4a5365;
+  padding: 24px;
+  text-align: center;
+}
+.ec-empty-text {
+  font-size: 13px;
+}
+
+/* Log row */
+.ec-row-wrap {
+  animation: tsRow 0.22s ease backwards;
+}
+/* row: border-left color stays inline (per-event color) */
+.ec-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 13px;
+  cursor: pointer;
+}
+.ec-row-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #5a6473;
+  flex-shrink: 0;
+  width: 84px;
+}
+/* badge: background + color stay inline (embed vs host) */
+.ec-row-badge {
+  flex-shrink: 0;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+/* dot: background stays inline (per-event color) */
+.ec-row-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.ec-row-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #e6e9ef;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+.ec-row-reacted {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  color: #fab005;
+  white-space: nowrap;
+}
+.ec-row-via {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  color: #6b7686;
+  white-space: nowrap;
+}
+.ec-row-cat {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  color: #5a6473;
+}
+/* react button: color stays inline (embed / reacted state) */
+.ec-row-react {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  line-height: 0;
+  padding: 3px;
+}
+/* chevron: transform stays inline (expanded state) */
+.ec-row-chevron {
+  flex-shrink: 0;
+}
+
+/* React picker panel */
+.ec-react-panel {
+  padding: 8px 13px 11px 50px;
+  background: #0e121b;
+}
+.ec-react-prompt {
+  font-size: 11px;
+  color: #8a94a2;
+  margin-bottom: 8px;
+}
+.ec-react-prompt-name {
+  font-family: 'JetBrains Mono', monospace;
+  color: #e6e9ef;
+}
+.ec-react-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ec-react-choice {
+  background: #161b26;
+  border: 1px solid #2a3344;
+  border-radius: 7px;
+  padding: 5px 10px;
+  color: #d6dbe4;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Expanded payload panel */
+.ec-expand-panel {
+  padding: 4px 13px 12px 50px;
+  background: #0e121b;
+}
+.ec-payload {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #9fd0a8;
+  background: #0a0d14;
+  border: 1px solid #1c2230;
+  border-radius: 8px;
+  padding: 11px 13px;
+  overflow-x: auto;
+  white-space: pre;
+}

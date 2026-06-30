@@ -47,3 +47,33 @@
     transform: translateX(0);
   }
 }
+
+/* ── Inline styles migrated to classes ── */
+.studio-root {
+  min-height: 100vh;
+  background: #f4f5f7;
+}
+.studio-shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f4f5f7;
+  overflow: hidden;
+}
+.studio-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+.studio-workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.studio-embed-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}

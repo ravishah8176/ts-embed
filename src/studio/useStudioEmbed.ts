@@ -22,7 +22,7 @@ export interface EmbedEventInfo {
  * `onEvent` is held in a ref so the embed isn't torn down on every render — only
  * a genuine `embedType` change rebuilds it.
  */
-export function useStudioEmbed(embedType: EmbedType, onEvent: (e: EmbedEventInfo) => void) {
+export function useStudioEmbed(embedType: EmbedType | null, onEvent: (e: EmbedEventInfo) => void) {
   const containerRef = useRef<HTMLDivElement>(null)
   const embedRef = useRef<AnyEmbed | null>(null)
   const onEventRef = useRef(onEvent)
@@ -32,7 +32,8 @@ export function useStudioEmbed(embedType: EmbedType, onEvent: (e: EmbedEventInfo
 
   useEffect(() => {
     const container = containerRef.current
-    if (!container) return
+    // No embed selected yet (landing screen) — nothing to mount.
+    if (!container || !embedType) return
     setStatus('loading')
 
     const embed = EMBED_FACTORIES[embedType](container)

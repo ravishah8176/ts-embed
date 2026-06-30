@@ -19,6 +19,7 @@ import EmbedSurface from './EmbedSurface'
 import EventConsole, { type ConsoleState } from './EventConsole'
 import ProfileView from './ProfileView'
 import RestTab from './rest/RestTab'
+import Welcome from './Welcome'
 import Toast, { type ToastData } from './Toast'
 
 const LOG_CAP = 400
@@ -31,7 +32,8 @@ export default function Studio() {
   const { username, displayName, profile, host, logout } = useAuth()
 
   // ── core view state ──
-  const [embedType, setEmbedType] = useState<EmbedType>('app')
+  // Nothing is embedded on load — the Welcome screen prompts the user to pick.
+  const [embedType, setEmbedType] = useState<EmbedType | null>(null)
   // The REST API SDK explorer is a top-bar tab too, but it's not an iframe embed,
   // so it overlays the workspace rather than swapping the live embed.
   const [restMode, setRestMode] = useState(false)
@@ -79,8 +81,8 @@ export default function Studio() {
   }, [username])
 
   const hostShort = useMemo(() => (host ?? '').replace(/^https?:\/\//, ''), [host])
-  const allowed = allowedHostEvents(embedType)
-  const effectiveKey = allowed.includes(composerKey) ? composerKey : allowed[0]
+  const allowed = embedType ? allowedHostEvents(embedType) : []
+  const effectiveKey = allowed.includes(composerKey) ? composerKey : (allowed[0] ?? composerKey)
   const draft = paramDrafts[effectiveKey] ?? jstr(SAMPLE[effectiveKey] ?? {})
 
   function showToast(text: string, sub: string, color: string) {
@@ -237,6 +239,12 @@ export default function Studio() {
   }
 
   // ── avatar / profile ──
+  function onGoHome() {
+    setAvatarOpen(false)
+    setView('workspace')
+    setRestMode(false)
+    setEmbedType(null)
+  }
   function onSwitchTab(t: StudioTab) {
     setAvatarOpen(false)
     setView('workspace')
@@ -255,11 +263,12 @@ export default function Studio() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F4F5F7' }}>
-      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#F4F5F7', overflow: 'hidden' }}>
+    <div className="studio-root">
+      <div className="studio-shell">
         <TopBar
           activeTab={restMode ? 'rest' : embedType}
           onSwitchEmbed={onSwitchTab}
+          onHome={onGoHome}
           hostShort={hostShort}
           userName={userName}
           userEmail={userEmail}
@@ -278,8 +287,12 @@ export default function Studio() {
           back simply hides the overlay, leaving the embed exactly as it was
           (no re-render, no infinite loading spinner).
         */}
-        <div style={{ flex: 1, minHeight: 0, position: 'relative', display: 'flex' }}>
-          <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+        <div className="studio-body">
+          <div className="studio-workspace">
+            {embedType === null ? (
+              <Welcome userName={userName} hostShort={hostShort} onSelect={onSwitchTab} />
+            ) : (
+            <>
             <ComposerPanel
               collapsed={panelCollapsed}
               onTogglePanel={() => {
@@ -303,7 +316,7 @@ export default function Studio() {
               onTrigger={onComposerTrigger}
             />
 
-            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <div className="studio-embed-col">
               <EmbedSurface embedType={embedType} status={status} containerRef={containerRef} />
 
               <EventConsole
@@ -328,6 +341,8 @@ export default function Studio() {
                 }}
               />
             </div>
+            </>
+            )}
           </div>
 
           {/*

@@ -1,5 +1,5 @@
 import './ProfileView.scss'
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { SessionUser } from '../auth/AuthContext'
 import { initials } from './constants'
 
@@ -11,11 +11,6 @@ interface Props {
   onBack: () => void
   onSignOut: () => void
 }
-
-const fieldCardStyle: CSSProperties = { border: '1px solid #EEF0F3', borderRadius: 12, padding: 15 }
-const fieldLabelStyle: CSSProperties = { fontSize: 12, fontWeight: 600, color: '#9AA4B2', marginBottom: 6 }
-const valueStyle: CSSProperties = { fontSize: 14, color: '#1B2530', fontWeight: 600, wordBreak: 'break-word' }
-const monoStyle: CSSProperties = { fontFamily: "'JetBrains Mono',monospace", fontSize: 12.5, fontWeight: 500 }
 
 /** Friendlier labels for known keys; everything else is humanized from snake_case. */
 const LABELS: Record<string, string> = {
@@ -118,32 +113,20 @@ function chipLabel(item: unknown): string {
 
 function ReadOnlyCard({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div style={fieldCardStyle}>
-      <div style={fieldLabelStyle}>{label}</div>
-      <div style={{ ...valueStyle, paddingTop: 3 }}>{children}</div>
+    <div className="pv-field-card">
+      <div className="pv-field-label">{label}</div>
+      <div className="pv-field-value">{children}</div>
     </div>
   )
 }
 
 function ChipCard({ label, items, mono }: { label: string; items: unknown[]; mono?: boolean }) {
   return (
-    <div style={{ ...fieldCardStyle, marginTop: 14 }}>
-      <div style={fieldLabelStyle}>{`${label} (${items.length})`}</div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, paddingTop: 4 }}>
+    <div className="pv-field-card pv-card-spaced">
+      <div className="pv-field-label">{`${label} (${items.length})`}</div>
+      <div className="pv-chip-row">
         {items.map((it, i) => (
-          <span
-            key={i}
-            style={{
-              fontSize: mono ? 11.5 : 12.5,
-              fontWeight: 600,
-              fontFamily: mono ? "'JetBrains Mono',monospace" : undefined,
-              color: '#3A4452',
-              background: '#F4F5F7',
-              border: '1px solid #E4E7EC',
-              borderRadius: 7,
-              padding: '4px 10px',
-            }}
-          >
+          <span key={i} className={mono ? 'pv-chip pv-chip-mono' : 'pv-chip'}>
             {chipLabel(it)}
           </span>
         ))}
@@ -181,9 +164,9 @@ export default function ProfileView({ userName, userEmail, hostShort, profile, o
   })
 
   return (
-    <div className="tss" style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: 32 }}>
-      <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 18 }}>
+    <div className="tss pv-root">
+      <div className="pv-container">
+        <div className="pv-close-row">
           <button className="sheet-close" onClick={onBack} aria-label="Close profile">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6L6 18M6 6l12 12" />
@@ -192,63 +175,36 @@ export default function ProfileView({ userName, userEmail, hostShort, profile, o
           </button>
         </div>
 
-        <div style={{ background: '#fff', border: '1px solid #E4E7EC', borderRadius: 16, overflow: 'hidden' }}>
-          <div style={{ height: 104, background: 'linear-gradient(120deg, #0E1116, var(--accent-strong) 135%)' }} />
-          <div style={{ padding: '0 28px 26px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, marginTop: -44 }}>
-              <span
-                style={{
-                  width: 92,
-                  height: 92,
-                  borderRadius: 24,
-                  background: 'linear-gradient(135deg, var(--accent), #7C5CFC)',
-                  color: '#fff',
-                  fontSize: 32,
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '4px solid #fff',
-                  boxShadow: '0 8px 24px rgba(14,17,22,.16)',
-                  flexShrink: 0,
-                }}
-              >
+        <div className="pv-card">
+          <div className="pv-banner" />
+          <div className="pv-card-body">
+            <div className="pv-header">
+              <span className="pv-avatar">
                 {initials(displayName)}
               </span>
-              <div style={{ paddingBottom: 6, minWidth: 0, flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-.02em' }}>{displayName}</div>
+              <div className="pv-header-text">
+                <div className="pv-header-name-row">
+                  <div className="pv-name">{displayName}</div>
                   {status && (
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: '.03em',
-                        textTransform: 'uppercase',
-                        color: statusActive ? '#12875A' : '#B36B00',
-                        background: statusActive ? '#E7F6EE' : '#FFF3E0',
-                        borderRadius: 6,
-                        padding: '3px 8px',
-                      }}
-                    >
+                    <span className={statusActive ? 'pv-status pv-status-active' : 'pv-status pv-status-inactive'}>
                       {prettyEnum(status)}
                     </span>
                   )}
                 </div>
-                <div style={{ fontSize: 14, color: '#7A8694' }}>{email}</div>
+                <div className="pv-email">{email}</div>
               </div>
             </div>
 
             {/* Connection (app-level, not part of the user object) */}
-            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#9AA4B2', margin: '34px 0 12px' }}>
+            <div className="pv-section-title">
               Connection
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              <div style={fieldCardStyle}>
-                <div style={fieldLabelStyle}>Authenticated cluster</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 3 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#12875A', flexShrink: 0 }} />
-                  <span style={{ ...monoStyle, color: '#3A4452', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div className="pv-grid">
+              <div className="pv-field-card">
+                <div className="pv-field-label">Authenticated cluster</div>
+                <div className="pv-cluster-row">
+                  <span className="pv-cluster-dot" />
+                  <span className="pv-mono pv-cluster-host">
                     {hostShort}
                   </span>
                 </div>
@@ -259,15 +215,15 @@ export default function ProfileView({ userName, userEmail, hostShort, profile, o
             {/* Every scalar field from the session user */}
             {scalars.length > 0 && (
               <>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#9AA4B2', margin: '24px 0 12px' }}>
+                <div className="pv-section-title pv-section-title-tight">
                   Account &amp; session
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div className="pv-grid">
                   {scalars.map(([k, v]) => {
                     const mono = /(^id$|_id$)/.test(k) || k === 'email'
                     return (
                       <ReadOnlyCard key={k} label={labelFor(k)}>
-                        <span style={mono ? monoStyle : undefined}>{formatScalar(k, v)}</span>
+                        <span className={mono ? 'pv-mono' : undefined}>{formatScalar(k, v)}</span>
                       </ReadOnlyCard>
                     )
                   })}
@@ -278,7 +234,7 @@ export default function ProfileView({ userName, userEmail, hostShort, profile, o
                       <ReadOnlyCard key={k} label={labelFor(k)}>
                         {String(o.name)}
                         {o.id != null && (
-                          <span style={{ ...monoStyle, color: '#9AA4B2', marginLeft: 8 }}>#{String(o.id)}</span>
+                          <span className="pv-mono pv-obj-id">#{String(o.id)}</span>
                         )}
                       </ReadOnlyCard>
                     ))}
@@ -295,19 +251,18 @@ export default function ProfileView({ userName, userEmail, hostShort, profile, o
             {objects
               .filter(([, o]) => typeof o.name !== 'string')
               .map(([k, o]) => (
-                <div key={k} style={{ ...fieldCardStyle, marginTop: 14 }}>
-                  <div style={fieldLabelStyle}>{labelFor(k)}</div>
-                  <pre style={{ margin: 0, ...monoStyle, color: '#3A4452', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                <div key={k} className="pv-field-card pv-card-spaced">
+                  <div className="pv-field-label">{labelFor(k)}</div>
+                  <pre className="pv-mono pv-raw-json">
                     {JSON.stringify(o, null, 2)}
                   </pre>
                 </div>
               ))}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 22 }}>
+            <div className="pv-signout-row">
               <button
-                className="menu-item danger"
+                className="menu-item danger pv-signout-btn"
                 onClick={onSignOut}
-                style={{ width: 'auto', background: '#fff', color: '#C0392B', border: '1px solid #F1C9C4', borderRadius: 10, padding: '11px 20px', fontSize: 14, fontWeight: 700 }}
               >
                 Sign out
               </button>
