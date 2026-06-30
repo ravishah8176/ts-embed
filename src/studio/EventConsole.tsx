@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import './EventConsole.scss'
 import type { LogRow, Reaction } from './constants'
 import { CATS, REACT_CHOICES, categoryOf, colorOf, fmtTime, humanize, jstr } from './constants'
 

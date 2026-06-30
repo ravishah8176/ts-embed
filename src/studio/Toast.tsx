@@ -1,3 +1,5 @@
+import './Toast.scss'
+
 export interface ToastData {
   text: string
   sub: string

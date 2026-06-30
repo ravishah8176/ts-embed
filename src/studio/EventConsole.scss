@@ -1,0 +1,56 @@
+/* Styles specific to EventConsole. Add your custom console tweaks here. */
+
+/* Scrollbars — dark surfaces */
+.tssd {
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(150, 165, 200, 0.22);
+    border-radius: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Dark icon button (export / clear / resize) */
+.ts-dark-btn {
+  display: flex;
+  align-items: center;
+  background: #161b26;
+  border: 1px solid #232a38;
+  border-radius: 7px;
+  color: #aeb6c2;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+/* Dark filter input */
+.ts-dark-input {
+  background: #161b26;
+  border: 1px solid #232a38;
+  border-radius: 7px;
+  color: #e6e9ef;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: var(--accent);
+  }
+}
+
+/* Log row hover */
+.log-row:hover {
+  background: #11161f;
+}
+
+/* Reaction chip in the react picker */
+.react-chip:hover {
+  border-color: var(--accent);
+  color: #fff;
+}

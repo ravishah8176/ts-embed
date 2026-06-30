@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from 'react'
+import './Login.scss'
 import { useAuth } from '../auth/AuthContext'
 import { embedConfig } from './config'
 

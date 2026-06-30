@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import './Studio.scss'
 import { useAuth } from '../auth/AuthContext'
 import { embedConfig } from './config'
 import {
@@ -26,7 +27,7 @@ interface TriggerMeta {
 }
 
 export default function Studio() {
-  const { username, displayName, logout } = useAuth()
+  const { username, displayName, profile, logout } = useAuth()
 
   // ── core view state ──
   const [embedType, setEmbedType] = useState<EmbedType>('app')
@@ -64,17 +65,13 @@ export default function Studio() {
   reactionsRef.current = reactions
   const pausedRef = useRef(paused)
   pausedRef.current = paused
-  // Track manual profile edits so a late-arriving session value doesn't clobber them.
-  const nameEditedRef = useRef(false)
-  const emailEditedRef = useRef(false)
-
-  // Show the session's full display name as soon as it's available (it may not be
-  // present on the very first render after a page reload).
+  // Mirror the session's full display name / username into the profile as soon
+  // as they're available (they may not be on the first render after a reload).
   useEffect(() => {
-    if (displayName && !nameEditedRef.current) setUserName(displayName)
+    if (displayName) setUserName(displayName)
   }, [displayName])
   useEffect(() => {
-    if (username && !emailEditedRef.current) setUserEmail(username)
+    if (username) setUserEmail(username)
   }, [username])
 
   const hostShort = useMemo(() => embedConfig.host.replace(/^https?:\/\//, ''), [])
@@ -322,14 +319,7 @@ export default function Studio() {
             userName={userName}
             userEmail={userEmail}
             hostShort={hostShort}
-            onNameChange={(v) => {
-              nameEditedRef.current = true
-              setUserName(v)
-            }}
-            onEmailChange={(v) => {
-              emailEditedRef.current = true
-              setUserEmail(v)
-            }}
+            profile={profile}
             onBack={() => setView('workspace')}
             onSignOut={onSignOut}
           />

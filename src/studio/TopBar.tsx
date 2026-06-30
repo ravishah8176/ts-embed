@@ -1,3 +1,4 @@
+import './TopBar.scss'
 import type { EmbedType } from './constants'
 import { initials } from './constants'
 

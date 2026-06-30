@@ -6,10 +6,14 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 const SESSION_COOKIE = 'ts_app_session'
 const TOKEN_VALIDITY_SECS = 30000
 
+/** The full raw user object as returned by the session-user endpoint. */
+type SessionUser = Record<string, unknown>
+
 interface Session {
   username: string
   password: string
   displayName: string
+  profile: SessionUser
 }
 
 /**
@@ -45,16 +49,26 @@ function thoughtSpotAuthEndpoints(env: Record<string, string>): Plugin {
     return { ok: true as const, token: data.token }
   }
 
-  // Look up the user's display name (falls back to username on any failure).
-  async function fetchDisplayName(token: string, username: string) {
+  // Look up the current session user and return the FULL raw object (so the
+  // client can surface every available field) plus a convenience display name.
+  // Falls back to username-only defaults on any failure.
+  async function fetchUserProfile(
+    token: string,
+    username: string,
+  ): Promise<{ displayName: string; profile: SessionUser }> {
     try {
       const resp = await fetch(`${host}/api/rest/2.0/auth/session/user`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      const data = (await resp.json().catch(() => ({}))) as { display_name?: string }
-      return data.display_name || username
+      const data = (await resp.json().catch(() => ({}))) as SessionUser
+      if (!resp.ok || !data || typeof data !== 'object') {
+        return { displayName: username, profile: {} }
+      }
+      const displayName =
+        typeof data.display_name === 'string' && data.display_name ? data.display_name : username
+      return { displayName, profile: data }
     } catch {
-      return username
+      return { displayName: username, profile: {} }
     }
   }
 
@@ -106,11 +120,11 @@ function thoughtSpotAuthEndpoints(env: Record<string, string>): Plugin {
         if (!result.ok) {
           return json(res, 401, { error: 'Invalid ThoughtSpot credentials' })
         }
-        const displayName = await fetchDisplayName(result.token, username)
+        const { displayName, profile } = await fetchUserProfile(result.token, username)
         const sid = randomUUID()
-        sessions.set(sid, { username, password, displayName })
+        sessions.set(sid, { username, password, displayName, profile })
         res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${sid}; HttpOnly; SameSite=Lax; Path=/`)
-        return json(res, 200, { username, displayName })
+        return json(res, 200, { username, displayName, profile })
       })
 
       server.middlewares.use('/api/token', async (req, res) => {
@@ -135,6 +149,7 @@ function thoughtSpotAuthEndpoints(env: Record<string, string>): Plugin {
         return json(res, 200, {
           username: session?.username ?? null,
           displayName: session?.displayName ?? null,
+          profile: session?.profile ?? null,
         })
       })
 

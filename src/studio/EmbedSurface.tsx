@@ -1,4 +1,5 @@
 import type { Ref } from 'react'
+import './EmbedSurface.scss'
 import type { EmbedType } from './constants'
 import { EMBED_CLASS_NAME } from './constants'
 import type { EmbedStatus } from './useStudioEmbed'

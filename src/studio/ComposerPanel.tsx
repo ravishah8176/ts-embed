@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import './ComposerPanel.scss'
 import type { EmbedType } from './constants'
 import {
   CAT_ORDER,
