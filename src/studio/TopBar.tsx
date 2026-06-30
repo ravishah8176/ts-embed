@@ -49,21 +49,24 @@ export default function TopBar({
         </div>
       </button>
 
-      <div className="tb-tabs">
-        {TAB_DEFS.map((t) => {
-          const on = activeTab === t.id
-          return (
-            <button
-              key={t.id}
-              onClick={() => onSwitchEmbed(t.id)}
-              className={'tb-tab' + (on ? ' tb-tab-on' : '')}
-            >
-              <span className="tb-tab-dot" style={{ ['--tb-dot' as never]: t.dot }} />
-              {t.label}
-            </button>
-          )
-        })}
-      </div>
+      {/* Hidden on the landing page (no tab active) — the Welcome screen drives selection. */}
+      {activeTab !== null && (
+        <div className="tb-tabs">
+          {TAB_DEFS.map((t) => {
+            const on = activeTab === t.id
+            return (
+              <button
+                key={t.id}
+                onClick={() => onSwitchEmbed(t.id)}
+                className={'tb-tab' + (on ? ' tb-tab-on' : '')}
+              >
+                <span className="tb-tab-dot" style={{ ['--tb-dot' as never]: t.dot }} />
+                {t.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       <div className="tb-spacer" />
 
