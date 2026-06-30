@@ -87,6 +87,7 @@ export default function ComposerPanel(props: Props) {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
+        transition: 'flex-basis .22s ease',
       }}
     >
       {collapsed ? (

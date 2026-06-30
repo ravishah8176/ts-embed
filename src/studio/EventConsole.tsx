@@ -70,6 +70,7 @@ export default function EventConsole(props: Props) {
         display: 'flex',
         flexDirection: 'column',
         height: consoleH,
+        transition: 'height .22s ease',
       }}
     >
       {/* Header */}
