@@ -1,30 +1,26 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { init, AuthType } from '@thoughtspot/visual-embed-sdk'
-import Navbar from './components/Navbar'
+import { AuthProvider } from './auth/AuthContext'
+import ProtectedLayout from './components/ProtectedLayout'
 import Home from './pages/Home'
 import FullApp from './pages/FullApp'
 import Spotter from './pages/Spotter'
+import Login from './pages/Login'
 import './App.css'
-
-init({
-  thoughtSpotHost: import.meta.env.VITE_THOUGHTSPOT_HOST ?? '',
-  authType: AuthType.None,
-})
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="app-layout">
-        <Navbar />
-        <main className="app-main">
-          <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route element={<ProtectedLayout />}>
             <Route index element={<Home />} />
             <Route path="/full-app" element={<FullApp />} />
             <Route path="/spotter" element={<Spotter />} />
-          </Routes>
-        </main>
-      </div>
-    </BrowserRouter>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

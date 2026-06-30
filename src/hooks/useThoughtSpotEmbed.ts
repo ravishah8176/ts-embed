@@ -26,7 +26,7 @@ export function useThoughtSpotEmbed<T extends AnyTsEmbed>(
       console.warn('[ThoughtSpot] EmbedEvent.Error (non-fatal):', payload)
     })
     embed.on(EmbedEvent.AuthExpire, () => {
-      setErrorMsg('Authentication expired. Check credentials in .env.')
+      setErrorMsg('Authentication expired. Please sign in again.')
       setStatus('error')
     })
 

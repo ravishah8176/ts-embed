@@ -28,9 +28,6 @@ export default function Home() {
           React application using the{' '}
           <code>@thoughtspot/visual-embed-sdk</code>.
         </p>
-        <p className="home-note">
-          ⚙️ Set <code>VITE_THOUGHTSPOT_HOST, VITE_TS_USERNAME, VITE_TS_PASSWORD</code> in the env file
-        </p>
       </header>
 
       <div className="home-grid">

@@ -57,3 +57,9 @@ Thumbs.db
 .turbo/
 .vercel/
 *.tsbuildinfo
+certs/
+agents_knowledge_base/
+
+# Local reference clones of the ThoughtSpot SDKs (not part of this app)
+rest-api-sdk/
+visual-embed-sdk/

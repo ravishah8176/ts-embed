@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 import './Navbar.css'
 
 const links = [
@@ -8,6 +9,8 @@ const links = [
 ]
 
 export default function Navbar() {
+  const { username, displayName, logout } = useAuth()
+
   return (
     <nav className="navbar">
       <span className="navbar-brand">ThoughtSpot Embed</span>
@@ -24,6 +27,14 @@ export default function Navbar() {
           </li>
         ))}
       </ul>
+      <div className="navbar-user">
+        {(displayName ?? username) && (
+          <span className="navbar-username">{displayName ?? username}</span>
+        )}
+        <button type="button" className="navbar-logout" onClick={logout}>
+          Sign out
+        </button>
+      </div>
     </nav>
   )
 }
