@@ -183,15 +183,14 @@ export default function ProfileView({ userName, userEmail, hostShort, profile, o
   return (
     <div className="tss" style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: 32 }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        <button
-          onClick={onBack}
-          style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'transparent', border: 'none', color: '#5A6573', fontSize: 13, fontWeight: 600, padding: '6px 0', marginBottom: 18 }}
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          Back to workspace
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 18 }}>
+          <button className="sheet-close" onClick={onBack} aria-label="Close profile">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+            Close
+          </button>
+        </div>
 
         <div style={{ background: '#fff', border: '1px solid #E4E7EC', borderRadius: 16, overflow: 'hidden' }}>
           <div style={{ height: 104, background: 'linear-gradient(120deg, #0E1116, var(--accent-strong) 135%)' }} />
@@ -241,7 +240,7 @@ export default function ProfileView({ userName, userEmail, hostShort, profile, o
             </div>
 
             {/* Connection (app-level, not part of the user object) */}
-            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#9AA4B2', margin: '24px 0 12px' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#9AA4B2', margin: '34px 0 12px' }}>
               Connection
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>

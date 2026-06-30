@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv, type Plugin } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { randomUUID } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
@@ -12,6 +12,7 @@ type SessionUser = Record<string, unknown>
 interface Session {
   username: string
   password: string
+  host: string
   displayName: string
   profile: SessionUser
 }
@@ -19,40 +20,46 @@ interface Session {
 /**
  * Dev-only auth backend for cookieless trusted auth.
  *
- * - POST /api/login   { username, password } -> validates against ThoughtSpot,
- *                      creates a first-party server session, sets an HttpOnly cookie.
- * - GET  /api/token   -> derives the user from the session (NEVER from the browser)
- *                        and mints a short-lived ThoughtSpot token. Used by getAuthToken.
- * - GET  /api/me      -> returns the logged-in username (or null) so the SPA can restore state.
+ * - POST /api/login   { username, password, host } -> validates against the given
+ *                      ThoughtSpot host, creates a first-party server session, sets
+ *                      an HttpOnly cookie. The host comes from the login form.
+ * - GET  /api/token   -> derives the user + host from the session (NEVER from the
+ *                        browser) and mints a short-lived token. Used by getAuthToken.
+ * - GET  /api/me      -> returns the logged-in username/host (or null) for SPA restore.
  * - POST /api/logout  -> clears the session.
  *
  * Credentials live only in this Node process — never in the browser bundle.
  */
-function thoughtSpotAuthEndpoints(env: Record<string, string>): Plugin {
-  const host = env.VITE_THOUGHTSPOT_HOST
+function thoughtSpotAuthEndpoints(): Plugin {
   const sessions = new Map<string, Session>()
 
-  async function mintToken(username: string, password: string) {
-    const resp = await fetch(`${host}/api/rest/2.0/auth/token/full`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username,
-        password,
-        validity_time_in_sec: TOKEN_VALIDITY_SECS,
-      }),
-    })
-    const data = (await resp.json().catch(() => ({}))) as { token?: string }
-    if (!resp.ok || !data.token) {
-      return { ok: false as const, status: resp.status || 500, error: data }
+  async function mintToken(host: string, username: string, password: string) {
+    try {
+      const resp = await fetch(`${host}/api/rest/2.0/auth/token/full`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          password,
+          validity_time_in_sec: TOKEN_VALIDITY_SECS,
+        }),
+      })
+      const data = (await resp.json().catch(() => ({}))) as { token?: string }
+      if (!resp.ok || !data.token) {
+        return { ok: false as const, status: resp.status || 500, error: data }
+      }
+      return { ok: true as const, token: data.token }
+    } catch (err) {
+      // Bad host / connection refused / TLS error — don't crash the dev server.
+      return { ok: false as const, status: 502, error: String(err) }
     }
-    return { ok: true as const, token: data.token }
   }
 
   // Look up the current session user and return the FULL raw object (so the
   // client can surface every available field) plus a convenience display name.
   // Falls back to username-only defaults on any failure.
   async function fetchUserProfile(
+    host: string,
     token: string,
     username: string,
   ): Promise<{ displayName: string; profile: SessionUser }> {
@@ -70,6 +77,14 @@ function thoughtSpotAuthEndpoints(env: Record<string, string>): Plugin {
     } catch {
       return { displayName: username, profile: {} }
     }
+  }
+
+  // Normalize a user-supplied host: must be http(s), no trailing slash.
+  function normalizeHost(raw: unknown): string | null {
+    if (typeof raw !== 'string') return null
+    const h = raw.trim().replace(/\/+$/, '')
+    if (!/^https?:\/\/.+/i.test(h)) return null
+    return h
   }
 
   function readJsonBody(req: IncomingMessage): Promise<Record<string, unknown>> {
@@ -112,19 +127,24 @@ function thoughtSpotAuthEndpoints(env: Record<string, string>): Plugin {
 
       server.middlewares.use('/api/login', async (req, res) => {
         if (req.method !== 'POST') return json(res, 405, { error: 'method not allowed' })
-        const { username, password } = await readJsonBody(req)
+        const body = await readJsonBody(req)
+        const { username, password } = body
+        const host = normalizeHost(body.host)
         if (typeof username !== 'string' || typeof password !== 'string' || !username || !password) {
           return json(res, 400, { error: 'username and password are required' })
         }
-        const result = await mintToken(username, password)
-        if (!result.ok) {
-          return json(res, 401, { error: 'Invalid ThoughtSpot credentials' })
+        if (!host) {
+          return json(res, 400, { error: 'A valid ThoughtSpot host URL (https://…) is required' })
         }
-        const { displayName, profile } = await fetchUserProfile(result.token, username)
+        const result = await mintToken(host, username, password)
+        if (!result.ok) {
+          return json(res, 401, { error: 'Invalid ThoughtSpot credentials or host' })
+        }
+        const { displayName, profile } = await fetchUserProfile(host, result.token, username)
         const sid = randomUUID()
-        sessions.set(sid, { username, password, displayName, profile })
+        sessions.set(sid, { username, password, host, displayName, profile })
         res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${sid}; HttpOnly; SameSite=Lax; Path=/`)
-        return json(res, 200, { username, displayName, profile })
+        return json(res, 200, { username, displayName, profile, host })
       })
 
       server.middlewares.use('/api/token', async (req, res) => {
@@ -134,7 +154,7 @@ function thoughtSpotAuthEndpoints(env: Record<string, string>): Plugin {
           res.statusCode = 401
           return res.end('not authenticated')
         }
-        const result = await mintToken(session.username, session.password)
+        const result = await mintToken(session.host, session.username, session.password)
         if (!result.ok) {
           res.statusCode = 401
           return res.end('token mint failed')
@@ -150,6 +170,7 @@ function thoughtSpotAuthEndpoints(env: Record<string, string>): Plugin {
           username: session?.username ?? null,
           displayName: session?.displayName ?? null,
           profile: session?.profile ?? null,
+          host: session?.host ?? null,
         })
       })
 
@@ -163,13 +184,13 @@ function thoughtSpotAuthEndpoints(env: Record<string, string>): Plugin {
   }
 }
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  return {
-    plugins: [react(), thoughtSpotAuthEndpoints(env)],
-    server: {
-      host: '10.79.142.203',
-      port: 3030,
-    },
-  }
+export default defineConfig({
+  plugins: [react(), thoughtSpotAuthEndpoints()],
+  server: {
+    // Bind all interfaces so both localhost:3030 and the LAN IP work.
+    host: true,
+    port: 3030,
+    // Accept requests for any Host header (e.g. tunnels, custom domains, LAN IPs).
+    allowedHosts: true,
+  },
 })

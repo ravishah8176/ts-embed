@@ -1,3 +1,49 @@
 /* Styles specific to Studio.
    This component currently styles itself with inline styles + shared classes
    from studio.scss. Add your custom Studio overrides here. */
+
+/* ── Profile slide-over sheet ───────────────────────────────────────────
+   The profile opens as a sheet that slides in from the right, over the
+   workspace. The workspace stays mounted (so the live embed is never torn
+   down) and is dimmed behind a backdrop. Click the backdrop or Back to
+   dismiss. */
+
+.profile-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(14, 17, 22, 0.38);
+  animation: profileBackdropIn 0.18s ease-out;
+}
+
+.profile-sheet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 51;
+  width: min(760px, 92%);
+  background: #f4f5f7;
+  box-shadow: -12px 0 40px rgba(14, 17, 22, 0.18);
+  display: flex;
+  flex-direction: column;
+  animation: profileSheetIn 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes profileBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes profileSheetIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './Studio.scss'
 import { useAuth } from '../auth/AuthContext'
-import { embedConfig } from './config'
 import {
   SAMPLE,
   allowedHostEvents,
@@ -27,7 +26,7 @@ interface TriggerMeta {
 }
 
 export default function Studio() {
-  const { username, displayName, profile, logout } = useAuth()
+  const { username, displayName, profile, host, logout } = useAuth()
 
   // ── core view state ──
   const [embedType, setEmbedType] = useState<EmbedType>('app')
@@ -74,7 +73,7 @@ export default function Studio() {
     if (username) setUserEmail(username)
   }, [username])
 
-  const hostShort = useMemo(() => embedConfig.host.replace(/^https?:\/\//, ''), [])
+  const hostShort = useMemo(() => (host ?? '').replace(/^https?:\/\//, ''), [host])
   const allowed = allowedHostEvents(embedType)
   const effectiveKey = allowed.includes(composerKey) ? composerKey : allowed[0]
   const draft = paramDrafts[effectiveKey] ?? jstr(SAMPLE[effectiveKey] ?? {})
@@ -263,7 +262,13 @@ export default function Studio() {
           onSignOut={onSignOut}
         />
 
-        {view === 'workspace' ? (
+        {/*
+          The workspace stays mounted at all times so the live embed iframe is
+          never torn down. The profile renders as an overlay *above* it — going
+          back simply hides the overlay, leaving the embed exactly as it was
+          (no re-render, no infinite loading spinner).
+        */}
+        <div style={{ flex: 1, minHeight: 0, position: 'relative', display: 'flex' }}>
           <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
             <ComposerPanel
               collapsed={panelCollapsed}
@@ -314,16 +319,27 @@ export default function Studio() {
               />
             </div>
           </div>
-        ) : (
-          <ProfileView
-            userName={userName}
-            userEmail={userEmail}
-            hostShort={hostShort}
-            profile={profile}
-            onBack={() => setView('workspace')}
-            onSignOut={onSignOut}
-          />
-        )}
+
+          {view === 'profile' && (
+            <>
+              <div
+                className="profile-backdrop"
+                onClick={() => setView('workspace')}
+                aria-hidden
+              />
+              <div className="profile-sheet" role="dialog" aria-label="Profile">
+                <ProfileView
+                  userName={userName}
+                  userEmail={userEmail}
+                  hostShort={hostShort}
+                  profile={profile}
+                  onBack={() => setView('workspace')}
+                  onSignOut={onSignOut}
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <Toast toast={toast} />
