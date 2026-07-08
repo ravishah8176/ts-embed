@@ -3,6 +3,7 @@ import { EmbedEvent, HostEvent } from '@thoughtspot/visual-embed-sdk'
 import type { EmbedType } from './constants'
 import { EMBED_VALUE_TO_KEY } from './constants'
 import { EMBED_FACTORIES, type AnyEmbed } from './embeds'
+import { onAuthFailure } from '../thoughtspot/init'
 
 export type EmbedStatus = 'loading' | 'ready' | 'error'
 
@@ -53,11 +54,16 @@ export function useStudioEmbed(embedType: EmbedType | null, onEvent: (e: EmbedEv
     embed.on(EmbedEvent.Error, (payload) => {
       console.warn('[Studio] EmbedEvent.Error (non-fatal):', payload)
     })
-    embed.on(EmbedEvent.AuthExpire, () => setStatus('error'))
+    // EmbedEvent.AuthExpire is intentionally NOT handled here: in cookieless
+    // auto-login mode the SDK silently refreshes the token on it, so treating it
+    // as an error would clobber a healthy (self-healing) session. Only a genuine,
+    // unrecoverable auth failure (surfaced via onAuthFailure) shows the overlay.
+    const unsubscribeAuthFailure = onAuthFailure(() => setStatus('error'))
 
     embed.render()
 
     return () => {
+      unsubscribeAuthFailure()
       try {
         embed.destroy()
       } catch {
