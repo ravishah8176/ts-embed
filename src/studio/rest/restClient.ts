@@ -5,8 +5,8 @@ import { ThoughtSpotRestApi, createBearerAuthenticationConfig } from '@thoughtsp
  * authenticated with the SAME cookieless session the embeds use.
  *
  * The token provider hits our first-party `/api/token` endpoint — the dev-server
- * mints a short-lived full-access token from the server session (see
- * `vite.config.ts`). The SDK then sends it as `Authorization: Bearer <token>`
+ * returns the short-lived full-access token held in the HttpOnly session cookie
+ * (see `vite.config.ts`). The SDK then sends it as `Authorization: Bearer <token>`
  * on every request.
  *
  * NOTE: unlike the iframe embeds (which talk to the cluster over postMessage),

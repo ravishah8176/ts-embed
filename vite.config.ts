@@ -1,38 +1,41 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
-import { randomUUID } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
-const SESSION_COOKIE = 'ts_app_session'
+const AUTH_COOKIE = 'ts_app_auth'
 const TOKEN_VALIDITY_SECS = 30000
 
 /** The full raw user object as returned by the session-user endpoint. */
 type SessionUser = Record<string, unknown>
 
-interface Session {
-  username: string
-  password: string
+/** What we stash in the HttpOnly cookie — a ThoughtSpot token + the host it's for.
+ *  Deliberately NO password: credentials are used once at login, never stored. */
+interface AuthCookie {
+  token: string
   host: string
-  displayName: string
-  profile: SessionUser
 }
 
 /**
  * Dev-only auth backend for cookieless trusted auth.
  *
- * - POST /api/login   { username, password, host } -> validates against the given
- *                      ThoughtSpot host, creates a first-party server session, sets
- *                      an HttpOnly cookie. The host comes from the login form.
- * - GET  /api/token   -> derives the user + host from the session (NEVER from the
- *                        browser) and mints a short-lived token. Used by getAuthToken.
- * - GET  /api/me      -> returns the logged-in username/host (or null) for SPA restore.
- * - POST /api/logout  -> clears the session.
+ * Stateless: there is no server-side session store. At login we mint a
+ * ThoughtSpot token and keep it (plus its host) in an HttpOnly cookie the
+ * browser can't read from JS. Because nothing lives in process memory, the
+ * session survives a dev-server restart and works across multiple LAN/tunnel
+ * users. The password is used once to mint the token and is never persisted.
  *
- * Credentials live only in this Node process — never in the browser bundle.
+ * - POST /api/login   { username, password, host } -> mints a token against the
+ *                      given host, stores {token, host} in an HttpOnly cookie.
+ * - GET  /api/token   -> returns the token from the cookie. Used by getAuthToken.
+ * - GET  /api/me      -> derives the user from the cookie's token (calls TS) for
+ *                        SPA restore; returns nulls once the token is gone/expired.
+ * - POST /api/logout  -> clears the cookie.
+ *
+ * Trade-off: the session lasts only as long as the token (~TOKEN_VALIDITY_SECS);
+ * after that the user logs in again. No password is stored to enable silent
+ * refresh — that is the deliberate security choice.
  */
 function thoughtSpotAuthEndpoints(): Plugin {
-  const sessions = new Map<string, Session>()
-
   async function mintToken(host: string, username: string, password: string) {
     try {
       const resp = await fetch(`${host}/api/rest/2.0/auth/token/full`, {
@@ -55,27 +58,25 @@ function thoughtSpotAuthEndpoints(): Plugin {
     }
   }
 
-  // Look up the current session user and return the FULL raw object (so the
-  // client can surface every available field) plus a convenience display name.
-  // Falls back to username-only defaults on any failure.
-  async function fetchUserProfile(
+  // Resolve the current user from a token by calling the session-user endpoint.
+  // Returns the FULL raw object (so the client can surface every field) plus the
+  // login name and a display name. Returns null when the token is invalid/expired.
+  async function fetchSessionUser(
     host: string,
     token: string,
-    username: string,
-  ): Promise<{ displayName: string; profile: SessionUser }> {
+  ): Promise<{ username: string; displayName: string; profile: SessionUser } | null> {
     try {
       const resp = await fetch(`${host}/api/rest/2.0/auth/session/user`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = (await resp.json().catch(() => ({}))) as SessionUser
-      if (!resp.ok || !data || typeof data !== 'object') {
-        return { displayName: username, profile: {} }
-      }
+      if (!resp.ok || !data || typeof data !== 'object') return null
+      const username = typeof data.name === 'string' ? data.name : ''
       const displayName =
         typeof data.display_name === 'string' && data.display_name ? data.display_name : username
-      return { displayName, profile: data }
+      return { username, displayName, profile: data }
     } catch {
-      return { displayName: username, profile: {} }
+      return null
     }
   }
 
@@ -113,6 +114,32 @@ function thoughtSpotAuthEndpoints(): Plugin {
     return undefined
   }
 
+  // The cookie holds base64url(JSON({token, host})) — opaque to the browser.
+  function encodeAuth(auth: AuthCookie): string {
+    return Buffer.from(JSON.stringify(auth), 'utf8').toString('base64url')
+  }
+
+  function decodeAuth(req: IncomingMessage): AuthCookie | null {
+    const raw = getCookie(req, AUTH_COOKIE)
+    if (!raw) return null
+    try {
+      const parsed = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8'))
+      if (parsed && typeof parsed.token === 'string' && typeof parsed.host === 'string') {
+        return parsed as AuthCookie
+      }
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  function setAuthCookie(res: ServerResponse, auth: AuthCookie) {
+    res.setHeader(
+      'Set-Cookie',
+      `${AUTH_COOKIE}=${encodeAuth(auth)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${TOKEN_VALIDITY_SECS}`,
+    )
+  }
+
   function json(res: ServerResponse, status: number, payload: unknown) {
     res.statusCode = status
     res.setHeader('Content-Type', 'application/json')
@@ -140,44 +167,41 @@ function thoughtSpotAuthEndpoints(): Plugin {
         if (!result.ok) {
           return json(res, 401, { error: 'Invalid ThoughtSpot credentials or host' })
         }
-        const { displayName, profile } = await fetchUserProfile(host, result.token, username)
-        const sid = randomUUID()
-        sessions.set(sid, { username, password, host, displayName, profile })
-        res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${sid}; HttpOnly; SameSite=Lax; Path=/`)
-        return json(res, 200, { username, displayName, profile, host })
-      })
-
-      server.middlewares.use('/api/token', async (req, res) => {
-        const sid = getCookie(req, SESSION_COOKIE)
-        const session = sid ? sessions.get(sid) : undefined
-        if (!session) {
-          res.statusCode = 401
-          return res.end('not authenticated')
-        }
-        const result = await mintToken(session.host, session.username, session.password)
-        if (!result.ok) {
-          res.statusCode = 401
-          return res.end('token mint failed')
-        }
-        res.setHeader('Content-Type', 'text/plain')
-        res.end(result.token)
-      })
-
-      server.middlewares.use('/api/me', (req, res) => {
-        const sid = getCookie(req, SESSION_COOKIE)
-        const session = sid ? sessions.get(sid) : undefined
+        // Store only {token, host} in the cookie — the password is discarded here.
+        setAuthCookie(res, { token: result.token, host })
+        const user = await fetchSessionUser(host, result.token)
         return json(res, 200, {
-          username: session?.username ?? null,
-          displayName: session?.displayName ?? null,
-          profile: session?.profile ?? null,
-          host: session?.host ?? null,
+          username: user?.username || username,
+          displayName: user?.displayName || username,
+          profile: user?.profile ?? {},
+          host,
         })
       })
 
-      server.middlewares.use('/api/logout', (req, res) => {
-        const sid = getCookie(req, SESSION_COOKIE)
-        if (sid) sessions.delete(sid)
-        res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`)
+      server.middlewares.use('/api/token', (req, res) => {
+        const auth = decodeAuth(req)
+        if (!auth) {
+          res.statusCode = 401
+          return res.end('not authenticated')
+        }
+        res.setHeader('Content-Type', 'text/plain')
+        res.end(auth.token)
+      })
+
+      server.middlewares.use('/api/me', async (req, res) => {
+        const auth = decodeAuth(req)
+        const user = auth ? await fetchSessionUser(auth.host, auth.token) : null
+        // Token gone/expired -> report logged-out so the SPA shows the login screen.
+        return json(res, 200, {
+          username: user?.username ?? null,
+          displayName: user?.displayName ?? null,
+          profile: user?.profile ?? null,
+          host: user ? auth?.host ?? null : null,
+        })
+      })
+
+      server.middlewares.use('/api/logout', (_req, res) => {
+        res.setHeader('Set-Cookie', `${AUTH_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`)
         return json(res, 200, { ok: true })
       })
     },
