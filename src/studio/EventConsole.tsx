@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import './EventConsole.scss'
 import type { LogRow, Reaction } from './constants'
-import { CATS, REACT_CHOICES, categoryOf, colorOf, fmtTime, humanize, jstr } from './constants'
+import { REACT_CHOICES, fmtTime, humanize, jstr } from './constants'
 
 export type ConsoleState = 'collapsed' | 'short' | 'normal' | 'tall'
 
@@ -25,7 +25,7 @@ interface Props {
   setConsoleEl: (el: HTMLDivElement | null) => void
 }
 
-const CONSOLE_HEIGHTS: Record<ConsoleState, number> = { collapsed: 43, short: 150, normal: 248, tall: 372 }
+const CONSOLE_WIDTHS: Record<ConsoleState, number> = { collapsed: 44, short: 300, normal: 380, tall: 520 }
 
 export default function EventConsole(props: Props) {
   const {
@@ -49,7 +49,7 @@ export default function EventConsole(props: Props) {
   } = props
 
   const collapsed = consoleState === 'collapsed'
-  const consoleH = CONSOLE_HEIGHTS[consoleState]
+  const consoleW = CONSOLE_WIDTHS[consoleState]
 
   const rows = useMemo(() => {
     const q = logFilter.trim().toLowerCase()
@@ -65,8 +65,17 @@ export default function EventConsole(props: Props) {
   return (
     <section
       className="ec-console"
-      style={{ height: consoleH }}
+      style={{ width: consoleW }}
     >
+      {collapsed ? (
+        <button className="ec-rail" onClick={onCycleConsole} title="Expand event log">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          <span className="ec-rail-text">Embed event log · {log.length}</span>
+        </button>
+      ) : (
+      <>
       {/* Header */}
       <div className="ec-header">
         <div className="ec-header-left">
@@ -120,9 +129,10 @@ export default function EventConsole(props: Props) {
             </button>
           </>
         )}
-        <button className="ts-dark-btn ec-icon-btn" onClick={onCycleConsole} title="Resize / collapse log">
+        <button className="ts-dark-btn ec-icon-btn" onClick={onCycleConsole} title="Collapse log">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points={consoleState === 'tall' ? '6 9 12 15 18 9' : '6 15 12 9 18 15'} />
+            <polyline points="13 17 18 12 13 7" />
+            <polyline points="6 17 11 12 6 7" />
           </svg>
         </button>
       </div>
@@ -170,8 +180,7 @@ export default function EventConsole(props: Props) {
             rows.map((r) => {
               const isEmbed = r.dir === 'embed'
               const pre = isEmbed ? 'EmbedEvent.' : 'HostEvent.'
-              const color = colorOf(r.name)
-              const catLabel = CATS[categoryOf(r.name)].label
+              const color = isEmbed ? '#34D399' : '#7AA0FF'
               const expanded = expandedId === r.id
               const reactOpen = reactPickerFor === r.id
               return (
@@ -205,7 +214,6 @@ export default function EventConsole(props: Props) {
                       <span className="ec-row-via">via {r.viaReaction}</span>
                     )}
                     <div className="ec-spacer" />
-                    <span className="ec-row-cat">{catLabel}</span>
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
@@ -255,6 +263,8 @@ export default function EventConsole(props: Props) {
             })
           )}
         </div>
+      )}
+      </>
       )}
     </section>
   )

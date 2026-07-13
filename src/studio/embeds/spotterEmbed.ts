@@ -1,5 +1,4 @@
 import { SpotterEmbed } from '@thoughtspot/visual-embed-sdk'
-import { embedConfig } from '../config'
 
 /**
  * Spotter embed (SpotterEmbed) — conversational AI.
@@ -12,13 +11,17 @@ export function createSpotterEmbed(container: HTMLDivElement): SpotterEmbed {
     frameParams: { width: '100%', height: '100%' },
 
     // ───────── customize from here ─────────
-    worksheetId: embedConfig.worksheetId,
+    worksheetId: '3c020c5e-1c44-4ceb-a2d6-23ba1c53a3f4',
     enablePastConversationsSidebar: false,
     updatedSpotterChatPrompt: true,
     spotterSidebarConfig: {
       enablePastConversationsSidebar: true,
       spotterSidebarTitle: 'TS Assistant',
     },
+    spotterShareConversationConfig: {
+      enableShareConversation: true,
+      spotterShareLabel: 'Share this conversation',
+    }
     // ───────────────────────────────────────
   })
 }

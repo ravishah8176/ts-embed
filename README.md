@@ -29,8 +29,13 @@ Copy `.env.example` to `.env` and set values as needed (all optional — default
 ## Scripts
 
 - `npm run dev` — start the dev server
+- `npm run dev:clean` — clear the Vite cache, then start dev (`vite --force`)
+- `npm run dev:fresh` — `npm install`, clear the Vite cache, then start dev (use after an SDK bump)
 - `npm run build` — type-check and build for production
+- `npm run build:clean` — clear Vite cache, `dist`, and `*.tsbuildinfo`, then build
 - `npm run gen:rest-catalog` — regenerate the REST method catalog (see below)
+
+Cache-clearing scripts use Unix `rm -rf` / `find` — macOS/Linux only.
 
 ## Generating the REST catalog
 

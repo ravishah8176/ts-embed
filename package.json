@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:clean": "rm -rf node_modules/.vite && vite --force",
+    "dev:fresh": "npm install && rm -rf node_modules/.vite && vite --force",
     "build": "tsc -b && vite build",
+    "build:clean": "rm -rf node_modules/.vite dist && find . -name \"*.tsbuildinfo\" -not -path \"./node_modules/*\" -delete && npm run build",
     "preview": "vite preview",
     "gen:rest-catalog": "node scripts/gen-rest-catalog.mjs"
   },
   "dependencies": {
     "@thoughtspot/rest-api-sdk": "2.25.0",
-    "@thoughtspot/visual-embed-sdk": "1.49.3",
+    "@thoughtspot/visual-embed-sdk": "https://pkg.pr.new/@thoughtspot/visual-embed-sdk@577",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"
