@@ -1,5 +1,4 @@
 import { SpotterEmbed } from '@thoughtspot/visual-embed-sdk'
-import { embedConfig } from '../config'
 
 /**
  * Spotter embed (SpotterEmbed) — conversational AI.
@@ -19,6 +18,10 @@ export function createSpotterEmbed(container: HTMLDivElement): SpotterEmbed {
       enablePastConversationsSidebar: true,
       spotterSidebarTitle: 'TS Assistant',
     },
+    spotterShareConversationConfig: {
+      enableShareConversation: true,
+      spotterShareLabel: 'Share this conversation',
+    }
     // ───────────────────────────────────────
   })
 }
