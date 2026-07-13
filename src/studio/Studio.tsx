@@ -4,7 +4,6 @@ import { useAuth } from '../auth/AuthContext'
 import {
   SAMPLE,
   allowedHostEvents,
-  colorOf,
   jstr,
   type EmbedType,
   type StudioTab,
@@ -138,7 +137,7 @@ export default function Studio() {
     showToast(
       'HostEvent.' + key,
       meta?.viaReaction ? 'reaction · on ' + meta.viaReaction : 'embed.trigger() dispatched',
-      colorOf(key),
+      '#7c5cfc',
     )
     trigger(key, params).catch((err) => {
       console.warn('[Studio] trigger failed:', key, err)
@@ -191,8 +190,7 @@ export default function Studio() {
 
   // ── console actions ──
   function onCycleConsole() {
-    const order: ConsoleState[] = ['collapsed', 'short', 'normal', 'tall']
-    setConsoleState((s) => order[(order.indexOf(s) + 1) % order.length])
+    setConsoleState((s) => (s === 'collapsed' ? 'normal' : 'collapsed'))
   }
   function onClear() {
     setLog([])
@@ -318,29 +316,29 @@ export default function Studio() {
 
             <div className="studio-embed-col">
               <EmbedSurface embedType={embedType} status={status} containerRef={containerRef} />
-
-              <EventConsole
-                consoleState={consoleState}
-                onCycleConsole={onCycleConsole}
-                log={log}
-                logFilter={logFilter}
-                onLogFilter={setLogFilter}
-                paused={paused}
-                onPause={() => setPaused((p) => !p)}
-                onClear={onClear}
-                onExport={onExport}
-                reactions={reactions}
-                onRemoveReaction={(idx) => setReactions((rs) => rs.filter((_, i) => i !== idx))}
-                expandedId={expandedId}
-                onToggleExpand={onToggleExpand}
-                reactPickerFor={reactPickerFor}
-                onOpenReactPicker={onOpenReactPicker}
-                onAddReaction={onAddReaction}
-                setConsoleEl={(el) => {
-                  consoleElRef.current = el
-                }}
-              />
             </div>
+
+            <EventConsole
+              consoleState={consoleState}
+              onCycleConsole={onCycleConsole}
+              log={log}
+              logFilter={logFilter}
+              onLogFilter={setLogFilter}
+              paused={paused}
+              onPause={() => setPaused((p) => !p)}
+              onClear={onClear}
+              onExport={onExport}
+              reactions={reactions}
+              onRemoveReaction={(idx) => setReactions((rs) => rs.filter((_, i) => i !== idx))}
+              expandedId={expandedId}
+              onToggleExpand={onToggleExpand}
+              reactPickerFor={reactPickerFor}
+              onOpenReactPicker={onOpenReactPicker}
+              onAddReaction={onAddReaction}
+              setConsoleEl={(el) => {
+                consoleElRef.current = el
+              }}
+            />
             </>
             )}
           </div>

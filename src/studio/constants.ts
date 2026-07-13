@@ -21,37 +21,6 @@ export interface Reaction {
   hostEvent: string
 }
 
-/* ----------------------------------------------------------------------------
- * Event categorisation — ported from the Embed Studio design.
- * -------------------------------------------------------------------------- */
-
-export interface Category {
-  label: string
-  color: string
-}
-
-export const CATS: Record<string, Category> = {
-  render: { label: 'Lifecycle', color: '#10B981' },
-  auth: { label: 'Auth & Session', color: '#3B82F6' },
-  interaction: { label: 'Interaction', color: '#8B5CF6' },
-  data: { label: 'Data', color: '#06B6D4' },
-  action: { label: 'Actions & Export', color: '#F59E0B' },
-  spotter: { label: 'Spotter / AI', color: '#EC4899' },
-  system: { label: 'System', color: '#64748B' },
-  error: { label: 'Errors', color: '#EF4444' },
-}
-
-export const CAT_ORDER = [
-  'render',
-  'auth',
-  'interaction',
-  'data',
-  'action',
-  'spotter',
-  'system',
-  'error',
-] as const
-
 export const REACT_CHOICES = [
   'Reload',
   'Navigate',
@@ -85,6 +54,10 @@ export const SAMPLE: Record<string, unknown> = {
   UpdateParameters: [{ name: 'Revenue Target', value: 1500000 }],
   Search: { searchQuery: '[Revenue] [Product] top 10' },
   SpotterSearch: { query: 'What are my top products by revenue this quarter?' },
+  AskSpotter: { query: 'Show me revenue trend by month' },
+  ShareSpotterConversation: { conversationId: '<conversation-guid>' },
+  CloseSpotterShareConversation: {},
+  ExitSpotterSharedConversation: {},
   AskSage: { query: 'Show me revenue trend by month' },
   SetVisibleVizs: ['viz-revenue', 'viz-trend'],
   SetVisibleTabs: ['tab-overview', 'tab-revenue'],
@@ -118,39 +91,16 @@ export const SAMPLE: Record<string, unknown> = {
   CopyLink: {},
 }
 
-/** Host events surfaced in the composer, grouped by the embed type they apply to. */
-export const EMBED_HOST_EVENTS: Record<EmbedType, string[]> = {
-  app: [
-    'Navigate', 'Reload', 'GetPageContext', 'UpdateRuntimeFilters', 'GetFilters', 'UpdateFilters',
-    'UpdateParameters', 'GetParameters', 'SetActiveTab', 'GetTabs', 'AskSage', 'Save', 'Share',
-    'UpdateEmbedParams', 'GetIframeUrl', 'DestroyEmbed',
-  ],
-  liveboard: [
-    'UpdateRuntimeFilters', 'GetFilters', 'UpdateFilters', 'UpdateParameters', 'GetParameters',
-    'SetActiveTab', 'GetTabs', 'SetVisibleTabs', 'SetHiddenTabs', 'SetVisibleVizs', 'UpdateCrossFilter',
-    'ResetLiveboardPersonalisedView', 'UpdatePersonalisedView', 'SelectPersonalizedView', 'Pin', 'Share',
-    'Schedule', 'SchedulesList', 'ExportTML', 'GetTML', 'EditTML', 'UpdateTML', 'DownloadAsPdf',
-    'DownloadLiveboardAsContinuousPDF', 'Present', 'ExitPresentMode', 'MakeACopy', 'Edit', 'Delete',
-    'CopyLink', 'AIHighlights', 'LiveboardInfo', 'getExportRequestForCurrentPinboard',
-    'RefreshLiveboardBrowserCache', 'Reload', 'GetIframeUrl', 'UpdateEmbedParams', 'DestroyEmbed',
-  ],
-  search: [
-    'Search', 'ResetSearch', 'UpdateRuntimeFilters', 'GetFilters', 'UpdateFilters', 'UpdateParameters',
-    'GetParameters', 'AddColumns', 'RemoveColumn', 'DrillDown', 'ShowUnderlyingData', 'GetAnswerSession',
-    'AnswerChartSwitcher', 'SaveAnswer', 'Save', 'Pin', 'Share', 'DownloadAsPng', 'DownloadAsCsv',
-    'DownloadAsXlsx', 'ExportTML', 'GetTML', 'SpotIQAnalyze', 'Explore', 'Reload', 'GetIframeUrl',
-    'UpdateEmbedParams', 'DestroyEmbed',
-  ],
-  spotter: [
-    'SpotterSearch', 'StartNewSpotterConversation', 'ResetSpotterConversation', 'EditLastPrompt',
-    'DeleteLastPrompt', 'PreviewSpotterData', 'DataModelInstructions', 'AddToCoaching', 'Save',
-    'OpenSpotterVizPanel', 'CloseSpotterVizPanel', 'InitSpotterVizConversation', 'SpotterVizSendUserMessage',
-  ],
-}
-
-/** Only keep events the installed SDK actually exposes, so triggers never no-op. */
-export function allowedHostEvents(type: EmbedType): string[] {
-  return EMBED_HOST_EVENTS[type].filter((k) => k in HostEvent)
+/**
+ * Host events surfaced in the composer — generated from the SDK's `HostEvent`
+ * enum, so new SDK events appear automatically with no hand-maintained list.
+ * Every embed tab shows the full set; the UI groups them via `categoryOf()` and
+ * filters by the search box. Events that don't apply to a given embed type simply
+ * no-op when triggered. `_type` is kept for call-site compatibility.
+ */
+export function allowedHostEvents(_type?: EmbedType): string[] {
+  // String enum -> keys are member names; drop any numeric reverse-map keys.
+  return Object.keys(HostEvent).filter((k) => isNaN(Number(k)))
 }
 
 /* ----------------------------------------------------------------------------
@@ -190,23 +140,6 @@ export function humanize(k: string): string {
       return HUMANIZE_OVERRIDES[lw] || w.charAt(0).toUpperCase() + w.slice(1)
     })
     .join(' ')
-}
-
-export function categoryOf(name: string): keyof typeof CATS {
-  const n = name.toLowerCase()
-  const has = (...a: string[]) => a.some((s) => n.includes(s))
-  if (has('error', 'alert', 'failure', 'vizerror')) return 'error'
-  if (has('auth', 'login', 'logout', 'cookie', 'saml', 'sso', 'idlesession', 'session', 'refreshauthtoken', 'orgswitch')) return 'auth'
-  if (has('spotter', 'sage', 'prompt', 'coaching', 'datamodelinstructions', 'conversation')) return 'spotter'
-  if (has('download', 'export', 'tml', 'share', 'pin', 'schedul', 'subscrib', 'makeacopy', 'favorite', 'monitor', 'spotiq', 'present', 'explore', 'rename', 'insert', 'sync', 'publish', 'save', 'edit', 'delete', 'remove', 'cancel', 'highlight', 'createliveboard', 'createworksheet', 'createmodel', 'createconnection', 'updateconnection', 'saveasview', 'copyaedit', 'copylink', 'copytoclipboard', 'answerchartswitcher', 'personalis', 'personaliz', 'liveboard')) return 'action'
-  if (has('reload', 'init', 'load', 'render', 'height', 'route', 'listener', 'iframecenter', 'visibleembed', 'pagecontext', 'browsercache', 'navigate', 'tab')) return 'render'
-  if (has('click', 'drill', 'filter', 'crossfilter', 'param', 'query', 'column', 'datasource', 'dialog', 'getdataclick')) return 'interaction'
-  if (has('data', 'customaction', 'intercept', 'transform', 'underlying', 'clearinfocache', 'infosuccess', 'answersession', 'uipassthrough', 'iframeurl')) return 'data'
-  return 'system'
-}
-
-export function colorOf(name: string): string {
-  return CATS[categoryOf(name)].color
 }
 
 export function fmtTime(ts: number): string {

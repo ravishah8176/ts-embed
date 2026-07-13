@@ -2,12 +2,7 @@ import { useMemo } from 'react'
 import './ComposerPanel.scss'
 import type { EmbedType } from './constants'
 import {
-  CAT_ORDER,
-  CATS,
-  EMBED_CLASS_NAME,
   allowedHostEvents,
-  categoryOf,
-  colorOf,
   composerCodeFor,
   humanize,
 } from './constants'
@@ -47,20 +42,17 @@ export default function ComposerPanel(props: Props) {
     onTrigger,
   } = props
 
-  const composerColor = colorOf(composerKey)
+  const composerColor = '#7c5cfc'
 
-  const groups = useMemo(() => {
-    const allowed = allowedHostEvents(embedType)
+  const opts = useMemo(() => {
     const q = composerSearch.trim().toLowerCase()
     const match = (k: string) => !q || k.toLowerCase().includes(q) || humanize(k).toLowerCase().includes(q)
-    return CAT_ORDER.map((cat) => ({
-      label: CATS[cat].label,
-      color: CATS[cat].color,
-      opts: allowed.filter((k) => categoryOf(k) === cat && match(k)),
-    })).filter((g) => g.opts.length)
+    return allowedHostEvents(embedType)
+      .filter(match)
+      .sort((a, b) => humanize(a).localeCompare(humanize(b)))
   }, [embedType, composerSearch])
 
-  const noResults = groups.length === 0
+  const noResults = opts.length === 0
 
   let validStatus = 'valid JSON'
   let validColor = '#12875A'
@@ -172,49 +164,36 @@ export default function ComposerPanel(props: Props) {
                         />
                       </div>
                       <div className="cp-supported">
-                        Events supported by{' '}
-                        <span className="cp-supported-class">
-                          {EMBED_CLASS_NAME[embedType]}
-                        </span>
+                        All SDK host events
                       </div>
                     </div>
                     <div className="tss cp-opt-list">
-                      {groups.map((g) => (
-                        <div key={g.label}>
-                          <div className="cp-group-head">
-                            <span className="cp-dot-6" style={{ background: g.color }} />
-                            <span className="cp-group-label">
-                              {g.label}
+                      {opts.map((k) => {
+                        const selected = k === composerKey
+                        return (
+                          <button
+                            key={k}
+                            className="hover-opt cp-opt"
+                            onClick={() => onPickEvent(k)}
+                            style={{ background: selected ? '#F4F6FF' : 'transparent' }}
+                          >
+                            <span className="cp-dot-6 cp-dot-shrink" style={{ background: '#7c5cfc' }} />
+                            <span className="cp-select-text">
+                              <span className="cp-opt-name">
+                                {humanize(k)}
+                              </span>
+                              <span className="cp-opt-key">
+                                HostEvent.{k}
+                              </span>
                             </span>
-                          </div>
-                          {g.opts.map((k) => {
-                            const selected = k === composerKey
-                            return (
-                              <button
-                                key={k}
-                                className="hover-opt cp-opt"
-                                onClick={() => onPickEvent(k)}
-                                style={{ background: selected ? '#F4F6FF' : 'transparent' }}
-                              >
-                                <span className="cp-dot-6 cp-dot-shrink" style={{ background: colorOf(k) }} />
-                                <span className="cp-select-text">
-                                  <span className="cp-opt-name">
-                                    {humanize(k)}
-                                  </span>
-                                  <span className="cp-opt-key">
-                                    HostEvent.{k}
-                                  </span>
-                                </span>
-                                {selected && (
-                                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="cp-check-icon">
-                                    <polyline points="20 6 9 17 4 12" />
-                                  </svg>
-                                )}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      ))}
+                            {selected && (
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="cp-check-icon">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            )}
+                          </button>
+                        )
+                      })}
                       {noResults && (
                         <div className="cp-no-results">
                           No events match “{composerSearch}”.

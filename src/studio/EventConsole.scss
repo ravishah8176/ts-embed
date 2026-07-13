@@ -57,14 +57,42 @@
 
 /* ── EventConsole: extracted static inline styles ─────────────── */
 
-/* Outer console section (height stays inline — depends on console state) */
+/* Right-side console panel (width stays inline — depends on console state) */
 .ec-console {
   flex-shrink: 0;
+  height: 100%;
   background: #0b0e14;
-  border-top: 1px solid #1c2230;
+  border-left: 1px solid #1c2230;
   display: flex;
   flex-direction: column;
-  transition: height 0.22s ease;
+  overflow: hidden;
+  transition: width 0.22s ease;
+}
+
+/* Collapsed rail — narrow vertical strip with a vertical label + expand */
+.ec-rail {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  color: #aeb6c2;
+  transition: color 0.15s;
+
+  &:hover {
+    color: #fff;
+  }
+}
+.ec-rail-text {
+  writing-mode: vertical-rl;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #8a94a2;
 }
 
 /* Shared flex spacer */
@@ -72,14 +100,14 @@
   flex: 1;
 }
 
-/* Header bar */
+/* Header bar — wraps within the narrow panel width */
 .ec-header {
   flex-shrink: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  padding: 0 13px;
-  height: 43px;
+  gap: 8px 10px;
+  padding: 9px 13px;
   border-bottom: 1px solid #1c2230;
 }
 .ec-header-left {
@@ -109,7 +137,8 @@
 /* Search field */
 .ec-search {
   position: relative;
-  width: 172px;
+  flex: 1 1 100%;
+  min-width: 120px;
 }
 .ec-search-icon {
   position: absolute;
@@ -262,11 +291,6 @@
   font-size: 10.5px;
   color: #6b7686;
   white-space: nowrap;
-}
-.ec-row-cat {
-  flex-shrink: 0;
-  font-size: 10.5px;
-  color: #5a6473;
 }
 /* react button: color stays inline (embed / reacted state) */
 .ec-row-react {
