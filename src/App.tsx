@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import Login from './studio/Login'
 import Studio from './studio/Studio'
-import './studio/studio.scss'
+import './studio/global.scss'
 import './App.scss'
 
 function Gate() {
