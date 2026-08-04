@@ -64,6 +64,9 @@ export function initThoughtSpot(host?: string) {
       return token
     },
     autoLogin: true,
+    customizations: {
+      iconSpriteUrl: "https://cdn.jsdelivr.net/gh/ravishah8176/assest/custom-icon.svg",
+    },
   })
 
   // EXPIRY & IDLE_SESSION_TIMEOUT fire routinely even when the SDK successfully
