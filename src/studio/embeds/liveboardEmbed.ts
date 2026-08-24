@@ -1,19 +1,24 @@
-import { LiveboardEmbed } from '@thoughtspot/visual-embed-sdk'
+import type { LiveboardEmbed, LiveboardViewConfig } from '../../thoughtspot/sdkTypes'
+import { embedSdk } from '../../thoughtspot/sdkLoader'
 import { embedConfig } from '../config'
 
 /**
  * Liveboard embed (LiveboardEmbed).
  *
- * Needs a real `liveboardId` — set VITE_TS_LIVEBOARD_ID in .env, or hardcode
- * one below while testing. Edit anything in `LiveboardViewConfig` here.
+ * Needs a real `liveboardId`; it defaults to VITE_TS_LIVEBOARD_ID and can be typed
+ * straight into the Embed config panel instead. Every other prop of
+ * `LiveboardViewConfig` is editable there too — this is only the starting point.
  */
-export function createLiveboardEmbed(container: HTMLDivElement): LiveboardEmbed {
-  return new LiveboardEmbed(container, {
-    frameParams: { width: '100%', height: '100%' },
-
-    // ───────── customize from here ─────────
+export function liveboardDefaults(): LiveboardViewConfig {
+  return {
     liveboardId: embedConfig.liveboardId,
     fullHeight: true,
-    // ───────────────────────────────────────
-  })
+  }
+}
+
+export function createLiveboardEmbed(
+  container: HTMLDivElement,
+  config: LiveboardViewConfig,
+): LiveboardEmbed {
+  return new (embedSdk().LiveboardEmbed)(container, config)
 }

@@ -1,0 +1,232 @@
+/* Styles for SdkVersionPicker — the "which SDK version" control used on the
+   sign-in screen and in the embed config panel. */
+
+@use '../styles/base' as *;
+
+.svp-root {
+  position: relative;
+}
+
+/* Matches the switcher's block trigger: same border, radius, fill and hover. */
+.svp-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--b $rd-spacing--c;
+  background: rd-sys-color('background-on-base');
+  text-align: left;
+  transition: background $rd-animation--quickly, border-color $rd-animation--quickly,
+    box-shadow $rd-animation--quickly;
+
+  &:hover:not(:disabled) {
+    background: rd-sys-color('background-base');
+    border-color: var(--accent);
+  }
+  &[aria-expanded='true'] {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rd-sys-color-alpha('border-focus', 0.12);
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.svp-pkg {
+  flex: 1;
+  min-width: 0;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-secondary');
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.svp-version {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-primary');
+}
+
+/* Pill, like every other state tag in the switcher. */
+.svp-source {
+  flex-shrink: 0;
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: rd-utility--get-scaling-rem(2px) $rd-spacing--b;
+  border-radius: 100vh;
+  background: rd-sys-color('background-accent-purple-subtle');
+  color: rd-sys-color('content-accent-purple');
+}
+
+.svp-source-snapshot {
+  background: rd-sys-color('background-secondary-action');
+  color: rd-sys-color('content-secondary');
+}
+
+.svp-chevron {
+  flex-shrink: 0;
+  transition: transform $rd-animation--quickly;
+}
+
+.svp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.svp-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 61;
+  background: rd-sys-color('background-base');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  @include rd-elevation--menu;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+}
+
+.svp-head {
+  padding: $rd-spacing--b;
+  border-bottom: 1px solid rd-sys-color('border-subtle');
+  background: rd-sys-color('background-on-base');
+}
+
+.svp-search {
+  width: 100%;
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--b;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--footnote;
+  background: rd-sys-color('background-on-base');
+  outline: none;
+  color: rd-sys-color('content-primary');
+
+  &:focus {
+    border-color: var(--accent);
+  }
+}
+
+.svp-hint {
+  margin-top: $rd-spacing--b;
+  @include rd-font--fine-prints;
+  color: rd-sys-color('content-tertiary');
+}
+
+.svp-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: $rd-spacing--a;
+}
+
+.svp-opt {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  border: none;
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--b;
+  background: transparent;
+  text-align: left;
+
+  &:hover {
+    background: rd-sys-color('background-ghost-highlight');
+  }
+  &.selected {
+    background: rd-sys-color('background-ghost-highlight');
+  }
+}
+
+.svp-opt-typed {
+  background: rd-sys-color('background-ghost-highlight');
+  border: 1px dashed $rd-ref-brand-30;
+
+  &:disabled {
+    background: rd-sys-color('background-on-base');
+  }
+}
+
+.svp-opt-version {
+  flex: 1;
+  /* A pasted URL must not push the verdict tag out of the row. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-primary');
+}
+
+.svp-opt-tag {
+  flex-shrink: 0;
+  padding: rd-utility--get-scaling-rem(2px) $rd-spacing--b;
+  border-radius: 100vh;
+  background: rd-sys-color('background-secondary-action');
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rd-sys-color('content-secondary');
+}
+
+.svp-opt-tag-latest {
+  background: rd-sys-color('background-ghost-highlight');
+  color: var(--accent);
+}
+
+.svp-empty {
+  text-align: center;
+  color: rd-sys-color('content-tertiary');
+  @include rd-font--footnote;
+  padding: $rd-spacing--e $rd-spacing--c;
+}
+
+/* Typed entry: pickable only once a check says it loads. */
+.svp-opt-typed:disabled {
+  cursor: default;
+}
+
+.svp-opt-typed.bad .svp-opt-version {
+  color: rd-sys-color('content-failure');
+  text-decoration: line-through;
+}
+
+.svp-opt-tag-ok {
+  background: rd-sys-color('background-success');
+  color: rd-sys-color('content-success');
+}
+
+.svp-opt-tag-bad {
+  background: rd-sys-color('background-failure');
+  color: rd-sys-color('content-failure');
+}
+
+.svp-check-error {
+  margin: 0;
+  padding: $rd-spacing--b $rd-spacing--c;
+  border-bottom: 1px solid rd-sys-color('border-subtle');
+  background: rd-sys-color('background-failure');
+  @include rd-font--size($rd-font--size-fine-prints, 1.5);
+  @include rd-font--semibold;
+  color: rd-sys-color('content-failure');
+}

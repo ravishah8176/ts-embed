@@ -1,0 +1,73 @@
+// @font-face declarations for the Radiant type families.
+//
+// Vendored from @thoughtspot/radiant-styles/public/font/fontfaces.css; the .otf
+// and .ttf files themselves are copied under public/font/ so Vite serves them
+// from the site root.
+//
+// Optimo-Plain's weight names do not match its CSS weights: the foundry's Light
+// cut is mapped to 400, Regular to 600 and Medium to 700. That is why the
+// weight mixins in _typography.scss treat 600 as "medium".
+
+@font-face {
+  font-family: Optimo-Plain;
+  src: url('/font/optimo/Plain-Light.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Optimo-Plain;
+  src: url('/font/optimo/Plain-LightIta.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Optimo-Plain;
+  src: url('/font/optimo/Plain-Regular.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Optimo-Plain;
+  src: url('/font/optimo/Plain-RegularIta.otf') format('opentype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Optimo-Plain;
+  src: url('/font/optimo/Plain-Medium.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Optimo-Plain;
+  src: url('/font/optimo/Plain-MediumIta.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: BB-Roller-Regular;
+  src: url('/font/bb-roller/BB-Roller-Mono-Regular-fontlab.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: BB-Roller-Mono-semibold;
+  src: url('/font/bb-roller/BB-Roller-Mono-ProTx-semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}

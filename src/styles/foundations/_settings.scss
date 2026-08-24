@@ -1,0 +1,78 @@
+// Radiant design system — core settings: baseline grid, spacing, radius, motion.
+//
+// Vendored from @thoughtspot/radiant-styles (css/foundations/_settings.scss).
+// Deviation: $rd-utility--baseline-scaled is computed inline instead of calling
+// rd-utility--get-scaling-rem(), because under @use that function would import
+// this file back and form a cycle. The value is identical.
+
+@use 'sass:math';
+
+// Baseline grid. Every spacing metric derives from this.
+$rd-utility--baseline: 4px !default;
+
+// Grid lines spanned by each spacing step.
+$rd-utility--spacing-unit-factor-a: 1 !default; // 4px
+$rd-utility--spacing-unit-factor-b: 2 !default; // 8px
+$rd-utility--spacing-unit-factor-c: 3 !default; // 12px
+$rd-utility--spacing-unit-factor-d: 4 !default; // 16px
+$rd-utility--spacing-unit-factor-e: 5 !default; // 20px
+$rd-utility--spacing-unit-factor-f: 6 !default; // 24px
+$rd-utility--spacing-unit-factor-g: 7 !default; // 28px
+$rd-utility--spacing-unit-factor-h: 8 !default; // 32px
+$rd-utility--spacing-unit-factor-i: 10 !default; // 40px
+$rd-utility--spacing-unit-factor-j: 12 !default; // 48px
+$rd-utility--spacing-unit-factor-k: 14 !default; // 56px
+$rd-utility--spacing-unit-factor-l: 16 !default; // 64px
+
+// Scaling factors for larger displays.
+$rd-utility--scaling-factor-hd: 1;
+$rd-utility--scaling-factor-fhd: 1.4;
+$rd-utility--scaling-factor-qhd: 1.7;
+$rd-utility--scaling-factor-uhd: 2.5;
+
+// Base type metrics. Everything rem-relative resolves against this 14px root.
+$rd-font--size-base: 14px !default;
+$rd-font--line-height: $rd-utility--baseline * $rd-utility--spacing-unit-factor-e !default; // 20px
+
+// Spacing is emitted in rem so it scales with the root font size.
+$rd-utility--baseline-scaled: math.div(
+    math.div($rd-utility--baseline, 1px),
+    math.div($rd-font--size-base, 1px)
+  ) * 1rem;
+$rd-spacing--base: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-e !default; // 20px
+
+$rd-spacing--a: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-a !default; // 4px
+$rd-spacing--b: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-b !default; // 8px
+$rd-spacing--c: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-c !default; // 12px
+$rd-spacing--d: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-d !default; // 16px
+$rd-spacing--e: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-e !default; // 20px
+$rd-spacing--f: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-f !default; // 24px
+$rd-spacing--g: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-g !default; // 28px
+$rd-spacing--h: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-h !default; // 32px
+$rd-spacing--i: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-i !default; // 40px
+$rd-spacing--j: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-j !default; // 48px
+$rd-spacing--k: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-k !default; // 56px
+$rd-spacing--l: $rd-utility--baseline-scaled * $rd-utility--spacing-unit-factor-l !default; // 64px
+
+// Standard UI treatments.
+$rd-layout--radius: 2px !default;
+$rd-layout--radius-large: 4px !default;
+$rd-layout--radius-xlarge: 6px !default;
+$rd-layout--radius-round: 50% !default;
+$rd-layout--radius-reset: 0 !default;
+$rd-layout--disabled-opacity: 0.4;
+
+// Durations.
+$rd-animation--instantly: 0s !default;
+$rd-animation--immediately: 0.05s !default;
+$rd-animation--quickly: 0.1s !default;
+$rd-animation--promptly: 0.2s !default;
+$rd-animation--slowly: 0.4s !default;
+$rd-animation--pause: 3.2s !default;
+$rd-animation--slide: 0.25s !default;
+$rd-animation--toast-medium: 9.6s !default;
+$rd-animation--toast-short: 4.8s !default;
+
+// Easings.
+$rd-animation--ease: cubic-bezier(0.645, 0.045, 0.355, 1);
+$rd-animation--ease-snappy: cubic-bezier(0.68, -0.55, 0.265, 1.55);

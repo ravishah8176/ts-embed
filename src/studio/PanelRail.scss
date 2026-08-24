@@ -1,0 +1,15 @@
+@use '../styles/base' as *;
+
+/* Styles specific to PanelRail — the collapsed left panel. */
+
+.pr-rail {
+  flex: 0 0 56px;
+  min-height: 0;
+  background: rd-sys-color('background-base');
+  border-right: 1px solid rd-sys-color('border-subtle');
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $rd-spacing--d 0;
+  overflow: hidden;
+}

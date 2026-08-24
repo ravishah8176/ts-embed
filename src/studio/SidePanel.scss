@@ -1,0 +1,93 @@
+@use '../styles/base' as *;
+
+/* Styles specific to SidePanel — the resizable frame around the left-panel tools. */
+
+/**
+ * `overflow` stays visible here so the resize handle can straddle the panel edge —
+ * clipping it left the cursor unchanged exactly where the user aims, at the edge
+ * itself. The z-index puts that overhang above the embed column: the neighbouring
+ * iframe paints later in the document and would otherwise swallow the hover.
+ * Content that must not spill is clipped by `.sp-inner` instead.
+ */
+.sp-shell {
+  position: relative;
+  z-index: 25;
+  /* The dragged width is the width. Without this, `min-width` is `auto` and the
+     open tool's min-content could hold the panel wider than the user dragged it —
+     the frame has `overflow: visible`, so nothing else caps it. */
+  min-width: 0;
+  min-height: 0;
+  background: rd-sys-color('background-base');
+  border-right: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  display: flex;
+}
+
+.sp-inner {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Grab area is far wider than the grip it draws, and centred on the edge so it can
+   be hit from either side of it. */
+.sp-resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -8px;
+  width: 16px;
+  z-index: 30;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+
+  &:hover .sp-grip,
+  &:focus-visible .sp-grip {
+    opacity: 1;
+    background: rd-sys-color('background-brand');
+    height: 42px;
+  }
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.sp-shell.resizing .sp-grip {
+  opacity: 1;
+  background: rd-sys-color('background-brand');
+  height: 42px;
+}
+
+/* Faint at rest so the edge reads as draggable at all; accent once grabbed. */
+.sp-grip {
+  width: 3px;
+  height: 28px;
+  border-radius: $rd-layout--radius;
+  background: $rd-ref-gray-40;
+  opacity: 0.9;
+  transition: opacity $rd-animation--quickly, background $rd-animation--quickly,
+    height $rd-animation--quickly;
+}
+
+/* Held on <body> for the length of a drag so dragging never selects the panel's
+   text. The `*` is deliberate: without it, every element with a cursor of its own —
+   the code editor, links, buttons — flips back mid-drag. */
+body.sp-resizing,
+body.sp-resizing * {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+/* One surface over the whole window for the length of the drag, so the cursor holds
+   even over the embed iframe, whose own document this page cannot style. */
+.sp-drag-shield {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  cursor: col-resize;
+}

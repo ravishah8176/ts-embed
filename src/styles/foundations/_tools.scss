@@ -1,0 +1,50 @@
+// Radiant design system — sizing and type tools.
+//
+// Vendored from @thoughtspot/radiant-styles (css/foundations/_tools.scss),
+// trimmed to the two helpers this app needs. Deviations from upstream:
+// the legacy px fallback line and the $important flag are dropped from
+// rd-font--size, and `/` division is replaced by math.div for dart-sass.
+
+@use 'sass:math';
+@use 'sass:meta';
+@use './settings' as *;
+
+@function rd-utility--strip-unit($number) {
+  @if meta.type-of($number) == 'number' and not math.is-unitless($number) {
+    @return math.div($number, ($number * 0 + 1));
+  }
+
+  @return $number;
+}
+
+/// Converts a px value to rem against the 14px design base. Arbitrary pixel
+/// dimensions go through this rather than being written as raw px.
+@function rd-utility--get-scaling-rem($number) {
+  @return math.div(
+      rd-utility--strip-unit($number),
+      rd-utility--strip-unit($rd-font--size-base)
+    ) * 1rem;
+}
+
+/// Sets font-size in rem and derives a baseline-aligned unitless line-height:
+/// the fewest 4px grid lines that fit the glyphs, plus one for breathing room.
+/// $modifier adds or removes grid lines from that result.
+@mixin rd-font--size($font-size, $line-height: auto, $modifier: 0) {
+  @if meta.type-of($font-size) != number or math.unit($font-size) != 'px' {
+    @error '`#{$font-size}` needs to be a pixel value.';
+  }
+
+  font-size: math.div($font-size, $rd-font--size-base) * 1rem;
+
+  @if $line-height == 'auto' {
+    $lines: math.ceil(math.div($font-size, $rd-utility--baseline)) + $modifier + 1;
+
+    line-height: math.div(math.round(math.div($lines * $rd-utility--baseline, $font-size) * 100), 100);
+  } @else if meta.type-of($line-height) == number {
+    line-height: math.div(math.round($line-height * 100), 100);
+  } @else if $line-height == 'inherit' or $line-height == 'normal' {
+    line-height: $line-height;
+  } @else if $line-height != 'none' and $line-height != false {
+    @error '`#{$line-height}` is not a valid value for $line-height.';
+  }
+}

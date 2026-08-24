@@ -1,0 +1,33 @@
+@use '../styles/base' as *;
+
+/* Styles specific to CodeEditor. The editor itself is themed from the component
+   (CodeMirror styles its own internals); this is only the box it fills. */
+
+.ce-host {
+  flex: 1;
+  min-height: 160px;
+  min-width: 0;
+  display: flex;
+  overflow: hidden;
+
+  .cm-editor {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* Read-only preview: no caret, and a surface that reads as output not input. */
+.ce-readonly .cm-editor {
+  background: rd-sys-color('background-on-base');
+}
+
+/* Shown by callers while the editor chunk is still in flight. */
+.ce-loading {
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: $rd-layout--radius-xlarge;
+  background: rd-sys-color('background-on-base');
+  color: rd-sys-color('content-tertiary');
+  @include rd-font--footnote;
+}

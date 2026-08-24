@@ -1,0 +1,100 @@
+@use '../styles/base' as *;
+
+/* Backing classes for <Typography>. One per Radiant type step, so the scale is
+   declared once here rather than re-derived in every component sheet.
+
+   The heading variants reset margin: the default element is chosen for semantics
+   (h1..h5), and a UA margin on a label inside a flex row is never wanted. */
+.ts-typo-headline-large {
+  margin: 0;
+  @include rd-font--headline-large;
+}
+
+.ts-typo-page-title {
+  margin: 0;
+  @include rd-font--page-title;
+}
+
+.ts-typo-modal-title {
+  margin: 0;
+  @include rd-font--modal-title;
+}
+
+.ts-typo-section-label {
+  margin: 0;
+  @include rd-font--section-label;
+}
+
+.ts-typo-content-label {
+  margin: 0;
+  @include rd-font--content-label;
+}
+
+.ts-typo-content-label-subhead {
+  margin: 0;
+  @include rd-font--content-label-subhead;
+}
+
+.ts-typo-body-large {
+  margin: 0;
+  @include rd-font--body-large;
+}
+
+.ts-typo-body-normal {
+  margin: 0;
+  @include rd-font--body-normal;
+}
+
+.ts-typo-footnote {
+  @include rd-font--footnote;
+}
+
+.ts-typo-caption {
+  @include rd-font--caption;
+}
+
+.ts-typo-overline {
+  @include rd-font--overline;
+}
+
+.ts-typo-fine-prints {
+  @include rd-font--fine-prints;
+}
+
+/* Colour is opt-in — without it the text inherits, which is what a nested label
+   usually wants. Only the content-* group is exposed: text takes content tokens. */
+.ts-typo-c-primary {
+  color: rd-sys-color('content-primary');
+}
+
+.ts-typo-c-secondary {
+  color: rd-sys-color('content-secondary');
+}
+
+.ts-typo-c-tertiary {
+  color: rd-sys-color('content-tertiary');
+}
+
+.ts-typo-c-brand {
+  color: rd-sys-color('content-brand');
+}
+
+.ts-typo-c-inverse {
+  color: rd-sys-color('content-inverse');
+}
+
+.ts-typo-c-success {
+  color: rd-sys-color('content-success');
+}
+
+.ts-typo-c-warning {
+  color: rd-sys-color('content-warning');
+}
+
+.ts-typo-c-failure {
+  color: rd-sys-color('content-failure');
+}
+
+.ts-typo-truncate {
+  @include rd-font--truncate;
+}

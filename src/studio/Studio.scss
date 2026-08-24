@@ -1,3 +1,5 @@
+@use '../styles/base' as *;
+
 /* Styles specific to Studio.
    This component currently styles itself with inline styles + shared classes
    from studio.scss. Add your custom Studio overrides here. */
@@ -12,8 +14,8 @@
   position: absolute;
   inset: 0;
   z-index: 50;
-  background: rgba(14, 17, 22, 0.38);
-  animation: profileBackdropIn 0.18s ease-out;
+  background: rd-sys-color('background-overlay');
+  animation: profileBackdropIn $rd-animation--promptly $rd-animation--ease;
 }
 
 .profile-sheet {
@@ -23,11 +25,11 @@
   bottom: 0;
   z-index: 51;
   width: min(760px, 92%);
-  background: #f4f5f7;
-  box-shadow: -12px 0 40px rgba(14, 17, 22, 0.18);
+  background: rd-sys-color('background-sunken');
+  box-shadow: -12px 0 40px rd-sys-color-alpha('content-primary', 0.16);
   display: flex;
   flex-direction: column;
-  animation: profileSheetIn 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: profileSheetIn $rd-animation--promptly $rd-animation--ease;
 }
 
 @keyframes profileBackdropIn {
@@ -51,13 +53,13 @@
 /* ── Inline styles migrated to classes ── */
 .studio-root {
   min-height: 100vh;
-  background: #f4f5f7;
+  background: rd-sys-color('background-sunken');
 }
 .studio-shell {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f4f5f7;
+  background: rd-sys-color('background-sunken');
   overflow: hidden;
 }
 .studio-body {

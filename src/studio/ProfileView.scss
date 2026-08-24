@@ -1,3 +1,5 @@
+@use '../styles/base' as *;
+
 /* Styles specific to ProfileView.
    This component currently styles itself with inline styles + shared classes
    from studio.scss. Add your custom ProfileView overrides here. */
@@ -6,26 +8,27 @@
 .sheet-close {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 999px;
-  color: #5a6573;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 14px 7px 11px;
+  gap: $rd-spacing--b;
+  background: rd-sys-color('background-base');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: 100vh;
+  color: rd-sys-color('content-secondary');
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+  padding: $rd-spacing--b $rd-spacing--d $rd-spacing--b $rd-spacing--c;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(14, 17, 22, 0.04);
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  @include rd-elevation--surface;
+  transition: background $rd-animation--quickly, color $rd-animation--quickly,
+    border-color $rd-animation--quickly;
 
   svg {
-    transition: transform 0.15s;
+    transition: transform $rd-animation--quickly;
   }
 
   &:hover {
-    background: #f4f5f7;
-    color: #0e1116;
-    border-color: #d3d8e0;
+    background: rd-sys-color('background-ghost-hover');
+    color: rd-sys-color('content-primary');
+    border-color: rd-sys-color('border-subtle-hover');
 
     svg {
       transform: rotate(90deg);
@@ -38,7 +41,7 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 32px;
+  padding: $rd-spacing--h;
 }
 
 .pv-container {
@@ -49,52 +52,54 @@
 .pv-close-row {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 18px;
+  margin-bottom: $rd-spacing--e;
 }
 
 /* ── Profile card + banner ──────────────────────────────────────────── */
 .pv-card {
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 16px;
+  background: rd-sys-color('background-base');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-spacing--b;
   overflow: hidden;
 }
 
 .pv-banner {
   height: 104px;
-  background: linear-gradient(120deg, #0e1116, var(--accent-strong) 135%);
+  background: linear-gradient(120deg, $rd-ref-gray-90, var(--accent-strong) 135%);
 }
 
 .pv-card-body {
-  padding: 0 28px 26px;
+  padding: 0 $rd-spacing--g $rd-spacing--g;
 }
 
 /* ── Header: avatar + name + email ──────────────────────────────────── */
 .pv-header {
   display: flex;
   align-items: flex-end;
-  gap: 18px;
-  margin-top: -44px;
+  gap: $rd-spacing--e;
+  margin-top: rd-utility--get-scaling-rem(-44px);
 }
 
 .pv-avatar {
   width: 92px;
   height: 92px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, var(--accent), #7c5cfc);
-  color: #fff;
-  font-size: 32px;
-  font-weight: 800;
+  border-radius: $rd-spacing--b;
+  background: linear-gradient(135deg, var(--accent), $rd-ref-purple-60);
+  /* Fill is pinned in both themes, so the label has to be too — content-inverse
+     would turn near-black on mid-purple under the dark theme. */
+  color: $rd-ref-white;
+  @include rd-font--headline-large;
+  @include rd-font--bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 4px solid #fff;
-  box-shadow: 0 8px 24px rgba(14, 17, 22, 0.16);
+  border: 4px solid $rd-ref-white;
+  @include rd-elevation--menu;
   flex-shrink: 0;
 }
 
 .pv-header-text {
-  padding-bottom: 6px;
+  padding-bottom: $rd-spacing--b;
   min-width: 0;
   flex: 1;
 }
@@ -102,116 +107,116 @@
 .pv-header-name-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: $rd-spacing--c;
 }
 
 .pv-name {
-  font-size: 23px;
-  font-weight: 800;
+  @include rd-font--page-title;
+  @include rd-font--bold;
   letter-spacing: -0.02em;
 }
 
 .pv-email {
-  font-size: 14px;
-  color: #7a8694;
+  @include rd-font--body-normal;
+  color: rd-sys-color('content-secondary');
 }
 
 /* ── Status badge (color depends on active/inactive state) ──────────── */
 .pv-status {
-  font-size: 11px;
-  font-weight: 700;
+  @include rd-font--footnote;
+  @include rd-font--bold;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  border-radius: 6px;
-  padding: 3px 8px;
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--a $rd-spacing--b;
 }
 
 .pv-status-active {
-  color: #12875a;
-  background: #e7f6ee;
+  color: rd-sys-color('content-success');
+  background: rd-sys-color('background-success');
 }
 
 .pv-status-inactive {
-  color: #b36b00;
-  background: #fff3e0;
+  color: $rd-ref-yellow-80;
+  background: rd-sys-color('background-warning');
 }
 
 /* ── Section titles ─────────────────────────────────────────────────── */
 .pv-section-title {
-  font-size: 12px;
-  font-weight: 700;
+  @include rd-font--footnote;
+  @include rd-font--bold;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #9aa4b2;
-  margin: 34px 0 12px;
+  color: rd-sys-color('content-tertiary');
+  margin: $rd-spacing--i 0 $rd-spacing--c;
 }
 
 .pv-section-title-tight {
-  margin: 24px 0 12px;
+  margin: $rd-spacing--f 0 $rd-spacing--c;
 }
 
 /* ── Field cards & grid ─────────────────────────────────────────────── */
 .pv-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: $rd-spacing--d;
 }
 
 .pv-field-card {
-  border: 1px solid #eef0f3;
-  border-radius: 12px;
-  padding: 15px;
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--d;
 }
 
 .pv-card-spaced {
-  margin-top: 14px;
+  margin-top: $rd-spacing--d;
 }
 
 .pv-field-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #9aa4b2;
-  margin-bottom: 6px;
+  @include rd-font--footnote;
+  @include rd-font--semibold;
+  color: rd-sys-color('content-tertiary');
+  margin-bottom: $rd-spacing--b;
 }
 
 .pv-field-value {
-  font-size: 14px;
-  color: #1b2530;
-  font-weight: 600;
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+  color: rd-sys-color('content-primary');
   word-break: break-word;
-  padding-top: 3px;
+  padding-top: $rd-spacing--a;
 }
 
 /* ── Mono text helper (matches former monoStyle) ────────────────────── */
 .pv-mono {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12.5px;
-  font-weight: 500;
+  @include rd-font--footnote;
+  @include rd-font--semibold;
 }
 
 .pv-obj-id {
-  color: #9aa4b2;
-  margin-left: 8px;
+  color: rd-sys-color('content-tertiary');
+  margin-left: $rd-spacing--b;
 }
 
 /* ── Cluster row ────────────────────────────────────────────────────── */
 .pv-cluster-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-top: 3px;
+  gap: $rd-spacing--b;
+  padding-top: $rd-spacing--a;
 }
 
 .pv-cluster-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
-  background: #12875a;
+  border-radius: $rd-layout--radius-round;
+  background: $rd-ref-green-60;
   flex-shrink: 0;
 }
 
 .pv-cluster-host {
-  color: #3a4452;
+  color: rd-sys-color('content-primary');
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -221,29 +226,29 @@
 .pv-chip-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  padding-top: 4px;
+  gap: $rd-spacing--b;
+  padding-top: $rd-spacing--a;
 }
 
 .pv-chip {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #3a4452;
-  background: #f4f5f7;
-  border: 1px solid #e4e7ec;
-  border-radius: 7px;
-  padding: 4px 10px;
+  @include rd-font--footnote;
+  @include rd-font--semibold;
+  color: rd-sys-color('content-primary');
+  background: rd-sys-color('background-sunken');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--a $rd-spacing--c;
 }
 
 .pv-chip-mono {
-  font-size: 11.5px;
+  @include rd-font--footnote;
   font-family: 'JetBrains Mono', monospace;
 }
 
 /* ── Raw JSON block for unnamed nested objects ──────────────────────── */
 .pv-raw-json {
   margin: 0;
-  color: #3a4452;
+  color: rd-sys-color('content-primary');
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -252,17 +257,17 @@
 .pv-signout-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 22px;
+  gap: $rd-spacing--c;
+  margin-top: $rd-spacing--f;
 }
 
 .pv-signout-btn {
   width: auto;
-  background: #fff;
-  color: #c0392b;
-  border: 1px solid #f1c9c4;
-  border-radius: 10px;
-  padding: 11px 20px;
-  font-size: 14px;
-  font-weight: 700;
+  background: rd-sys-color('background-base');
+  color: rd-sys-color('content-failure');
+  border: 1px solid $rd-ref-red-30;
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--c $rd-spacing--e;
+  @include rd-font--body-normal;
+  @include rd-font--bold;
 }

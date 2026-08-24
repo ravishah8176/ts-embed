@@ -1,3 +1,5 @@
+@use '../../styles/base' as *;
+
 /* REST API tab shell: a mode toggle (SDK Explorer / API Playground) above the
    active pane. Overlays the workspace like the profile sheet does. */
 
@@ -7,7 +9,7 @@
   z-index: 40;
   display: flex;
   flex-direction: column;
-  background: #f4f5f7;
+  background: rd-sys-color('background-sunken');
 }
 
 .rest-tab-bar {
@@ -15,38 +17,38 @@
   height: 46px;
   display: flex;
   align-items: center;
-  gap: 13px;
-  padding: 0 16px;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ec;
+  gap: $rd-spacing--c;
+  padding: 0 $rd-spacing--d;
+  background: rd-sys-color('background-base');
+  border-bottom: 1px solid rd-sys-color('border-subtle');
 }
 
 .rest-seg {
   display: flex;
-  gap: 3px;
-  background: #f0f1f4;
-  border: 1px solid #e4e7ec;
-  border-radius: 10px;
-  padding: 3px;
+  gap: $rd-spacing--a;
+  background: rd-sys-color('background-secondary-action');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: rd-utility--get-scaling-rem(2px);
 }
 .rest-seg-btn {
   border: none;
   background: transparent;
-  color: #6b7686;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 6px 13px;
-  border-radius: 7px;
+  color: rd-sys-color('content-secondary');
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+  padding: $rd-spacing--b $rd-spacing--c;
+  border-radius: $rd-layout--radius-xlarge;
   &.on {
-    background: #fff;
-    color: #0e1116;
-    box-shadow: 0 1px 2px rgba(14, 17, 22, 0.14);
+    background: rd-sys-color('background-base');
+    color: rd-sys-color('content-primary');
+    @include rd-elevation--surface;
   }
 }
 
 .rest-tab-hint {
-  font-size: 12px;
-  color: #9aa4b2;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-tertiary');
   font-family: 'JetBrains Mono', monospace;
   white-space: nowrap;
   overflow: hidden;
@@ -64,4 +66,77 @@
   min-width: 0;
   min-height: 0;
   display: flex;
+}
+
+/* ── Tab-bar settings: REST SDK version + playground URL ───────────── */
+
+.rest-bar-spacer {
+  flex: 1;
+}
+
+.rest-url-label {
+  flex-shrink: 0;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-primary');
+}
+
+.rest-url-input {
+  flex: 1;
+  min-width: 0;
+  max-width: 520px;
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--b $rd-spacing--c;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-primary');
+  background: rd-sys-color('background-on-base');
+  outline: none;
+
+  &::placeholder {
+    color: rd-sys-color('content-tertiary');
+  }
+  &:focus {
+    border-color: var(--accent);
+  }
+  &.bad {
+    border-color: rd-sys-color('border-failure');
+  }
+}
+
+.rest-url-btn {
+  flex-shrink: 0;
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: $rd-layout--radius-xlarge;
+  background: rd-sys-color('background-base');
+  padding: $rd-spacing--b $rd-spacing--c;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-primary');
+
+  &:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.rest-url-reset {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+  @include rd-font--footnote;
+  @include rd-font--semibold;
+  color: var(--accent);
+
+  &:disabled {
+    color: rd-sys-color('content-tertiary');
+    cursor: default;
+    text-decoration: none;
+  }
 }

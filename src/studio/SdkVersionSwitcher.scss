@@ -1,0 +1,336 @@
+/* Styles specific to SdkVersionSwitcher — the SDK version chip + its popover. */
+
+@use '../styles/base' as *;
+
+.svs-root {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* The block form owns its row, so it stretches; the chip sits inline in a toolbar. */
+.svs-root-block {
+  flex: 1;
+  min-width: 0;
+
+  .svs-pop {
+    width: auto;
+    min-width: 320px;
+  }
+  /* Spans the trigger when there is room to the right of it… */
+  .svs-pop-left {
+    left: 0;
+    right: 0;
+  }
+  /* …and hangs off the right edge when the trigger is narrower than the list. */
+  .svs-pop-right {
+    right: 0;
+    left: auto;
+    width: 340px;
+  }
+}
+
+/**
+ * Block form: the header's main action, so it looks like the composer's event
+ * selector rather than a badge — full width, named package, explicit "Change".
+ */
+.svs-block {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--c;
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--b $rd-spacing--c;
+  background: rd-sys-color('background-on-base');
+  text-align: left;
+  transition: background $rd-animation--quickly, border-color $rd-animation--quickly,
+    box-shadow $rd-animation--quickly;
+
+  &:hover {
+    background: rd-sys-color('background-base');
+    border-color: var(--accent);
+  }
+  &:hover .svs-block-action {
+    color: var(--accent);
+  }
+  &:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rd-sys-color-alpha('border-focus', 0.12);
+  }
+  &.on {
+    background: rd-sys-color('background-base');
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rd-sys-color-alpha('border-focus', 0.12);
+  }
+  &.on .svs-chip-caret {
+    transform: rotate(180deg);
+  }
+}
+
+.svs-block-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: $rd-layout--radius-xlarge;
+  background: rd-sys-color('background-ghost-highlight');
+  color: var(--accent);
+}
+
+.svs-block-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.svs-block-label {
+  display: block;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  letter-spacing: 0.01em;
+  color: rd-sys-color('content-secondary');
+}
+
+.svs-block-version {
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  min-width: 0;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-primary');
+
+  /* The version truncates; the state tag beside it never does. */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.svs-block-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--a;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-secondary');
+  transition: color $rd-animation--quickly;
+}
+
+.svs-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: $rd-spacing--b;
+  margin-top: $rd-spacing--b;
+}
+
+.svs-hint-text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  @include rd-font--size($rd-font--size-fine-prints, 1.5);
+  @include rd-font--semibold;
+  color: rd-sys-color('content-tertiary');
+}
+
+.svs-hint-close {
+  flex-shrink: 0;
+  margin-top: rd-utility--get-scaling-rem(1px);
+  padding: rd-utility--get-scaling-rem(2px);
+  border: none;
+  border-radius: $rd-layout--radius-large;
+  background: transparent;
+  line-height: 0;
+  color: rd-sys-color('content-tertiary');
+  transition: background $rd-animation--quickly, color $rd-animation--quickly;
+
+  &:hover {
+    background: rd-sys-color('background-ghost-hover');
+    color: rd-sys-color('content-secondary');
+  }
+}
+
+/* Reads as a menu trigger, not a label: caret, hover lift, accent while open. */
+.svs-chip {
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  background: rd-sys-color('background-sunken');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--a $rd-spacing--b $rd-spacing--a $rd-spacing--c;
+  transition: background $rd-animation--quickly, border-color $rd-animation--quickly,
+    box-shadow $rd-animation--quickly;
+
+  &:hover {
+    background: rd-sys-color('background-base');
+    border-color: rd-sys-color('border-subtle-hover');
+  }
+  &:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rd-sys-color-alpha('border-focus', 0.12);
+  }
+  &.on {
+    background: rd-sys-color('background-base');
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rd-sys-color-alpha('border-focus', 0.12);
+  }
+  &.on .svs-chip-caret {
+    transform: rotate(180deg);
+  }
+}
+
+/* Where the version came from: app bundle, CDN, or saved-but-not-loaded. */
+.svs-chip-state {
+  flex-shrink: 0;
+  border-radius: 100vh;
+  padding: rd-utility--get-scaling-rem(1px) $rd-spacing--b;
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  &.snapshot {
+    background: rd-sys-color('background-secondary-action');
+    color: rd-sys-color('content-secondary');
+  }
+  &.cdn,
+  &.latest {
+    background: rd-sys-color('background-success');
+    color: rd-sys-color('content-success');
+  }
+  &.custom,
+  &.prbuild {
+    background: rd-sys-color('background-accent-purple-subtle');
+    color: rd-sys-color('content-accent-purple');
+  }
+  &.pending {
+    background: rd-sys-color('background-warning');
+    color: $rd-ref-yellow-80;
+  }
+}
+
+.svs-chip-caret {
+  flex-shrink: 0;
+  color: rd-sys-color('content-tertiary');
+  transition: transform $rd-animation--quickly;
+}
+
+.svs-current-pkg {
+  display: block;
+  min-width: 0;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--fine-prints;
+  @include rd-font--normal;
+  color: rd-sys-color('content-tertiary');
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.svs-error {
+  margin: $rd-spacing--b 0 0;
+  padding: $rd-spacing--b $rd-spacing--c;
+  border: 1px solid $rd-ref-red-30;
+  border-radius: $rd-layout--radius-xlarge;
+  background: rd-sys-color('background-failure');
+  @include rd-font--size($rd-font--size-fine-prints, 1.5);
+  @include rd-font--semibold;
+  color: rd-sys-color('content-failure');
+}
+
+
+.svs-chip-label {
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
+  letter-spacing: 0.06em;
+  color: rd-sys-color('content-secondary');
+}
+
+.svs-chip-version {
+  /* A module URL can be arbitrarily long; the tooltip carries the whole thing. */
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-brand');
+}
+
+.svs-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+}
+
+/* Anchored to the trigger it belongs to: as wide as the block form, never narrower
+   than the version list needs. */
+.svs-pop {
+  position: absolute;
+  top: calc(100% + 7px);
+  z-index: 56;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  background: rd-sys-color('background-base');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  @include rd-elevation--menu;
+  padding: $rd-spacing--c;
+}
+
+.svs-pop-right {
+  right: 0;
+}
+
+.svs-pop-left {
+  left: 0;
+}
+
+.svs-pop-head {
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--c;
+  padding-bottom: $rd-spacing--c;
+  margin-bottom: $rd-spacing--c;
+  border-bottom: 1px solid rd-sys-color('border-subtle');
+}
+
+.svs-pop-head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.svs-title {
+  @include rd-font--body-normal;
+  @include rd-font--bold;
+  letter-spacing: -0.01em;
+  color: rd-sys-color('content-primary');
+}
+
+.svs-current-note {
+  margin: 0 0 $rd-spacing--b;
+  @include rd-font--size($rd-font--size-fine-prints, 1.5);
+  @include rd-font--semibold;
+  color: rd-sys-color('content-tertiary');
+}
+
+.svs-gap {
+  height: 8px;
+}
+
+.svs-note {
+  margin: $rd-spacing--c 0;
+  @include rd-font--size($rd-font--size-fine-prints, 1.5);
+  @include rd-font--semibold;
+  color: rd-sys-color('content-secondary');
+}
+
+.svs-btn {
+  width: 100%;
+}

@@ -1,26 +1,26 @@
-import { Action, SpotterEmbed } from '@thoughtspot/visual-embed-sdk'
+import type { SpotterEmbed, SpotterEmbedViewConfig } from '../../thoughtspot/sdkTypes'
+import { embedSdk } from '../../thoughtspot/sdkLoader'
+import { embedConfig } from '../config'
 
 /**
  * Spotter embed (SpotterEmbed) — conversational AI.
  *
- * Bound to a worksheet/model (VITE_TS_WORKSHEET_ID). Edit anything in
- * `SpotterEmbedViewConfig` here to test changes.
+ * Bound to a worksheet/model (VITE_TS_WORKSHEET_ID). Every prop of
+ * `SpotterEmbedViewConfig` is editable from the Embed config panel at runtime, so
+ * this is only what a fresh browser starts from.
+ *
+ * `sharedConversationId` is read off the URL so a shared-conversation link opens on
+ * the conversation it points at; the panel shows the parsed value and can override
+ * it.
  */
-export function createSpotterEmbed(container: HTMLDivElement): SpotterEmbed {
-  const sharedConversationId = window.location.hash.split('/share/')[1];
-  return new SpotterEmbed(container, {
-    frameParams: { width: '100%', height: '100%' },
-
-    // ───────── customize from here ─────────
-    
-    worksheetId: 'cd252e5c-b552-49a8-821d-3eadaa049cca',
+export function spotterDefaults(): SpotterEmbedViewConfig {
+  const { Action } = embedSdk()
+  const sharedConversationId = window.location.hash.split('/insights/conv-assist/s/')[1]
+  return {
+    worksheetId: embedConfig.worksheetId,
     enablePastConversationsSidebar: false,
     updatedSpotterChatPrompt: true,
     disabledActions: [Action.SpotterChatRename],
-    // hiddenActions: [
-    //     Action.SpotterShareConversationButtonHeader,
-    //     Action.SpotterShareConversationMenuItemSidebar,
-    // ],
     spotterSidebarConfig: {
       enablePastConversationsSidebar: true,
       spotterSidebarTitle: 'TS Assistant',
@@ -30,12 +30,14 @@ export function createSpotterEmbed(container: HTMLDivElement): SpotterEmbed {
       enableShareConversation: true,
       spotterShareLabel: 'Share this conversation',
     },
-    sharedConversationId
-    // ───────────────────────────────────────
-  })
+    updatedSpotterExperience: false,
+    ...(sharedConversationId ? { sharedConversationId } : {}),
+  }
 }
 
-
-// https://cdn.jsdelivr.net/gh/ravishah8176/assest/documentation.svg
-// https://cdn.jsdelivr.net/gh/ravishah8176/assest/share.svg
-// https://cdn.jsdelivr.net/gh/ravishah8176/assest/user-group.svg
+export function createSpotterEmbed(
+  container: HTMLDivElement,
+  config: SpotterEmbedViewConfig,
+): SpotterEmbed {
+  return new (embedSdk().SpotterEmbed)(container, config)
+}

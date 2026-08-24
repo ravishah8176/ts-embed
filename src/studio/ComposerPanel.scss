@@ -1,23 +1,25 @@
+@use '../styles/base' as *;
+
 /* Styles specific to ComposerPanel. Add your custom panel tweaks here. */
 
 /* Light icon button (collapse toggle) */
 .ts-icon-btn {
-  background: #f4f5f7;
-  border: 1px solid #e4e7ec;
-  border-radius: 7px;
-  color: #5a6573;
+  background: rd-sys-color('background-sunken');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  color: rd-sys-color('content-secondary');
   line-height: 0;
-  transition: background 0.15s, color 0.15s;
+  transition: background $rd-animation--quickly, color $rd-animation--quickly;
 
   &:hover {
-    background: #eaecef;
-    color: #0e1116;
+    background: rd-sys-color('background-ghost-hover');
+    color: rd-sys-color('content-primary');
   }
 }
 
 /* Event option row hover (in the host-event dropdown) */
 .hover-opt:hover {
-  background: #f4f6ff;
+  background: rd-sys-color('background-ghost-highlight');
 }
 
 /* The host-event selector button */
@@ -34,50 +36,18 @@
    Static styles migrated from inline (prefixed cp-)
    ---------------------------------------------------------------- */
 
-/* Root panel (flex-basis stays inline — depends on collapsed state) */
-.cp-aside {
-  min-height: 0;
-  background: #fff;
-  border-right: 1px solid #e4e7ec;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: flex-basis 0.22s ease;
-}
-
-/* Collapsed rail */
-.cp-collapsed-rail {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 14px 0;
-  gap: 16px;
-}
-
-.cp-expand-btn {
-  padding: 7px;
-  line-height: 0;
-}
-
 /* Status dots (color stays inline — dynamic) */
-.cp-dot-8 {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
 .cp-dot-9 {
   width: 9px;
   height: 9px;
-  border-radius: 50%;
+  border-radius: $rd-layout--radius-round;
   flex-shrink: 0;
 }
 
 .cp-dot-6 {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: $rd-layout--radius-round;
 }
 
 .cp-dot-shrink {
@@ -86,50 +56,37 @@
 
 /* Header + event selector */
 .cp-header {
-  padding: 15px 16px 14px;
-  border-bottom: 1px solid #eef0f3;
+  padding: $rd-spacing--d $rd-spacing--d $rd-spacing--d;
+  border-bottom: 1px solid rd-sys-color('border-subtle');
   position: relative;
   z-index: 20;
 }
 
-.cp-header-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 3px;
-}
-
 .cp-header-title {
   flex: 1;
-  font-size: 14.5px;
-  font-weight: 800;
+  @include rd-font--body-normal;
+  @include rd-font--bold;
   letter-spacing: -0.01em;
 }
 
-.cp-collapse-btn {
-  flex-shrink: 0;
-  padding: 5px;
-  margin-top: -2px;
-}
-
 .cp-subtitle {
-  font-size: 12px;
-  color: #8a94a2;
-  margin-bottom: 13px;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-secondary');
+  margin-bottom: $rd-spacing--c;
 }
 
 .cp-trigger-code {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  @include rd-font--footnote;
   color: var(--accent);
 }
 
 .cp-field-label {
   display: block;
-  font-size: 12px;
-  font-weight: 700;
-  color: #3a4452;
-  margin-bottom: 7px;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-primary');
+  margin-bottom: $rd-spacing--b;
 }
 
 .cp-rel {
@@ -141,11 +98,11 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 9px;
-  border: 1px solid #d7dce3;
-  border-radius: 10px;
-  padding: 10px 12px;
-  background: #fafbfc;
+  gap: $rd-spacing--b;
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--c $rd-spacing--c;
+  background: rd-sys-color('background-on-base');
   text-align: left;
 }
 
@@ -156,17 +113,17 @@
 
 .cp-select-name {
   display: block;
-  font-size: 14px;
-  font-weight: 700;
-  color: #0e1116;
-  line-height: 1.25;
+  @include rd-font--size($rd-font--body-normal, 1.25);
+  @include rd-font--bold;
+  color: rd-sys-color('content-primary');
 }
 
 .cp-select-key {
   display: block;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  color: #9aa4b2;
+  @include rd-font--fine-prints;
+  @include rd-font--normal;
+  color: rd-sys-color('content-tertiary');
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -175,7 +132,7 @@
 /* Chevron (transform stays inline — dynamic) */
 .cp-select-chevron {
   flex-shrink: 0;
-  transition: transform 0.15s;
+  transition: transform $rd-animation--quickly;
 }
 
 /* Dropdown */
@@ -191,10 +148,10 @@
   right: 0;
   top: calc(100% + 6px);
   z-index: 26;
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 12px;
-  box-shadow: 0 18px 44px rgba(14, 17, 22, 0.2);
+  background: rd-sys-color('background-base');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  @include rd-elevation--menu;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -202,8 +159,8 @@
 }
 
 .cp-dropdown-head {
-  padding: 9px;
-  border-bottom: 1px solid #eef0f3;
+  padding: $rd-spacing--b;
+  border-bottom: 1px solid rd-sys-color('border-subtle');
 }
 
 .cp-search-icon {
@@ -213,26 +170,26 @@
 }
 
 .cp-search-input {
-  padding: 7px 9px 7px 29px;
-  font-size: 13px;
-  background: #fafbfc;
-  border-radius: 8px;
+  padding: $rd-spacing--b $rd-spacing--b $rd-spacing--b $rd-spacing--g;
+  @include rd-font--body-normal;
+  background: rd-sys-color('background-on-base');
+  border-radius: $rd-layout--radius-xlarge;
 }
 
 .cp-supported {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  font-size: 10.5px;
-  color: #9aa4b2;
+  gap: $rd-spacing--b;
+  margin-top: $rd-spacing--b;
+  @include rd-font--fine-prints;
+  color: rd-sys-color('content-tertiary');
 }
 
 .cp-opt-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 5px;
+  padding: $rd-spacing--a;
 }
 
 /* Option row (background stays inline — depends on selected) */
@@ -240,26 +197,26 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: $rd-spacing--b;
   border: none;
-  border-radius: 8px;
-  padding: 7px 9px;
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--b $rd-spacing--b;
   text-align: left;
 }
 
 .cp-opt-name {
   display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: #1b2530;
-  line-height: 1.2;
+  @include rd-font--size($rd-font--body-normal, 1.2);
+  @include rd-font--semibold;
+  color: rd-sys-color('content-primary');
 }
 
 .cp-opt-key {
   display: block;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: #aeb6c2;
+  @include rd-font--fine-prints;
+  @include rd-font--normal;
+  color: rd-sys-color('content-tertiary');
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -271,102 +228,79 @@
 
 .cp-no-results {
   text-align: center;
-  color: #9aa4b2;
-  font-size: 13px;
-  padding: 22px 12px;
+  color: rd-sys-color('content-tertiary');
+  @include rd-font--body-normal;
+  padding: $rd-spacing--f $rd-spacing--c;
 }
 
 /* Params + resulting call */
 .cp-params {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: $rd-spacing--d;
 }
 
 .cp-params-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 7px;
+  margin-bottom: $rd-spacing--b;
 }
 
 .cp-field-label-inline {
-  font-size: 12px;
-  font-weight: 700;
-  color: #3a4452;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-primary');
 }
 
 .cp-params-status {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: $rd-spacing--c;
 }
 
 /* Validity text (color stays inline — dynamic) */
 .cp-valid-status {
-  font-size: 10.5px;
-  font-weight: 600;
+  @include rd-font--fine-prints;
 }
 
 .cp-reset-btn {
   background: transparent;
   border: none;
-  font-size: 11.5px;
+  @include rd-font--footnote;
+  @include rd-font--semibold;
   color: var(--accent);
-  font-weight: 600;
   padding: 0;
 }
 
-.cp-textarea {
-  width: 100%;
-  height: 260px;
-  resize: none;
-  overflow: auto;
-  border: 1px solid #d7dce3;
-  border-radius: 10px;
-  padding: 11px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  line-height: 1.55;
-  outline: none;
-  color: #1b2530;
-  background: #fafbfc;
-}
-
 .cp-result-label {
-  margin: 16px 0 7px;
+  flex-shrink: 0;
+  margin: $rd-spacing--d 0 $rd-spacing--b;
 }
 
-.cp-result-pre {
-  margin: 0;
-  min-height: 60px;
-  max-height: 160px;
-  overflow: auto;
-  background: #0b0e14;
-  border: 1px solid #1c2230;
-  border-radius: 10px;
-  padding: 12px 13px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11.5px;
-  line-height: 1.6;
-  color: #9fd0a8;
-  white-space: pre-wrap;
-  word-break: break-word;
+/* The generated call is short and fixed-size; the params editor takes the slack. */
+.cp-result-box {
+  flex: 0 0 118px;
+  display: flex;
+  min-height: 0;
+
+  .ce-host {
+    min-height: 0;
+  }
 }
+
 
 /* Footer */
 .cp-footer {
   flex-shrink: 0;
-  padding: 13px 16px;
-  border-top: 1px solid #eef0f3;
-  background: #fff;
+  padding: $rd-spacing--c $rd-spacing--d;
+  border-top: 1px solid rd-sys-color('border-subtle');
+  background: rd-sys-color('background-base');
 }
 
 .cp-trigger-btn {
   width: 100%;
-  font-size: 14px;
-  padding: 12px;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(43, 91, 244, 0.22);
 }

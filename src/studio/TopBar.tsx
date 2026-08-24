@@ -1,6 +1,15 @@
+import { useState } from 'react'
 import './TopBar.scss'
 import type { StudioTab } from './constants'
 import { initials } from './constants'
+import HostChip from './HostChip'
+import Typography from './Typography'
+import {
+  applyThemeMode,
+  setStoredThemeMode,
+  storedThemeMode,
+  type ThemeMode,
+} from '../theme/userThemePreference'
 
 interface Props {
   activeTab: StudioTab | null
@@ -15,12 +24,20 @@ interface Props {
   onSignOut: () => void
 }
 
-const TAB_DEFS: { id: StudioTab; label: string; dot: string }[] = [
-  { id: 'app', label: 'Full App', dot: '#2B5BF4' },
-  { id: 'liveboard', label: 'Liveboard', dot: '#12B886' },
-  { id: 'search', label: 'Search', dot: '#7C5CFC' },
-  { id: 'spotter', label: 'Spotter', dot: '#EC4899' },
-  { id: 'rest', label: 'REST API', dot: '#F59E0B' },
+/* 'Auto' rather than 'System' — it sits in a 3-up control where the label has to
+   stay short, and it reads as "follows the OS" either way. */
+const THEME_OPTIONS: { id: ThemeMode; label: string }[] = [
+  { id: 'light', label: 'Light' },
+  { id: 'system', label: 'Auto' },
+  { id: 'dark', label: 'Dark' },
+]
+
+const TAB_DEFS: { id: StudioTab; label: string }[] = [
+  { id: 'app', label: 'Full App' },
+  { id: 'liveboard', label: 'Liveboard' },
+  { id: 'search', label: 'Search' },
+  { id: 'spotter', label: 'Spotter' },
+  { id: 'rest', label: 'REST API' },
 ]
 
 export default function TopBar({
@@ -37,6 +54,14 @@ export default function TopBar({
 }: Props) {
   const userFirst = (userName || 'User').split(' ')[0]
   const userInitials = initials(userName)
+
+  const [themeMode, setThemeMode] = useState<ThemeMode>(storedThemeMode)
+
+  function chooseTheme(next: ThemeMode) {
+    setThemeMode(next)
+    setStoredThemeMode(next)
+    applyThemeMode(next)
+  }
 
   return (
     <header className="tb-header">
@@ -60,7 +85,6 @@ export default function TopBar({
                 onClick={() => onSwitchEmbed(t.id)}
                 className={'tb-tab' + (on ? ' tb-tab-on' : '')}
               >
-                <span className="tb-tab-dot" style={{ ['--tb-dot' as never]: t.dot }} />
                 {t.label}
               </button>
             )
@@ -70,10 +94,7 @@ export default function TopBar({
 
       <div className="tb-spacer" />
 
-      <div className="tb-host">
-        <span className="tb-host-pulse" />
-        <span className="tb-host-text">{hostShort}</span>
-      </div>
+      <HostChip host={hostShort} />
 
       <div className="tb-avatar-wrap">
         <button className="hover-soft tb-avatar-btn" onClick={onToggleAvatar}>
@@ -88,6 +109,24 @@ export default function TopBar({
               <div className="tb-menu-id">
                 <div className="tb-menu-name">{userName}</div>
                 <div className="tb-menu-email">{userEmail}</div>
+              </div>
+            </div>
+            <div className="tb-menu-sep" />
+            <div className="tb-menu-theme">
+              <Typography variant="footnote" color="secondary" as="span">
+                Appearance
+              </Typography>
+              <div className="tb-theme-seg">
+                {THEME_OPTIONS.map((o) => (
+                  <button
+                    key={o.id}
+                    className={'tb-theme-btn' + (themeMode === o.id ? ' tb-theme-btn-on' : '')}
+                    onClick={() => chooseTheme(o.id)}
+                    aria-pressed={themeMode === o.id}
+                  >
+                    {o.label}
+                  </button>
+                ))}
               </div>
             </div>
             <div className="tb-menu-sep" />

@@ -1,0 +1,210 @@
+// Radiant design system — Layer 2: semantic system tokens.
+//
+// Vendored from @thoughtspot/radiant-styles
+// (css/foundations/_tokens-system.scss). Token names and values are identical
+// to upstream; only the module syntax differs (@use instead of @import, and
+// map.get instead of the deprecated global map-get).
+//
+// Three groups, and the group MUST match the CSS property it feeds — upstream
+// CI enforces this and the palettes are only coherent if it holds:
+//   background-* -> background / background-color
+//   content-*    -> color / fill / stroke
+//   border-*     -> border-color / outline-color / box-shadow colour
+//
+// Never wrap a token in rgba() — a custom property cannot be decomposed. Use a
+// $rd-ref-*-alpha primitive, the ghost-* tokens, or rd-sys-color-alpha().
+
+@use 'sass:map';
+@use './tokens-reference' as *;
+
+// ---------------------------------------------------------------------------
+// LIGHT THEME — source of truth. rd-sys-color() also reads this for fallbacks.
+// ---------------------------------------------------------------------------
+$rd-sys-color-map: (
+  // BACKGROUND (16)
+  'background-base': $rd-ref-gray-00,
+  'background-sunken': $rd-ref-gray-10,
+  'background-raised': $rd-ref-gray-00, // always pair with a shadow token
+  'background-active': $rd-ref-gray-00, // list item / segmented control active
+  'background-secondary-action': $rd-ref-gray-20,
+  'background-on-base': $rd-ref-gray-10, // panels & sidebars sitting on base
+  'background-brand': $rd-ref-brand-60,
+  'background-overlay': $rd-ref-gray-70-alpha,
+  'background-inverse': $rd-ref-gray-90,
+  'background-success': $rd-ref-green-20,
+  'background-warning': $rd-ref-yellow-20,
+  'background-failure': $rd-ref-red-20,
+  'background-information': $rd-ref-blue-20,
+  'background-ghost-hover': $rd-ref-gray-10-alpha,
+  'background-secondary-hover': $rd-ref-gray-30,
+  'background-ghost-highlight': $rd-ref-brand-10-alpha,
+
+  // BACKGROUND / ACCENT (7) — categorical, fixed hue
+  'background-accent-green': $rd-ref-green-20,
+  'background-accent-yellow': $rd-ref-yellow-20,
+  'background-accent-red': $rd-ref-red-20,
+  'background-accent-blue': $rd-ref-blue-20,
+  'background-accent-gray': $rd-ref-gray-10,
+  'background-accent-purple-subtle': $rd-ref-purple-20,
+  'background-accent-purple-bold': $rd-ref-purple-60,
+
+  // CONTENT (9)
+  'content-primary': $rd-ref-gray-90,
+  'content-secondary': $rd-ref-gray-60,
+  'content-tertiary': $rd-ref-gray-40,
+  'content-brand': $rd-ref-brand-60,
+  'content-inverse': $rd-ref-gray-00,
+  'content-success': $rd-ref-green-60,
+  'content-warning': $rd-ref-yellow-60,
+  'content-failure': $rd-ref-red-60,
+  'content-information': $rd-ref-blue-60, // fixed role: stays blue under rebrand
+
+  // CONTENT / ACCENT (6)
+  'content-accent-green': $rd-ref-green-60,
+  'content-accent-yellow': $rd-ref-yellow-60,
+  'content-accent-red': $rd-ref-red-60,
+  'content-accent-gray': $rd-ref-gray-60,
+  'content-accent-blue': $rd-ref-blue-60,
+  'content-accent-purple': $rd-ref-purple-60,
+
+  // BORDER (9)
+  'border-bold': $rd-ref-gray-40,
+  'border-bold-hover': $rd-ref-gray-50,
+  'border-subtle': $rd-ref-gray-20,
+  'border-subtle-hover': $rd-ref-gray-30,
+  'border-brand': $rd-ref-brand-60,
+  'border-warning': $rd-ref-yellow-60,
+  'border-failure': $rd-ref-red-60,
+  'border-focus': $rd-ref-brand-50,
+  'border-gap': $rd-ref-gray-00,
+
+  // BORDER / ACCENT (6)
+  'border-accent-green': $rd-ref-green-60,
+  'border-accent-yellow': $rd-ref-yellow-60,
+  'border-accent-red': $rd-ref-red-60,
+  'border-accent-gray': $rd-ref-gray-60,
+  'border-accent-blue': $rd-ref-blue-60,
+  'border-accent-purple': $rd-ref-purple-60,
+
+  // SHADOW (3) — complete two-layer values, never decomposed
+  'shadow-surface': (0 0 4px rgba(25, 35, 49, 0.1), 0 2px 4px rgba(25, 35, 49, 0.04)),
+  'shadow-menu': (0 0 4px rgba(25, 35, 49, 0.08), 0 12px 24px rgba(25, 35, 49, 0.12)),
+  'shadow-modal': (0 0 4px rgba(25, 35, 49, 0.1), 0 16px 32px rgba(25, 35, 49, 0.16))
+);
+
+// ---------------------------------------------------------------------------
+// DARK THEME — same keys, dark-gray ramp for neutrals. The accent and status
+// ramps invert (light 20/60 -> dark 90/50) so contrast survives the flip.
+// ---------------------------------------------------------------------------
+$rd-sys-color-map-dark: (
+  // BACKGROUND (16)
+  'background-base': $rd-ref-dark-gray-05,
+  'background-sunken': $rd-ref-dark-gray-00,
+  'background-raised': $rd-ref-dark-gray-15,
+  'background-active': $rd-ref-dark-gray-40,
+  'background-secondary-action': $rd-ref-dark-gray-20,
+  'background-on-base': $rd-ref-dark-gray-10,
+  'background-brand': $rd-ref-brand-50,
+  'background-overlay': $rd-ref-dark-gray-30-alpha,
+  'background-inverse': $rd-ref-dark-gray-90,
+  'background-success': $rd-ref-green-90,
+  'background-warning': $rd-ref-yellow-90,
+  'background-failure': $rd-ref-red-90,
+  'background-information': $rd-ref-blue-90,
+  'background-ghost-hover': $rd-ref-gray-10-alpha, // theme-agnostic by design
+  'background-secondary-hover': $rd-ref-dark-gray-30,
+  'background-ghost-highlight': $rd-ref-brand-10-alpha, // theme-agnostic by design
+
+  // BACKGROUND / ACCENT (7)
+  'background-accent-green': $rd-ref-green-90,
+  'background-accent-yellow': $rd-ref-yellow-90,
+  'background-accent-red': $rd-ref-red-90,
+  'background-accent-blue': $rd-ref-blue-90,
+  'background-accent-gray': $rd-ref-dark-gray-15,
+  'background-accent-purple-subtle': $rd-ref-purple-80,
+  'background-accent-purple-bold': $rd-ref-purple-50,
+
+  // CONTENT (9)
+  'content-primary': $rd-ref-dark-gray-90,
+  'content-secondary': $rd-ref-dark-gray-60,
+  'content-tertiary': $rd-ref-dark-gray-40,
+  'content-brand': $rd-ref-brand-50,
+  'content-inverse': $rd-ref-dark-gray-05,
+  'content-success': $rd-ref-green-50,
+  'content-warning': $rd-ref-yellow-50,
+  'content-failure': $rd-ref-red-50,
+  'content-information': $rd-ref-blue-50,
+
+  // CONTENT / ACCENT (6)
+  'content-accent-green': $rd-ref-green-50,
+  'content-accent-yellow': $rd-ref-yellow-50,
+  'content-accent-red': $rd-ref-red-50,
+  'content-accent-gray': $rd-ref-dark-gray-40,
+  'content-accent-blue': $rd-ref-blue-50,
+  'content-accent-purple': $rd-ref-purple-50,
+
+  // BORDER (9) — note border-focus inverts against the light map
+  'border-bold': $rd-ref-dark-gray-40,
+  'border-bold-hover': $rd-ref-dark-gray-50,
+  'border-subtle': $rd-ref-dark-gray-20,
+  'border-subtle-hover': $rd-ref-dark-gray-30,
+  'border-brand': $rd-ref-brand-50,
+  'border-warning': $rd-ref-yellow-50,
+  'border-failure': $rd-ref-red-50,
+  'border-focus': $rd-ref-brand-60,
+  'border-gap': $rd-ref-dark-gray-05,
+
+  // BORDER / ACCENT (6)
+  'border-accent-green': $rd-ref-green-50,
+  'border-accent-yellow': $rd-ref-yellow-50,
+  'border-accent-red': $rd-ref-red-50,
+  'border-accent-gray': $rd-ref-dark-gray-40,
+  'border-accent-blue': $rd-ref-blue-50,
+  'border-accent-purple': $rd-ref-purple-50,
+
+  // SHADOW (3)
+  'shadow-surface': (0 0 4px rgba(0, 0, 0, 0.24), 0 4px 8px rgba(0, 0, 0, 0.2)),
+  'shadow-menu': (0 0 6px rgba(0, 0, 0, 0.16), 0 14px 28px rgba(0, 0, 0, 0.32)),
+  'shadow-modal': (0 0 4px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(0, 0, 0, 0.6))
+);
+
+// ---------------------------------------------------------------------------
+// Accessors
+// ---------------------------------------------------------------------------
+
+/// Emits a custom-property reference with the light value inlined as fallback,
+/// so components render correctly even if theme init never runs.
+@function rd-sys-color($name) {
+  $fallback: map.get($rd-sys-color-map, $name);
+
+  @if $fallback {
+    @return var(--rd-sys-color-#{$name}, #{$fallback});
+  } @else {
+    @error 'Unknown rd-sys-color token "#{$name}".';
+  }
+}
+
+/// Translucent variant of a token. rgba() cannot see through a custom property,
+/// so opacity has to go through color-mix().
+@function rd-sys-color-alpha($name, $alpha) {
+  @return color-mix(in srgb, #{rd-sys-color($name)} #{$alpha * 100%}, transparent);
+}
+
+// ---------------------------------------------------------------------------
+// Emitters
+// ---------------------------------------------------------------------------
+
+/// Writes every token in $theme-map as a --rd-sys-color-* custom property.
+@mixin rd-system-theme-init($theme-map: $rd-sys-color-map) {
+  @each $name, $value in $theme-map {
+    --rd-sys-color-#{$name}: #{$value};
+  }
+}
+
+/// Declares component-scoped --rd-comp-* aliases so a component can name its
+/// own roles once and reuse them across states.
+@mixin rd-component-tokens($tokens) {
+  @each $name, $value in $tokens {
+    --rd-comp-#{$name}: #{$value};
+  }
+}
