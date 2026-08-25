@@ -6,7 +6,7 @@ import { createEmbed, type AnyEmbed, type ViewConfigValues } from './embeds'
 import { onAuthFailure } from '../thoughtspot/init'
 import { embedSdk, loadedVersion } from '../thoughtspot/sdkLoader'
 
-export type EmbedStatus = 'loading' | 'ready' | 'error'
+export type EmbedStatus = 'idle' | 'loading' | 'ready' | 'error'
 
 export interface EmbedEventInfo {
   /** Member-name key, e.g. "RouteChange" (mapped back from the runtime value). */
@@ -37,14 +37,18 @@ export function useStudioEmbed(
   const onEventRef = useRef(onEvent)
   onEventRef.current = onEvent
 
-  const [status, setStatus] = useState<EmbedStatus>('loading')
+  const [status, setStatus] = useState<EmbedStatus>('idle')
   /** Why the surface is in error, when it is something the user can act on. */
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const container = containerRef.current
-    // No embed selected yet (landing screen) — nothing to mount.
-    if (!container || !embedType || !viewConfig) return
+    /* Nothing applied yet, so there is nothing to mount: there is no default config
+       to fall back on, and an embed built from an empty one would only fail. */
+    if (!container || !embedType || !viewConfig) {
+      setStatus('idle')
+      return
+    }
     setStatus('loading')
     setError(null)
 

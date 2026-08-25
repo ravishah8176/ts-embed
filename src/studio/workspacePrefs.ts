@@ -22,7 +22,7 @@ export interface Workspace {
 
 const EMPTY: Workspace = { embedType: null, restMode: false, panelTab: 'config' }
 
-const EMBED_TYPES: EmbedType[] = ['liveboard', 'search', 'app', 'spotter']
+const EMBED_TYPES: EmbedType[] = ['liveboard', 'viz', 'search', 'answer', 'app', 'spotter']
 const PANEL_TABS: SidePanelTab[] = ['config', 'events', 'log']
 
 /** Both accessors swallow their errors: with site data disabled the app just always starts at Welcome. */

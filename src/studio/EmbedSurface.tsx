@@ -19,6 +19,13 @@ export default function EmbedSurface({ embedType, status, error, containerRef }:
       <div className="es-frame">
         {/* The real embed renders into this container. */}
         <div className="es-stage">
+          {status === 'idle' && (
+            <div className="es-overlay es-overlay-loading">
+              <div className="es-loading-msg">
+                Write the {className} source in the config panel, then apply it.
+              </div>
+            </div>
+          )}
           {status === 'loading' && (
             <div className="es-overlay es-overlay-loading">
               <span className="es-spinner" />

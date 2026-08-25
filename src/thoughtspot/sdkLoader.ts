@@ -1,8 +1,14 @@
-import {
-  SNAPSHOT_EMBED_SDK_VERSION,
-  SNAPSHOT_REST_SDK_VERSION,
-} from '../studio/embeds/viewConfigSchema.generated'
 import { importFromTarball, readTarballBundle } from './tarballModule'
+
+/**
+ * Where the app falls back to when npm's latest cannot be resolved or will not load.
+ *
+ * Nothing is bundled — every version is fetched from a CDN at runtime — so these are
+ * only a floor. Keep them in step with `scripts/sdk-versions.json`, which is what the
+ * REST catalogue is generated from.
+ */
+export const SNAPSHOT_EMBED_SDK_VERSION = '1.50.1'
+const SNAPSHOT_REST_SDK_VERSION = '2.25.0'
 import type { EmbedSdkModule, RestSdkModule } from './sdkTypes'
 
 /**

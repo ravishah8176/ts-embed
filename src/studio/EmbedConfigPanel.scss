@@ -44,36 +44,6 @@
   text-overflow: ellipsis;
 }
 
-/* JSON / Code */
-.ecp-modes {
-  display: flex;
-  gap: $rd-spacing--a;
-  margin-top: $rd-spacing--c;
-  padding: $rd-spacing--a;
-  background: rd-sys-color('background-sunken');
-  border-radius: $rd-layout--radius-xlarge;
-}
-
-.ecp-mode {
-  flex: 1;
-  border: none;
-  background: transparent;
-  border-radius: $rd-layout--radius-xlarge;
-  padding: $rd-spacing--b 0;
-  @include rd-font--footnote;
-  @include rd-font--bold;
-  color: rd-sys-color('content-secondary');
-
-  &:hover {
-    color: rd-sys-color('content-primary');
-  }
-  &.on {
-    background: rd-sys-color('background-base');
-    color: rd-sys-color('content-primary');
-    @include rd-elevation--surface;
-  }
-}
-
 /* ── Body ─────────────────────────────────────────────────────────── */
 
 .ecp-body {
@@ -84,8 +54,7 @@
   padding: $rd-spacing--c $rd-spacing--d $rd-spacing--d;
 }
 
-/* JSON + code panes */
-.ecp-json-pane,
+/* The one code pane */
 .ecp-code-pane {
   flex: 1;
   /* Both axes: wide code must scroll inside its own pre, not stretch the panel. */
@@ -95,7 +64,7 @@
   flex-direction: column;
 }
 
-.ecp-json-head {
+.ecp-source-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -109,7 +78,7 @@
   color: rd-sys-color('content-primary');
 }
 
-.ecp-json-status {
+.ecp-status {
   flex-shrink: 0;
   @include rd-font--fine-prints;
   white-space: nowrap;
@@ -117,21 +86,6 @@
 
   &.bad {
     color: rd-sys-color('content-failure');
-  }
-}
-
-.ecp-copy {
-  border: none;
-  background: transparent;
-  padding: 0;
-  @include rd-font--footnote;
-  @include rd-font--semibold;
-  color: var(--accent);
-
-  &:disabled {
-    color: rd-sys-color('content-tertiary');
-    cursor: default;
-    text-decoration: none;
   }
 }
 
@@ -165,22 +119,20 @@
   color: var(--accent);
 }
 
-/* Revert and Apply are one decision with two answers, so they get one width:
-   flex-basis 0 makes the pair split the row evenly rather than letting the
-   longer label claim the space. Both buttons truncate, so the narrowest panel
-   clips the label instead of overflowing the footer. */
+/* Apply is the footer's only action, so it takes the whole row. It truncates, so the
+   narrowest panel clips the label instead of overflowing the footer. */
 .ecp-actions {
   display: flex;
-  gap: $rd-spacing--b;
 
   > * {
     flex: 1 1 0;
   }
 }
 
-/* Editor header: Format action beside the lint status */
-.ecp-json-tools {
-  display: flex;
-  align-items: center;
-  gap: $rd-spacing--c;
+/* What applying does, said once above the block rather than in a dialog every time:
+   the source is executed in this page, with this session. */
+.ecp-exec-note {
+  margin-bottom: $rd-spacing--b;
+  @include rd-font--fine-prints;
+  color: rd-sys-color('content-tertiary');
 }

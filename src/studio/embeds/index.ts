@@ -9,10 +9,10 @@ import type {
   SpotterEmbedViewConfig,
 } from '../../thoughtspot/sdkTypes'
 import type { EmbedType } from '../constants'
-import { appDefaults, createAppEmbed } from './appEmbed'
-import { createLiveboardEmbed, liveboardDefaults } from './liveboardEmbed'
-import { createSearchEmbed, searchDefaults } from './searchEmbed'
-import { createSpotterEmbed, spotterDefaults } from './spotterEmbed'
+import { createAppEmbed } from './appEmbed'
+import { createLiveboardEmbed } from './liveboardEmbed'
+import { createSearchEmbed } from './searchEmbed'
+import { createSpotterEmbed } from './spotterEmbed'
 
 export type AnyEmbed = AppEmbed | LiveboardEmbed | SearchEmbed | SpotterEmbed
 
@@ -39,29 +39,12 @@ export function createEmbed(
     case 'app':
       return createAppEmbed(container, config as AppViewConfig)
     case 'liveboard':
+    case 'viz':
       return createLiveboardEmbed(container, config as LiveboardViewConfig)
     case 'search':
+    case 'answer':
       return createSearchEmbed(container, config as SearchViewConfig)
     case 'spotter':
       return createSpotterEmbed(container, config as SpotterEmbedViewConfig)
-  }
-}
-
-/**
- * What an embed starts from before the user edits anything.
- *
- * Read through a function because the defaults name SDK enum members, which only
- * exist once the user's chosen SDK version has loaded.
- */
-export function embedDefaults(type: EmbedType): ViewConfigValues {
-  switch (type) {
-    case 'app':
-      return appDefaults() as ViewConfigValues
-    case 'liveboard':
-      return liveboardDefaults() as ViewConfigValues
-    case 'search':
-      return searchDefaults() as ViewConfigValues
-    case 'spotter':
-      return spotterDefaults() as ViewConfigValues
   }
 }

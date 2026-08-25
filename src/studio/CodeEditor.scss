@@ -1,7 +1,8 @@
 @use '../styles/base' as *;
 
-/* Styles specific to CodeEditor. The editor itself is themed from the component
-   (CodeMirror styles its own internals); this is only the box it fills. */
+/* Styles specific to CodeEditor. The editor paints itself from its Monaco theme
+   (see monacoSetup.ts); this is only the box it fills, and the copy control that
+   is ours rather than Monaco's. */
 
 .ce-host {
   flex: 1;
@@ -10,15 +11,36 @@
   display: flex;
   overflow: hidden;
 
-  .cm-editor {
+  .monaco-editor {
     flex: 1;
     min-width: 0;
   }
+
+  /* Flush, unframed, square — the playground's code block sits in its panel this way,
+     and a border around a dark block inside a light panel only fights it. */
+  .monaco-editor,
+  .monaco-editor .overflow-guard {
+    border-radius: 0;
+  }
 }
 
-/* Read-only preview: no caret, and a surface that reads as output not input. */
-.ce-readonly .cm-editor {
-  background: rd-sys-color('background-on-base');
+/**
+ * Brackets take the colour of the code around them.
+ *
+ * Monaco colours bracket *pairs* gold, orchid and blue by depth, which the
+ * playground's older build does not do and which reads as syntax that is not there.
+ * The editor option for it reports itself off and the model paints them anyway, so
+ * the colour is taken back here instead.
+ */
+.ce-host .monaco-editor [class*='bracket-highlighting-'] {
+  color: inherit;
+}
+
+/* Read-only preview: no caret, and no line highlight to suggest one. */
+.ce-readonly {
+  .monaco-editor .cursors-layer {
+    display: none;
+  }
 }
 
 /* Auto-height: sized by its content, so it drops the filling box's floor and stretch. */
@@ -27,7 +49,7 @@
   min-height: 0;
   display: block;
 
-  .cm-editor {
+  .monaco-editor {
     width: 100%;
   }
 }
@@ -35,12 +57,9 @@
 /**
  * Per-key copy control, at the end of the key's line.
  *
- * Hidden by opacity rather than by `display`, so the space it takes is reserved at all
- * times: revealing it on hover must not reflow the line under the pointer.
- *
- * `.shown` is set from the editor rather than by `:hover`, because the control belongs
- * to a key while the pointer may be several lines into that key's value — a relation
- * no selector can express.
+ * It is a content widget, so it exists only while the key it belongs to encloses the
+ * pointer — a key several lines above the value being read included, which is a
+ * relation no selector can express.
  */
 .ce-copy-value {
   display: inline-flex;
@@ -80,8 +99,6 @@
 .ce-loading {
   align-items: center;
   justify-content: center;
-  border: 1px solid rd-sys-color('border-subtle-hover');
-  border-radius: $rd-layout--radius-xlarge;
   background: rd-sys-color('background-on-base');
   color: rd-sys-color('content-tertiary');
   @include rd-font--footnote;

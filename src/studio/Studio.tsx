@@ -26,8 +26,7 @@ import ProfileView from './ProfileView'
 import RestTab from './rest/RestTab'
 import Welcome from './Welcome'
 import Toast, { type ToastData } from './Toast'
-import { embedDefaults, type ViewConfigValues } from './embeds'
-import { clearConfig, loadConfig, saveConfig } from './embeds/configStore'
+import { appliedConfig as runStored, loadApplied, saveApplied, type AppliedSource } from './embeds/embedSource'
 import { setStoredWorkspace, storedWorkspace } from './workspacePrefs'
 import { NPM_PACKAGE, takeSdkSwitch } from '../thoughtspot/sdkLoader'
 
@@ -68,8 +67,9 @@ export default function Studio() {
    * the panel is editing. Both are seeded from the store (the user's saved config,
    * or the built-in defaults) the first time an embed is opened.
    */
-  const [appliedConfigs, setAppliedConfigs] = useState<Partial<Record<EmbedType, ViewConfigValues>>>({})
-  const [configDrafts, setConfigDrafts] = useState<Partial<Record<EmbedType, ViewConfigValues>>>({})
+  const [appliedSources, setAppliedSources] = useState<Partial<Record<EmbedType, AppliedSource>>>({})
+  /** Embeds whose stored source has been read back, so it is only read once each. */
+  const sourceRestored = useRef<Set<EmbedType>>(new Set())
   const [composerKey, setComposerKey] = useState('UpdateRuntimeFilters')
   const [composerOpen, setComposerOpen] = useState(false)
   const [composerSearch, setComposerSearch] = useState('')
@@ -119,12 +119,24 @@ export default function Studio() {
     }
   }, [])
 
+  /**
+   * Restores what was applied to this embed last, if anything ever was.
+   *
+   * Nothing is applied until the user writes source and applies it, so an embed with
+   * no stored source mounts nothing — there is no default config to fall back on.
+   */
   useEffect(() => {
-    if (!embedType || appliedConfigs[embedType]) return
-    const stored = loadConfig(embedType)
-    setAppliedConfigs((c) => ({ ...c, [embedType]: stored }))
-    setConfigDrafts((d) => ({ ...d, [embedType]: stored }))
-  }, [embedType, appliedConfigs])
+    if (!embedType || sourceRestored.current.has(embedType)) return
+    sourceRestored.current.add(embedType)
+    const stored = loadApplied(embedType)
+    if (!stored) return
+    /* Stored source is re-run here, because what it builds may differ from last time. */
+    const { config, error } = runStored(stored)
+    if (error) {
+      showToast('Stored source failed to run', error, 'var(--rd-sys-color-content-failure)')
+    }
+    setAppliedSources((c) => ({ ...c, [embedType]: { code: stored.code, config } }))
+  }, [embedType])
 
   const hostShort = useMemo(() => (host ?? '').replace(/^https?:\/\//, ''), [host])
   const allowed = embedType ? allowedHostEvents(embedType) : []
@@ -141,8 +153,8 @@ export default function Studio() {
   function onEmbedEvent(e: EmbedEventInfo) {
     addLog('embed', e.name, e.payload)
   }
-  const appliedConfig = embedType ? (appliedConfigs[embedType] ?? null) : null
-  const draftConfig = embedType ? (configDrafts[embedType] ?? appliedConfig ?? {}) : {}
+  const appliedSource = embedType ? (appliedSources[embedType] ?? null) : null
+  const appliedConfig = appliedSource?.config ?? null
   const { containerRef, status, error: embedError, trigger } = useStudioEmbed(embedType, appliedConfig, onEmbedEvent)
 
   function addLog(dir: LogDir, name: string, payload: unknown, meta?: TriggerMeta) {
@@ -251,27 +263,17 @@ export default function Studio() {
   }
 
   // ── embed config actions ──
-  function onConfigDraftChange(next: ViewConfigValues) {
+  /**
+   * Rebuilds the embed from source the panel has just run, and remembers it.
+   *
+   * The entry comes in as an argument rather than off state: the panel ran the source
+   * itself, and what it built has not reached this component yet.
+   */
+  function onApplyConfig(entry: AppliedSource) {
     if (!embedType) return
-    setConfigDrafts((d) => ({ ...d, [embedType]: next }))
-  }
-  /** Rebuilds the embed with the draft, and remembers it for the next page load. */
-  function onApplyConfig() {
-    if (!embedType) return
-    const next = { ...draftConfig }
-    saveConfig(embedType, next)
-    setAppliedConfigs((c) => ({ ...c, [embedType]: next }))
+    saveApplied(embedType, entry)
+    setAppliedSources((c) => ({ ...c, [embedType]: entry }))
     showToast('Config applied', EMBED_CLASS_NAME[embedType] + ' rebuilt', 'var(--rd-sys-color-content-brand)')
-  }
-  function onRevertConfig() {
-    if (!embedType || !appliedConfig) return
-    setConfigDrafts((d) => ({ ...d, [embedType]: appliedConfig }))
-  }
-  function onResetConfigDefaults() {
-    if (!embedType) return
-    clearConfig(embedType)
-    setConfigDrafts((d) => ({ ...d, [embedType]: embedDefaults(embedType) }))
-    showToast('Defaults restored', 'Apply to rebuild the embed', 'var(--rd-sys-color-content-warning)')
   }
   function onCollapsePanel() {
     setPanelCollapsed(true)
@@ -396,12 +398,8 @@ export default function Studio() {
                   <EmbedConfigPanel
                     key={embedType}
                     embedType={embedType}
-                    draft={draftConfig}
-                    applied={appliedConfig ?? {}}
-                    onDraftChange={onConfigDraftChange}
+                    applied={appliedSource}
                     onApply={onApplyConfig}
-                    onRevert={onRevertConfig}
-                    onResetDefaults={onResetConfigDefaults}
                   />
                 ) : panelTab === 'log' ? (
                   <EventConsole

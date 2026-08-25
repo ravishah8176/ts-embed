@@ -1,27 +1,18 @@
-import type {
-  AppViewConfigProp,
-  LiveboardViewConfigProp,
-  SearchViewConfigProp,
-  SpotterEmbedViewConfigProp,
-} from '../studio/embeds/viewConfigSchema.generated'
-
 /**
  * The shape of the ThoughtSpot SDKs, declared here rather than imported from them.
  *
  * Neither SDK is a dependency of this app: every version, including the one the app
  * starts at, is fetched at runtime from a CDN, so there is no package on disk to take
  * types from. What that leaves is this file — a declaration of exactly the surface the
- * app touches, which is small because the app drives the SDKs reflectively: view
- * configs are edited as plain JSON against `VIEW_CONFIG_SCHEMA`, enum members are
- * resolved by name off the loaded module, and REST methods are dispatched by string
- * key from `catalog.ts`.
+ * app touches, which is small because the app drives the SDKs reflectively: a view
+ * config is whatever the user's source builds when it is run against the loaded
+ * module, and REST methods are dispatched by string key from `catalog.ts`.
  *
  * The trade-off is real and worth stating: these types describe the surface, not the
- * value types behind it. A misspelled view-config prop is still caught — the prop
- * names come from the generated schema, which is generated from a published build's
- * own type definitions — but a prop given the wrong *kind* of value is not, and lands
- * as an SDK-side error at render instead of a compile error. `viewConfigSchema.generated.ts`
- * carries each prop's kind, and the config panel validates against it at runtime.
+ * value types behind it. Neither a misspelled view-config prop nor one given the
+ * wrong kind of value is caught here — both land as SDK-side errors at render. The
+ * config panel does not check them either: what the user writes is run, and what it
+ * builds is handed to the SDK as-is.
  */
 
 /** A member of one of the SDK's enums, as it exists at runtime: name → wire value. */
@@ -77,23 +68,25 @@ export type SpotterEmbed = EmbedInstance
 export type EmbedClass = new (container: HTMLElement, config: unknown) => EmbedInstance
 
 /**
- * View configs, keyed by the prop names the generator read out of a published build.
+ * View configs — open prop bags, because that is what they now are.
  *
- * Values are `unknown` — see the note at the top of this file. Every prop is optional
- * because the SDK's own defaults apply to anything left out, which is what makes a
- * partial config in the panel meaningful.
+ * They used to be keyed by prop names read out of a published build's type
+ * definitions. That list could only ever describe the version it was generated from,
+ * and it described the wrong one the moment a user switched versions; the config is
+ * built by running the user's source against whichever SDK is loaded, so the loaded
+ * SDK is the only thing that can say which props are real. It says so at render.
  */
-export type AppViewConfig = Partial<Record<AppViewConfigProp, unknown>>
-export type LiveboardViewConfig = Partial<Record<LiveboardViewConfigProp, unknown>>
-export type SearchViewConfig = Partial<Record<SearchViewConfigProp, unknown>>
-export type SpotterEmbedViewConfig = Partial<Record<SpotterEmbedViewConfigProp, unknown>>
+export type AppViewConfig = Record<string, unknown>
+export type LiveboardViewConfig = Record<string, unknown>
+export type SearchViewConfig = Record<string, unknown>
+export type SpotterEmbedViewConfig = Record<string, unknown>
 
 /**
  * The Visual Embed SDK module.
  *
  * The named members are the ones the app reaches for by name; the index signature
- * covers the rest, since `sdkEnums.ts` looks enums up by the name the generated
- * schema recorded and the set of those differs by version.
+ * covers the rest, since a user's source can name any export of whichever version
+ * is loaded, and `embedSource.ts` puts all of them in scope for it.
  */
 export interface EmbedSdkModule {
   init(config: EmbedConfig): AuthEventEmitter | undefined

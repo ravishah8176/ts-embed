@@ -1,20 +1,12 @@
 import type { SearchEmbed, SearchViewConfig } from '../../thoughtspot/sdkTypes'
 import { embedSdk } from '../../thoughtspot/sdkLoader'
-import { embedConfig } from '../config'
 
 /**
- * Search embed (SearchEmbed).
+ * Search embed (SearchEmbed). Needs `dataSources` in the source to search anything.
  *
- * `dataSources` defaults to the configured worksheet/data source. Everything in
- * `SearchViewConfig` — including `searchOptions`, to preload a query — is editable
- * from the Embed config panel at runtime, so this is only the starting point.
+ * The config is whatever the user's source builds; this only constructs the embed
+ * from it, against whichever SDK version is loaded.
  */
-export function searchDefaults(): SearchViewConfig {
-  return {
-    dataSources: embedConfig.dataSourceId ? [embedConfig.dataSourceId] : undefined,
-  }
-}
-
 export function createSearchEmbed(
   container: HTMLDivElement,
   config: SearchViewConfig,

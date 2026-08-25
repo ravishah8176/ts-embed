@@ -41,7 +41,9 @@ const THEME_OPTIONS: { id: ThemeMode; label: string }[] = [
 const TAB_DEFS: { id: StudioTab; label: string }[] = [
   { id: 'app', label: 'Full App' },
   { id: 'liveboard', label: 'Liveboard' },
+  { id: 'viz', label: 'Visualization' },
   { id: 'search', label: 'Search' },
+  { id: 'answer', label: 'Answer' },
   { id: 'spotter', label: 'Spotter' },
   { id: 'rest', label: 'REST API' },
 ]

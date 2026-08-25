@@ -1,6 +1,6 @@
 import { embedSdk } from '../thoughtspot/sdkLoader'
 
-export type EmbedType = 'app' | 'liveboard' | 'search' | 'spotter'
+export type EmbedType = 'app' | 'liveboard' | 'viz' | 'search' | 'answer' | 'spotter'
 /** Top-bar tabs: the embed types plus the REST API SDK explorer. */
 export type StudioTab = EmbedType | 'rest'
 export type LogDir = 'embed' | 'host'
@@ -196,9 +196,29 @@ export function composerCodeFor(key: string, draft: string): string {
   }
 }
 
+/**
+ * The SDK class each surface is built from.
+ *
+ * Two of them share a class with another: a saved Answer is a `SearchEmbed` given an
+ * `answerId`, and a single visualization is a `LiveboardEmbed` given a `vizId`. The
+ * SDK has no separate class for either, so they are surfaces here rather than types
+ * there — which is worth having, because each keeps its own saved source.
+ */
 export const EMBED_CLASS_NAME: Record<EmbedType, string> = {
   app: 'AppEmbed',
   liveboard: 'LiveboardEmbed',
+  viz: 'LiveboardEmbed',
   search: 'SearchEmbed',
+  answer: 'SearchEmbed',
   spotter: 'SpotterEmbed',
+}
+
+/** The SDK type each embed's config is, shown in the config panel as a hint. */
+export const VIEW_CONFIG_TYPE_NAME: Record<EmbedType, string> = {
+  app: 'AppViewConfig',
+  liveboard: 'LiveboardViewConfig',
+  viz: 'LiveboardViewConfig',
+  search: 'SearchViewConfig',
+  answer: 'SearchViewConfig',
+  spotter: 'SpotterEmbedViewConfig',
 }

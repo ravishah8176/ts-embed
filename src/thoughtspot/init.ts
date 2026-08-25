@@ -51,7 +51,7 @@ let authEE: ReturnType<EmbedSdkModule['init']> | null = null
  * Always throws rather than returning a falsy token — handing the SDK an error
  * body as if it were a token surfaces much later as an opaque auth failure.
  */
-async function fetchBackendToken(): Promise<string> {
+export async function fetchBackendToken(): Promise<string> {
   let r: Response
   try {
     r = await fetch('/api/token', { credentials: 'include' })

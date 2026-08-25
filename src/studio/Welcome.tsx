@@ -26,9 +26,19 @@ const CARDS: Card[] = [
     desc: 'Embed a single Liveboard with its visualizations, tabs, and runtime filters.',
   },
   {
+    id: 'viz',
+    label: 'Visualization',
+    desc: 'Embed one visualization out of a Liveboard, by its viz ID.',
+  },
+  {
     id: 'search',
     label: 'Search',
     desc: 'Embed the Search experience bound to a worksheet or model data source.',
+  },
+  {
+    id: 'answer',
+    label: 'Answer',
+    desc: 'Embed a saved Answer, by its ID, in the Search experience it was saved from.',
   },
   {
     id: 'spotter',
