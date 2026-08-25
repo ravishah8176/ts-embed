@@ -105,13 +105,13 @@ export default function EventConsole(props: Props) {
           <span className={'ec-status' + (paused ? ' paused' : '')}>{paused ? 'paused' : 'capturing'}</span>
         </div>
 
-        <div className="ec-search">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--rd-sys-color-content-tertiary)" strokeWidth="2" strokeLinecap="round" className="ec-search-icon">
+        <div className="ts-search ec-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="ts-search-icon" aria-hidden>
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3-3" />
           </svg>
           <input
-            className="ts-input ec-search-input"
+            className="ts-input"
             value={logFilter}
             onChange={(e) => onLogFilter(e.target.value)}
             placeholder="Filter events…"

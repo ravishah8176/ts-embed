@@ -9,10 +9,22 @@ const TOKEN_VALIDITY_SECS = 30000
 type SessionUser = Record<string, unknown>
 
 /** What we stash in the HttpOnly cookie — a ThoughtSpot token + the host it's for.
- *  Deliberately NO password: credentials are used once at login, never stored. */
+ *  Deliberately NO password: credentials are used once at login, never stored.
+ *  The username rides along because re-minting the token in another Org needs it;
+ *  it is already on screen in the top bar, so the cookie learns nothing new. */
 interface AuthCookie {
   token: string
   host: string
+  username?: string
+}
+
+/** Credentials for one token mint. Exactly one of `password` / `secretKey` is used. */
+interface MintOptions {
+  username: string
+  password?: string
+  secretKey?: string
+  /** Org to mint the token *into*; omitted means the user's default/last-used Org. */
+  orgId?: number
 }
 
 /**
@@ -30,20 +42,31 @@ interface AuthCookie {
  * - GET  /api/me      -> derives the user from the cookie's token (calls TS) for
  *                        SPA restore; returns nulls once the token is gone/expired.
  * - POST /api/logout  -> clears the cookie.
+ * - POST /api/switch-org { orgId, password? } -> re-mints the token in another Org.
+ *
+ * Why a *re-mint* and not an org-switch call: a token-authenticated ThoughtSpot
+ * session is org-pinned by the server, which rejects the org-switch APIs outright
+ * (`CallosumRequestFilter.validateTokenAuthPerOrg`). The only way into another Org
+ * is a new token carrying `org_id`, and minting one needs a credential. Set
+ * TS_SECRET_KEY to the cluster's trusted-auth secret and the switch is one click;
+ * without it the client is told to collect the password again, which is used once
+ * and discarded exactly as at login.
  *
  * Trade-off: the session lasts only as long as the token (~TOKEN_VALIDITY_SECS);
  * after that the user logs in again. No password is stored to enable silent
  * refresh — that is the deliberate security choice.
  */
 function thoughtSpotAuthEndpoints(): Plugin {
-  async function mintToken(host: string, username: string, password: string) {
+  async function mintToken(host: string, opts: MintOptions) {
     try {
       const resp = await fetch(`${host}/api/rest/2.0/auth/token/full`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username,
-          password,
+          username: opts.username,
+          ...(opts.password ? { password: opts.password } : {}),
+          ...(opts.secretKey ? { secret_key: opts.secretKey } : {}),
+          ...(opts.orgId !== undefined ? { org_id: opts.orgId } : {}),
           validity_time_in_sec: TOKEN_VALIDITY_SECS,
         }),
       })
@@ -163,12 +186,12 @@ function thoughtSpotAuthEndpoints(): Plugin {
         if (!host) {
           return json(res, 400, { error: 'A valid ThoughtSpot host URL (https://…) is required' })
         }
-        const result = await mintToken(host, username, password)
+        const result = await mintToken(host, { username, password })
         if (!result.ok) {
           return json(res, 401, { error: 'Invalid ThoughtSpot credentials or host' })
         }
-        // Store only {token, host} in the cookie — the password is discarded here.
-        setAuthCookie(res, { token: result.token, host })
+        // Store only {token, host, username} — the password is discarded here.
+        setAuthCookie(res, { token: result.token, host, username })
         const user = await fetchSessionUser(host, result.token)
         return json(res, 200, {
           username: user?.username || username,
@@ -203,6 +226,45 @@ function thoughtSpotAuthEndpoints(): Plugin {
       server.middlewares.use('/api/logout', (_req, res) => {
         res.setHeader('Set-Cookie', `${AUTH_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`)
         return json(res, 200, { ok: true })
+      })
+
+      // Re-mint the session token in another Org and swap the cookie. 428 is the
+      // "I need the password to do this" answer, not a failure — the client shows
+      // its prompt and retries the same call with it.
+      server.middlewares.use('/api/switch-org', async (req, res) => {
+        if (req.method !== 'POST') return json(res, 405, { error: 'method not allowed' })
+        const auth = decodeAuth(req)
+        if (!auth) return json(res, 401, { error: 'not authenticated' })
+        if (!auth.username) {
+          return json(res, 409, { error: 'This session predates Org switching — sign in again.' })
+        }
+        const body = await readJsonBody(req)
+        const orgId = Number(body.orgId)
+        if (!Number.isInteger(orgId)) return json(res, 400, { error: 'A numeric orgId is required' })
+
+        const secretKey = process.env.TS_SECRET_KEY
+        const password = typeof body.password === 'string' && body.password ? body.password : undefined
+        if (!secretKey && !password) return json(res, 428, { error: 'password_required' })
+
+        const result = await mintToken(auth.host, {
+          username: auth.username,
+          secretKey,
+          password,
+          orgId,
+        })
+        if (!result.ok) {
+          return json(res, 403, {
+            error: 'Could not sign in to that Org — check the credential and that the user is a member.',
+          })
+        }
+        setAuthCookie(res, { token: result.token, host: auth.host, username: auth.username })
+        const user = await fetchSessionUser(auth.host, result.token)
+        return json(res, 200, {
+          username: user?.username || auth.username,
+          displayName: user?.displayName || auth.username,
+          profile: user?.profile ?? {},
+          host: auth.host,
+        })
       })
     },
   }

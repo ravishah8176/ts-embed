@@ -39,7 +39,7 @@ interface TriggerMeta {
 }
 
 export default function Studio() {
-  const { username, displayName, profile, host, restAuthMode, logout } = useAuth()
+  const { username, displayName, profile, host, restAuthMode, orgs, currentOrg, canSwitchOrg, switchOrg, logout } = useAuth()
 
   // ── core view state ──
   /**
@@ -363,6 +363,10 @@ export default function Studio() {
             setAvatarOpen(false)
           }}
           onSignOut={onSignOut}
+          orgs={orgs}
+          currentOrg={currentOrg}
+          canSwitchOrg={canSwitchOrg}
+          onSwitchOrg={switchOrg}
         />
 
         {/*

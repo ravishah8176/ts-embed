@@ -117,13 +117,13 @@ export default function ComposerPanel(props: Props) {
                   <div onClick={onCloseComposer} className="cp-overlay" />
                   <div className="anim-fade cp-dropdown">
                     <div className="cp-dropdown-head">
-                      <div className="cp-rel">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--rd-sys-color-content-tertiary)" strokeWidth="2" strokeLinecap="round" className="cp-search-icon">
+                      <div className="ts-search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="ts-search-icon" aria-hidden>
                           <circle cx="11" cy="11" r="7" />
                           <path d="m20 20-3-3" />
                         </svg>
                         <input
-                          className="ts-input cp-search-input"
+                          className="ts-input"
                           value={composerSearch}
                           onChange={(e) => onComposerSearch(e.target.value)}
                           placeholder="Search host events…"

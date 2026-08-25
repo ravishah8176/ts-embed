@@ -156,10 +156,7 @@
   padding: $rd-spacing--b;
   border-bottom: 1px solid rd-sys-color('border-subtle');
   .ts-input {
-    padding: $rd-spacing--b $rd-spacing--b;
-    @include rd-font--body-normal;
     background: rd-sys-color('background-on-base');
-    border-radius: $rd-layout--radius-xlarge;
   }
 }
 .rest-dropdown-list {
@@ -453,7 +450,7 @@
 }
 
 .rest-main-hint {
-  @include rd-font--fine-prints;
+  @include rd-font--footnote;
   color: rd-sys-color('content-tertiary');
 }
 
@@ -576,7 +573,7 @@
 }
 .rest-row-path {
   font-family: 'JetBrains Mono', monospace;
-  @include rd-font--fine-prints;
+  @include rd-font--footnote;
   @include rd-font--normal;
   color: rd-sys-color('content-tertiary');
   white-space: nowrap;
@@ -587,7 +584,7 @@
 .rest-row-meta {
   flex-shrink: 0;
   font-family: 'JetBrains Mono', monospace;
-  @include rd-font--fine-prints;
+  @include rd-font--footnote;
   color: rd-sys-color('content-tertiary');
   font-variant-numeric: tabular-nums;
 }
@@ -634,7 +631,7 @@
   flex: 1;
   min-width: 0;
   font-family: 'JetBrains Mono', monospace;
-  @include rd-font--fine-prints;
+  @include rd-font--footnote;
   @include rd-font--normal;
   color: rd-sys-color('content-tertiary');
   white-space: nowrap;
@@ -696,18 +693,25 @@
    No scroller of its own: the payload is as tall as it is and the call list scrolls,
    so a response is read by scrolling one thing rather than a box inside a box. Long
    lines wrap for the same reason. */
+/**
+ * Request and response bodies, read through the shared editor.
+ *
+ * A `<pre>` could not do what reading a real response needs: collapsing a nested
+ * object to find the one field that matters, and selecting a subtree to copy. The
+ * editor brings its own border and fill, so this is only the block it sits in — and
+ * it is auto-height, so the list around it keeps the single scrollbar.
+ */
 .rest-json {
-  margin: 0;
-  background: rd-sys-color('background-on-base');
+  min-width: 0;
+}
+
+.rest-json-wait {
+  padding: $rd-spacing--c;
   border: 1px solid rd-sys-color('border-subtle');
   border-radius: $rd-layout--radius-xlarge;
-  padding: $rd-spacing--c $rd-spacing--c;
-  font-family: 'JetBrains Mono', monospace;
-  @include rd-font--size($rd-font--size-fine-prints, 1.6);
-  @include rd-font--normal;
-  color: rd-sys-color('content-primary');
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  background: rd-sys-color('background-on-base');
+  @include rd-font--footnote;
+  color: rd-sys-color('content-tertiary');
 }
 
 /* ── Layout helpers (extracted from inline styles) ── */

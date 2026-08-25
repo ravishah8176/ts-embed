@@ -64,21 +64,9 @@
   }
 }
 
+/* Geometry comes from `.ts-search`; only its place in the header is local. */
 .ec-search {
-  position: relative;
   margin-top: $rd-spacing--c;
-}
-
-.ec-search-icon {
-  position: absolute;
-  left: 11px;
-  top: 9px;
-}
-
-.ec-search-input {
-  padding: $rd-spacing--b $rd-spacing--c $rd-spacing--b $rd-spacing--h;
-  @include rd-font--footnote;
-  border-radius: $rd-layout--radius-xlarge;
 }
 
 /* ── Reactions ────────────────────────────────────────────────────── */

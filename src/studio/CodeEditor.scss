@@ -21,6 +21,61 @@
   background: rd-sys-color('background-on-base');
 }
 
+/* Auto-height: sized by its content, so it drops the filling box's floor and stretch. */
+.ce-auto {
+  flex: none;
+  min-height: 0;
+  display: block;
+
+  .cm-editor {
+    width: 100%;
+  }
+}
+
+/**
+ * Per-key copy control, at the end of the key's line.
+ *
+ * Hidden by opacity rather than by `display`, so the space it takes is reserved at all
+ * times: revealing it on hover must not reflow the line under the pointer.
+ *
+ * `.shown` is set from the editor rather than by `:hover`, because the control belongs
+ * to a key while the pointer may be several lines into that key's value — a relation
+ * no selector can express.
+ */
+.ce-copy-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: $rd-spacing--d;
+  margin-left: $rd-spacing--a;
+  vertical-align: middle;
+  color: rd-sys-color('content-tertiary');
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity $rd-animation--quickly, color $rd-animation--quickly;
+
+  svg {
+    width: rd-utility--get-scaling-rem(11px);
+    height: rd-utility--get-scaling-rem(11px);
+  }
+}
+
+/* Every key enclosing the pointer, from the leaf it is on out to the root. */
+.ce-copy-value.shown {
+  opacity: 0.75;
+}
+
+.ce-copy-value:hover {
+  opacity: 1;
+  color: rd-sys-color('content-brand');
+}
+
+/* Held briefly after a copy, so it confirms even once the pointer has moved on. */
+.ce-copy-value.copied {
+  opacity: 1;
+  color: rd-sys-color('content-success');
+}
+
 /* Shown by callers while the editor chunk is still in flight. */
 .ce-loading {
   align-items: center;

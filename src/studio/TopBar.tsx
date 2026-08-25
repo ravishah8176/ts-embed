@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './TopBar.scss'
+import { ORG_SWITCH_NEEDS_PASSWORD, type OrgInfo } from '../auth/AuthContext'
 import type { StudioTab } from './constants'
 import { initials } from './constants'
 import HostChip from './HostChip'
@@ -22,6 +23,11 @@ interface Props {
   onToggleAvatar: () => void
   onOpenProfile: () => void
   onSignOut: () => void
+  orgs: OrgInfo[]
+  currentOrg: OrgInfo | null
+  canSwitchOrg: boolean
+  /** Resolves only on failure — a successful switch reloads the page. */
+  onSwitchOrg: (orgId: number, password?: string) => Promise<void>
 }
 
 /* 'Auto' rather than 'System' — it sits in a 3-up control where the label has to
@@ -51,16 +57,50 @@ export default function TopBar({
   onToggleAvatar,
   onOpenProfile,
   onSignOut,
+  orgs,
+  currentOrg,
+  canSwitchOrg,
+  onSwitchOrg,
 }: Props) {
   const userFirst = (userName || 'User').split(' ')[0]
   const userInitials = initials(userName)
 
   const [themeMode, setThemeMode] = useState<ThemeMode>(storedThemeMode)
 
+  const [orgListOpen, setOrgListOpen] = useState(false)
+  /** The Org awaiting a password — set only when the backend asks for one. */
+  const [pendingOrg, setPendingOrg] = useState<OrgInfo | null>(null)
+  const [orgPassword, setOrgPassword] = useState('')
+  const [orgBusy, setOrgBusy] = useState(false)
+  const [orgError, setOrgError] = useState<string | null>(null)
+
   function chooseTheme(next: ThemeMode) {
     setThemeMode(next)
     setStoredThemeMode(next)
     applyThemeMode(next)
+  }
+
+  /**
+   * A successful switch reloads the page, so nothing after `await` runs on the
+   * happy path — every branch below is a failure. `ORG_SWITCH_NEEDS_PASSWORD` is
+   * the backend saying it can mint the token but needs the credential first.
+   */
+  async function switchTo(org: OrgInfo, password?: string) {
+    setOrgBusy(true)
+    setOrgError(null)
+    try {
+      await onSwitchOrg(org.id, password)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      if (message === ORG_SWITCH_NEEDS_PASSWORD) {
+        setPendingOrg(org)
+      } else {
+        setPendingOrg(null)
+        setOrgError(message)
+      }
+    } finally {
+      setOrgBusy(false)
+    }
   }
 
   return (
@@ -111,6 +151,94 @@ export default function TopBar({
                 <div className="tb-menu-email">{userEmail}</div>
               </div>
             </div>
+            {canSwitchOrg && (
+              <>
+                <div className="tb-menu-sep" />
+                <div className="tb-menu-org">
+                  <Typography variant="footnote" color="secondary" as="span">
+                    Organization
+                  </Typography>
+                  <button
+                    className="tb-org-current"
+                    onClick={() => setOrgListOpen((o) => !o)}
+                    aria-expanded={orgListOpen}
+                    disabled={orgBusy}
+                  >
+                    <span className="tb-org-name">{currentOrg?.name ?? 'Unknown'}</span>
+                    <svg
+                      className={'tb-org-caret' + (orgListOpen ? ' tb-org-caret-open' : '')}
+                      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+
+                  {orgListOpen && (
+                    <div className="tb-org-list">
+                      {orgs.map((org) => {
+                        const on = org.id === currentOrg?.id
+                        return (
+                          <button
+                            key={org.id}
+                            className={'tb-org-item' + (on ? ' tb-org-item-on' : '')}
+                            onClick={() => {
+                              if (!on) void switchTo(org)
+                            }}
+                            disabled={orgBusy || on}
+                          >
+                            <span className="tb-org-check">{on ? '\u2713' : ''}</span>
+                            <span className="tb-org-item-name">{org.name}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Only reachable without TS_SECRET_KEY: the token backend holds no
+                      password, and a token session cannot switch Org on its own. */}
+                  {pendingOrg && (
+                    <form
+                      className="tb-org-auth"
+                      onSubmit={(e) => {
+                        e.preventDefault()
+                        void switchTo(pendingOrg, orgPassword)
+                      }}
+                    >
+                      <Typography variant="footnote" color="secondary" as="span">
+                        Confirm your password to sign in to {pendingOrg.name}
+                      </Typography>
+                      <input
+                        className="tb-org-password"
+                        type="password"
+                        autoComplete="current-password"
+                        value={orgPassword}
+                        onChange={(e) => setOrgPassword(e.target.value)}
+                        placeholder="Password"
+                        autoFocus
+                      />
+                      <div className="tb-org-auth-actions">
+                        <button
+                          type="button"
+                          className="tb-org-cancel"
+                          onClick={() => {
+                            setPendingOrg(null)
+                            setOrgPassword('')
+                          }}
+                        >
+                          Cancel
+                        </button>
+                        <button type="submit" className="tb-org-confirm" disabled={orgBusy || !orgPassword}>
+                          {orgBusy ? 'Switching\u2026' : 'Switch'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  {orgError && <div className="tb-org-error">{orgError}</div>}
+                </div>
+              </>
+            )}
             <div className="tb-menu-sep" />
             <div className="tb-menu-theme">
               <Typography variant="footnote" color="secondary" as="span">

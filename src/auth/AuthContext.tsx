@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from 'react'
@@ -17,6 +18,36 @@ import {
 
 /** The full raw user object from /api/rest/2.0/auth/session/user (every field). */
 export type SessionUser = Record<string, unknown>
+
+/** One Org as the session-user endpoint reports it (`OrgGenericInfo` server-side). */
+export interface OrgInfo {
+  id: number
+  name: string
+}
+
+/**
+ * Thrown by `switchOrg` when the backend needs the password to mint a token in the
+ * target Org. Not an error condition — the caller collects the password and calls
+ * `switchOrg` again with it. Only reachable when TS_SECRET_KEY is unset.
+ */
+export const ORG_SWITCH_NEEDS_PASSWORD = 'org_switch_needs_password'
+
+function toOrgInfo(value: unknown): OrgInfo | null {
+  if (!value || typeof value !== 'object') return null
+  const { id, name } = value as { id?: unknown; name?: unknown }
+  if (typeof id !== 'number' || typeof name !== 'string') return null
+  return { id, name }
+}
+
+/** The user's member Orgs, straight off `profile.orgs`. */
+function readOrgs(profile: SessionUser | null): OrgInfo[] {
+  const raw = profile?.orgs
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map(toOrgInfo)
+    .filter((o): o is OrgInfo => o !== null)
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
 
 export interface LoginParams {
   method: AuthMethodId
@@ -37,7 +68,22 @@ interface AuthState {
   profile: SessionUser | null
   host: string | null
   loading: boolean
+  /** Orgs this user belongs to. Empty for the methods that resolve no identity. */
+  orgs: OrgInfo[]
+  currentOrg: OrgInfo | null
+  /** Whether the Org switcher should be offered at all for this session. */
+  canSwitchOrg: boolean
   login: (params: LoginParams) => Promise<void>
+  /**
+   * Move the whole session into `orgId`, then reload.
+   *
+   * Throws `ORG_SWITCH_NEEDS_PASSWORD` when the token backend needs the password
+   * to re-mint; call again with it. On success this never returns — the page
+   * reloads, which is what puts the embeds, the REST tab and the profile sheet in
+   * the new Org together (the SDK's `init()` config is page-lifetime, see
+   * `thoughtspot/init.ts`).
+   */
+  switchOrg: (orgId: number, password?: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -286,6 +332,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const orgs = useMemo(() => readOrgs(profile), [profile])
+  const currentOrg = useMemo(() => toOrgInfo(profile?.current_org), [profile])
+  const spec = method ? AUTH_METHODS[method] : null
+  /* Nothing to switch between with one Org, and nothing to switch *from* when the
+     method leaves no readable session (None / EmbeddedSSO authenticate inside the
+     iframe, so `profile` — and with it the Org list — is null). */
+  const canSwitchOrg = orgs.length > 1 && !!spec && (spec.usesBackendToken || spec.resolvesIdentity)
+
+  /**
+   * Two shapes, split by where the session actually lives.
+   *
+   * • backend-token methods — the cluster pins a token-authenticated session to the
+   *   Org its token was minted for and rejects the org-switch APIs outright, so the
+   *   only way across is a fresh token carrying `org_id`. Our backend mints it.
+   * • cookie methods (Basic / SAML / OIDC) — an ordinary interactive session, which
+   *   the cluster's own switch endpoint moves. Cross-origin, so it rides the same
+   *   CORS allowlist every other direct call from this app needs.
+   */
+  async function switchOrg(orgId: number, password?: string) {
+    if (!method || !host) throw new Error('Not signed in')
+    const active = AUTH_METHODS[method]
+
+    if (active.usesBackendToken) {
+      const resp = await fetch('/api/switch-org', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orgId, password }),
+      })
+      if (resp.status === 428) throw new Error(ORG_SWITCH_NEEDS_PASSWORD)
+      if (!resp.ok) {
+        const data = (await resp.json().catch(() => ({}))) as { error?: string }
+        throw new Error(data.error ?? 'Could not switch Org')
+      }
+    } else if (active.resolvesIdentity) {
+      const resp = await fetch(`${host}/callosum/v1/session/orgs`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-By': 'ThoughtSpot',
+        },
+        body: new URLSearchParams({ org: String(orgId) }).toString(),
+      })
+      if (!resp.ok) {
+        throw new Error(
+          resp.status === 403
+            ? 'The cluster refused the Org switch for this session.'
+            : `Could not switch Org (${resp.status})`,
+        )
+      }
+    } else {
+      throw new Error(`${active.label} has no session to switch — it authenticates inside the iframe.`)
+    }
+
+    window.location.reload()
+  }
+
   /**
    * Clear the session and reload.
    *
@@ -310,7 +413,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         host,
         loading,
+        orgs,
+        currentOrg,
+        canSwitchOrg,
         login,
+        switchOrg,
         logout,
       }}
     >

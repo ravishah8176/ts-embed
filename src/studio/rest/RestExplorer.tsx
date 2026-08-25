@@ -20,6 +20,14 @@ import {
 /** Shared with the embed panel and the host-event composer; one lazy chunk for all. */
 const CodeEditor = lazy(() => import('../CodeEditor'))
 
+/**
+ * Where a request or response body stops growing and scrolls on its own.
+ *
+ * Roughly twenty lines. Most bodies are shorter and get no scrollbar at all; a long
+ * one is capped here rather than stretching its row past everything below it.
+ */
+const JSON_MAX_HEIGHT = '400px'
+
 const REST_PANEL_WIDTH_KEY = 'ts_embed_rest_panel_width_v1'
 
 import type { RestAuthMode } from '../../auth/authMethods'
@@ -531,13 +539,19 @@ export default function RestExplorer({ host, authMode, sdkVersion, onSdkVersion 
                 <div onClick={() => setPickerOpen(false)} className="rest-overlay" />
                 <div className="rest-dropdown anim-fade">
                   <div className="rest-dropdown-search">
-                    <input
-                      className="ts-input"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      placeholder={`Search ${sectionCount} methods…`}
-                      autoFocus
-                    />
+                    <div className="ts-search">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="ts-search-icon" aria-hidden>
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-3-3" />
+                      </svg>
+                      <input
+                        className="ts-input"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder={`Search ${sectionCount} methods…`}
+                        autoFocus
+                      />
+                    </div>
                   </div>
                   <div className="tss rest-dropdown-list">
                     {groups.map((g) => (
@@ -745,7 +759,17 @@ export default function RestExplorer({ host, authMode, sdkVersion, onSdkVersion 
                           {en.request === undefined ? (
                             <div className="rest-detail-empty">No request body.</div>
                           ) : (
-                            <pre className="rest-json">{jstr(en.request)}</pre>
+                            <div className="rest-json">
+                              <Suspense fallback={<div className="rest-json-wait">Loading…</div>}>
+                                <CodeEditor
+                                  value={jstr(en.request)}
+                                  language="json"
+                                  autoHeight
+                                  maxHeight={JSON_MAX_HEIGHT}
+                                  copyValues
+                                />
+                              </Suspense>
+                            </div>
                           )}
                         </div>
 
@@ -764,7 +788,17 @@ export default function RestExplorer({ host, authMode, sdkVersion, onSdkVersion 
                             </button>
                           </div>
                           {en.error && <div className="rest-row-error">{cleanError(en.error)}</div>}
-                          <pre className="rest-json">{jstr(en.result ?? {})}</pre>
+                          <div className="rest-json">
+                            <Suspense fallback={<div className="rest-json-wait">Loading…</div>}>
+                              <CodeEditor
+                                value={jstr(en.result ?? {})}
+                                language="json"
+                                autoHeight
+                                maxHeight={JSON_MAX_HEIGHT}
+                                copyValues
+                              />
+                            </Suspense>
+                          </div>
                         </div>
                       </div>
                     )}

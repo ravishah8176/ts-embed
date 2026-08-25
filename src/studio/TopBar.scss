@@ -261,3 +261,160 @@
   color: rd-sys-color('content-brand');
   @include rd-elevation--surface;
 }
+
+/* ---- Org switcher in the avatar menu ----
+   Laid out like .tb-menu-theme (stacked label + control) so the two menu sections
+   read as one system. The control is a disclosure rather than a segment: the Org
+   count is unbounded, and the list has to be able to scroll. */
+.tb-menu-org {
+  display: flex;
+  flex-direction: column;
+  gap: $rd-spacing--b;
+  padding: $rd-spacing--b $rd-spacing--c;
+}
+
+.tb-org-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $rd-spacing--b;
+  width: 100%;
+  padding: $rd-spacing--a $rd-spacing--c;
+  background: rd-sys-color('background-secondary-action');
+  border: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  border-radius: $rd-spacing--d;
+  color: rd-sys-color('content-primary');
+  transition: background $rd-animation--quickly;
+
+  &:hover:not(:disabled) {
+    background: rd-sys-color('background-ghost-hover');
+  }
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.tb-org-name {
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tb-org-caret {
+  flex-shrink: 0;
+  color: rd-sys-color('content-secondary');
+  transition: transform $rd-animation--quickly;
+}
+
+.tb-org-caret-open {
+  transform: rotate(180deg);
+}
+
+/* Capped so a tenant with many Orgs scrolls the list instead of the whole menu. */
+.tb-org-list {
+  display: flex;
+  flex-direction: column;
+  max-height: rd-utility--get-scaling-rem(184px);
+  overflow-y: auto;
+}
+
+.tb-org-item {
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  width: 100%;
+  text-align: left;
+  padding: $rd-spacing--a $rd-spacing--b;
+  background: transparent;
+  border: none;
+  border-radius: $rd-layout--radius-xlarge;
+  color: rd-sys-color('content-secondary');
+  @include rd-font--body-normal;
+  transition: background $rd-animation--quickly, color $rd-animation--quickly;
+
+  &:hover:not(:disabled) {
+    background: rd-sys-color('background-ghost-hover');
+    color: rd-sys-color('content-brand');
+  }
+}
+
+.tb-org-item-on {
+  color: rd-sys-color('content-primary');
+  @include rd-font--semibold;
+}
+
+/* Fixed-width gutter so the names line up whether or not a row is the current Org. */
+.tb-org-check {
+  width: rd-utility--get-scaling-rem(12px);
+  flex-shrink: 0;
+  color: rd-sys-color('content-brand');
+}
+
+.tb-org-item-name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tb-org-auth {
+  display: flex;
+  flex-direction: column;
+  gap: $rd-spacing--b;
+  padding-top: $rd-spacing--a;
+}
+
+.tb-org-password {
+  width: 100%;
+  padding: $rd-spacing--a $rd-spacing--b;
+  background: rd-sys-color('background-base');
+  border: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  border-radius: $rd-spacing--d;
+  color: rd-sys-color('content-primary');
+  @include rd-font--body-normal;
+
+  &:focus {
+    outline: none;
+    border-color: rd-sys-color('border-brand');
+  }
+}
+
+.tb-org-auth-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $rd-spacing--b;
+}
+
+.tb-org-cancel,
+.tb-org-confirm {
+  padding: $rd-spacing--a $rd-spacing--c;
+  border-radius: $rd-spacing--d;
+  border: none;
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+}
+
+.tb-org-cancel {
+  background: transparent;
+  color: rd-sys-color('content-secondary');
+
+  &:hover {
+    background: rd-sys-color('background-ghost-hover');
+  }
+}
+
+.tb-org-confirm {
+  background: rd-sys-color('background-brand');
+  color: rd-sys-color('content-inverse');
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.tb-org-error {
+  @include rd-font--footnote;
+  color: rd-sys-color('content-failure');
+}

@@ -163,18 +163,6 @@
   border-bottom: 1px solid rd-sys-color('border-subtle');
 }
 
-.cp-search-icon {
-  position: absolute;
-  left: 9px;
-  top: 8px;
-}
-
-.cp-search-input {
-  padding: $rd-spacing--b $rd-spacing--b $rd-spacing--b $rd-spacing--g;
-  @include rd-font--body-normal;
-  background: rd-sys-color('background-on-base');
-  border-radius: $rd-layout--radius-xlarge;
-}
 
 .cp-supported {
   display: flex;

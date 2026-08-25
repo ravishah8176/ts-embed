@@ -202,6 +202,35 @@ button {
   }
 }
 
+/**
+ * Search field — a `.ts-input` with room for a leading icon.
+ *
+ * The gutter is set from the wrapper rather than on the input's own class. A
+ * component sheet cannot win it on `.ts-input` alone: those sheets are imported
+ * before this one and the selectors tie on specificity, so `.ts-input`'s own
+ * `padding` was silently overriding every per-field gutter and dropping the
+ * placeholder under the icon. The descendant selector settles it regardless of order.
+ */
+.ts-search {
+  position: relative;
+}
+
+/* Not a hit target: clicking the icon should focus the field behind it. */
+.ts-search-icon {
+  position: absolute;
+  left: $rd-spacing--c;
+  top: 50%;
+  transform: translateY(-50%);
+  width: $rd-spacing--d;
+  height: $rd-spacing--d;
+  color: rd-sys-color('content-tertiary');
+  pointer-events: none;
+}
+
+.ts-search .ts-input {
+  padding-left: $rd-spacing--c + $rd-spacing--d + $rd-spacing--b;
+}
+
 .ts-input-error,
 .ts-input-error:focus {
   border-color: rd-sys-color('border-failure');
