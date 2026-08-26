@@ -1,0 +1,138 @@
+@use '../styles/base' as *;
+
+/* Styles specific to EmbedConfigPanel — the runtime view-config editor. */
+
+/* ── Header ───────────────────────────────────────────────────────── */
+
+.ecp-header {
+  position: relative;
+  z-index: 20;
+  padding: $rd-spacing--c $rd-spacing--d $rd-spacing--c;
+  border-bottom: 1px solid rd-sys-color('border-subtle');
+}
+
+.ecp-title {
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  @include rd-font--body-normal;
+  @include rd-font--bold;
+  letter-spacing: -0.01em;
+}
+
+.ecp-dirty-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: $rd-layout--radius-round;
+  background: $rd-ref-yellow-60;
+}
+
+.ecp-meta {
+  display: flex;
+  margin-top: $rd-spacing--b;
+}
+
+.ecp-type {
+  display: block;
+  margin-top: $rd-spacing--a;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--fine-prints;
+  @include rd-font--normal;
+  color: rd-sys-color('content-secondary');
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Body ─────────────────────────────────────────────────────────── */
+
+.ecp-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  padding: $rd-spacing--c $rd-spacing--d $rd-spacing--d;
+}
+
+/* The one code pane */
+.ecp-code-pane {
+  flex: 1;
+  /* Both axes: wide code must scroll inside its own pre, not stretch the panel. */
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ecp-source-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $rd-spacing--b;
+}
+
+.ecp-label {
+  flex-shrink: 0;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-primary');
+}
+
+.ecp-status {
+  flex-shrink: 0;
+  @include rd-font--fine-prints;
+  white-space: nowrap;
+  color: rd-sys-color('content-success');
+
+  &.bad {
+    color: rd-sys-color('content-failure');
+  }
+}
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+
+.ecp-footer {
+  flex-shrink: 0;
+  padding: $rd-spacing--c $rd-spacing--d $rd-spacing--c;
+  border-top: 1px solid rd-sys-color('border-subtle');
+  background: rd-sys-color('background-base');
+}
+
+.ecp-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $rd-spacing--b;
+}
+
+.ecp-dirty {
+  @include rd-font--footnote;
+  color: rd-sys-color('content-secondary');
+}
+
+.ecp-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  @include rd-font--footnote;
+  @include rd-font--semibold;
+  color: var(--accent);
+}
+
+/* Apply is the footer's only action, so it takes the whole row. It truncates, so the
+   narrowest panel clips the label instead of overflowing the footer. */
+.ecp-actions {
+  display: flex;
+
+  > * {
+    flex: 1 1 0;
+  }
+}
+
+/* What applying does, said once above the block rather than in a dialog every time:
+   the source is executed in this page, with this session. */
+.ecp-exec-note {
+  margin-bottom: $rd-spacing--b;
+  @include rd-font--fine-prints;
+  color: rd-sys-color('content-tertiary');
+}

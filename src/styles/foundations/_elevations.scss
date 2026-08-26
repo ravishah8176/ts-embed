@@ -1,0 +1,30 @@
+// Radiant design system — elevation.
+//
+// Vendored from @thoughtspot/radiant-styles (css/foundations/_elevations.scss),
+// reduced to the token-backed mixins. Upstream's numeric ladder (0-500) hard-codes
+// rgba(#1c2330, a) and so does not respond to the theme; it is left behind.
+//
+// Shadow tokens are complete two-layer values — use them whole, never split.
+
+@use './tokens-system' as *;
+
+@mixin rd-elevation--reset {
+  // Zero-size shadow rather than `none`, so transitions still interpolate.
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.04), 0 0 0 0 rgba(0, 0, 0, 0.04);
+}
+
+@mixin rd-elevation--surface {
+  box-shadow: rd-sys-color('shadow-surface');
+}
+
+@mixin rd-elevation--menu {
+  box-shadow: rd-sys-color('shadow-menu');
+}
+
+@mixin rd-elevation--dropdown {
+  box-shadow: rd-sys-color('shadow-menu');
+}
+
+@mixin rd-elevation--modal {
+  box-shadow: rd-sys-color('shadow-modal');
+}

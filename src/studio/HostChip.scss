@@ -1,0 +1,42 @@
+@use '../styles/base' as *;
+
+/* Backing styles for <HostChip>, at Radiant's chip geometry (`chip-base.module.scss`):
+   the small step is $rd-spacing--f tall, padded $rd-spacing--c on each side, on a
+   $rd-spacing--d radius. */
+.ts-host-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  height: $rd-spacing--f;
+  max-width: rd-utility--get-scaling-rem(300px);
+  padding: 0 $rd-spacing--c;
+  border: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  border-radius: $rd-spacing--d;
+  background: rd-sys-color('background-sunken');
+  @include rd-font--footnote;
+  color: rd-sys-color('content-secondary');
+}
+
+/* Connected. The ring is a glow around a status dot, so it keeps its own
+   geometry rather than becoming an elevation. */
+.ts-host-chip-dot {
+  flex-shrink: 0;
+  width: $rd-spacing--b;
+  height: $rd-spacing--b;
+  border-radius: $rd-layout--radius-round;
+  background: $rd-ref-green-60;
+  box-shadow: 0 0 0 rd-utility--get-scaling-rem(3px)
+    rd-sys-color-alpha('border-accent-green', 0.16);
+}
+
+.ts-host-chip-label {
+  flex-shrink: 0;
+}
+
+/* The host is an address, so it is set in the mono face and is what gives way
+   when the chip runs out of room. */
+.ts-host-chip-name {
+  font-family: 'JetBrains Mono', monospace;
+  color: rd-sys-color('content-primary');
+  @include rd-font--truncate;
+}

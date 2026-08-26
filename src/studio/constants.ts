@@ -1,6 +1,6 @@
-import { EmbedEvent, HostEvent } from '@thoughtspot/visual-embed-sdk'
+import { embedSdk } from '../thoughtspot/sdkLoader'
 
-export type EmbedType = 'app' | 'liveboard' | 'search' | 'spotter'
+export type EmbedType = 'app' | 'liveboard' | 'viz' | 'search' | 'answer' | 'spotter'
 /** Top-bar tabs: the embed types plus the REST API SDK explorer. */
 export type StudioTab = EmbedType | 'rest'
 export type LogDir = 'embed' | 'host'
@@ -99,22 +99,28 @@ export const SAMPLE: Record<string, unknown> = {
  * no-op when triggered. `_type` is kept for call-site compatibility.
  */
 export function allowedHostEvents(_type?: EmbedType): string[] {
-  // String enum -> keys are member names; drop any numeric reverse-map keys.
-  return Object.keys(HostEvent).filter((k) => isNaN(Number(k)))
+  return Object.keys(embedSdk().HostEvent).filter((k) => isNaN(Number(k)))
 }
 
-/* ----------------------------------------------------------------------------
+/**
  * Reverse map: EmbedEvent runtime value (e.g. "init") -> member name ("Init").
- * `embed.on(EmbedEvent.ALL)` delivers payload.type as the *value*, so we map it
- * back to a readable key for display + categorisation.
- * -------------------------------------------------------------------------- */
-export const EMBED_VALUE_TO_KEY: Record<string, string> = Object.entries(EmbedEvent).reduce(
-  (acc, [key, value]) => {
-    if (typeof value === 'string') acc[value] = key
-    return acc
-  },
-  {} as Record<string, string>,
-)
+ *
+ * `embed.on(EmbedEvent.ALL)` delivers `payload.type` as the *value*, so it is
+ * mapped back to a readable key for display. Built on first use rather than at
+ * module load: the SDK is fetched at the version the user picked, so its enums do
+ * not exist until sign-in has completed.
+ */
+let embedValueToKey: Record<string, string> | null = null
+
+export function embedEventKey(value: string): string {
+  if (!embedValueToKey) {
+    embedValueToKey = Object.entries(embedSdk().EmbedEvent).reduce((acc, [key, v]) => {
+      if (typeof v === 'string') acc[v] = key
+      return acc
+    }, {} as Record<string, string>)
+  }
+  return embedValueToKey[value] ?? value
+}
 
 /* ----------------------------------------------------------------------------
  * Display helpers — ported from the design's DCLogic.
@@ -190,9 +196,29 @@ export function composerCodeFor(key: string, draft: string): string {
   }
 }
 
+/**
+ * The SDK class each surface is built from.
+ *
+ * Two of them share a class with another: a saved Answer is a `SearchEmbed` given an
+ * `answerId`, and a single visualization is a `LiveboardEmbed` given a `vizId`. The
+ * SDK has no separate class for either, so they are surfaces here rather than types
+ * there — which is worth having, because each keeps its own saved source.
+ */
 export const EMBED_CLASS_NAME: Record<EmbedType, string> = {
   app: 'AppEmbed',
   liveboard: 'LiveboardEmbed',
+  viz: 'LiveboardEmbed',
   search: 'SearchEmbed',
+  answer: 'SearchEmbed',
   spotter: 'SpotterEmbed',
+}
+
+/** The SDK type each embed's config is, shown in the config panel as a hint. */
+export const VIEW_CONFIG_TYPE_NAME: Record<EmbedType, string> = {
+  app: 'AppViewConfig',
+  liveboard: 'LiveboardViewConfig',
+  viz: 'LiveboardViewConfig',
+  search: 'SearchViewConfig',
+  answer: 'SearchViewConfig',
+  spotter: 'SpotterEmbedViewConfig',
 }

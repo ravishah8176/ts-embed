@@ -1,0 +1,170 @@
+@use '../styles/base' as *;
+
+/* Backing styles for <Button>, at Radiant's spec.
+
+   Radiant buttons are pills — `100vh` rather than a radius token, so the ends
+   stay fully round at every height. Icon-only buttons are circles instead. */
+
+.ts-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $rd-spacing--b;
+  position: relative;
+  max-width: 100%;
+  border: 0 solid transparent;
+  border-radius: 100vh;
+  font-family: inherit;
+  cursor: pointer;
+  @include rd-font--normal;
+  transition: background-color $rd-animation--quickly ease,
+    color $rd-animation--promptly ease;
+
+  &:focus {
+    outline: 0;
+  }
+
+  /* Radiant draws the focus ring as an inset pseudo-element rather than an
+     outline, so it follows the pill's curve instead of boxing it. */
+  &:focus-visible::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: rd-utility--get-scaling-rem(2px) solid rd-sys-color('border-focus');
+    border-radius: inherit;
+  }
+
+  &:disabled {
+    opacity: $rd-layout--disabled-opacity;
+    cursor: not-allowed;
+  }
+}
+
+/* An icon with no label is a circle, at the size the variant already set. */
+.ts-btn--icon:not(.ts-btn--text) {
+  border-radius: $rd-layout--radius-round;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Sizes — heights are $rd-spacing--e / --f / --h (20 / 24 / 32px)
+// ---------------------------------------------------------------------------
+.ts-btn--xs {
+  height: $rd-spacing--e;
+  padding: rd-utility--get-scaling-rem(1px) $rd-spacing--d;
+  @include rd-font--footnote;
+
+  &.ts-btn--text {
+    min-width: $rd-spacing--i;
+  }
+  &.ts-btn--icon:not(.ts-btn--text) {
+    width: $rd-spacing--e;
+  }
+}
+
+.ts-btn--s {
+  height: $rd-spacing--f;
+  padding: rd-utility--get-scaling-rem(3px) $rd-spacing--d;
+  @include rd-font--footnote;
+
+  &.ts-btn--text {
+    min-width: rd-utility--get-scaling-rem(60px);
+  }
+  &.ts-btn--icon:not(.ts-btn--text) {
+    width: $rd-spacing--f;
+  }
+}
+
+.ts-btn--m {
+  height: $rd-spacing--h;
+  padding: rd-utility--get-scaling-rem(6px) $rd-spacing--d;
+  @include rd-font--body-normal;
+
+  &.ts-btn--text {
+    min-width: rd-utility--get-scaling-rem(80px);
+  }
+  &.ts-btn--icon:not(.ts-btn--text) {
+    width: $rd-spacing--h;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Variants
+// ---------------------------------------------------------------------------
+.ts-btn--primary {
+  color: rd-sys-color('content-inverse');
+  background-color: rd-comp-color('button-primary-default');
+
+  &:not(:disabled) {
+    &:hover,
+    &:focus {
+      background-color: rd-comp-color('button-primary-hover');
+    }
+
+    /* After :focus — Chrome otherwise keeps the focus colour while pressed. */
+    &:active {
+      background-color: rd-comp-color('button-primary-pressed');
+    }
+  }
+
+  &.ts-btn--selected {
+    background-color: rd-comp-color('button-primary-pressed');
+  }
+}
+
+.ts-btn--secondary {
+  color: rd-sys-color('content-primary');
+  background-color: rd-comp-color('button-secondary-default');
+
+  &:not(:disabled) {
+    &:hover,
+    &:focus {
+      background-color: rd-comp-color('button-secondary-hover');
+    }
+
+    &:active {
+      background-color: rd-comp-color('button-secondary-pressed');
+    }
+  }
+
+  &.ts-btn--selected {
+    background-color: rd-comp-color('button-secondary-pressed');
+  }
+}
+
+/* Tertiary carries no fill and no horizontal padding — it is meant to sit
+   inline with text, not occupy a slot of its own. */
+.ts-btn--tertiary {
+  color: rd-sys-color('content-primary');
+  background-color: transparent;
+  padding-left: 0;
+  padding-right: 0;
+
+  &:not(:disabled) {
+    &:hover,
+    &:focus {
+      background-color: rd-comp-color('button-tertiary-hover');
+    }
+
+    &:active {
+      background-color: rd-comp-color('button-tertiary-pressed');
+    }
+  }
+
+  &.ts-btn--selected {
+    background-color: rd-comp-color('button-tertiary-pressed');
+  }
+}
+
+/* The label is its own element so an icon can sit beside it without the flex
+   gap collapsing onto a text node. */
+.ts-btn-label {
+  display: inline-block;
+}
+
+/* Opt-in, as upstream: a button only clips its label where the caller has said
+   the row is narrower than the words. */
+.ts-btn-label--truncate {
+  @include rd-font--truncate;
+}

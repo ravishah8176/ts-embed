@@ -2,20 +2,22 @@
    This component currently styles itself with inline styles + shared classes
    from studio.scss. Add your custom EmbedSurface overrides here. */
 
+@use '../styles/base' as *;
+
 /* ── Inline styles migrated to classes ── */
 .es-main {
   flex: 1;
   min-height: 0;
-  padding: 14px;
+  padding: $rd-spacing--d;
   display: flex;
 }
 .es-frame {
   flex: 1;
   min-height: 0;
-  border-radius: 14px;
-  border: 1px solid #e0e4ea;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(14, 17, 22, 0.05);
+  border-radius: $rd-spacing--b;
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  background: rd-sys-color('background-base');
+  @include rd-elevation--surface;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -24,7 +26,7 @@
   flex: 1;
   min-height: 0;
   position: relative;
-  background: #fbfbfc;
+  background: rd-sys-color('background-on-base');
 }
 .es-overlay {
   position: absolute;
@@ -34,39 +36,48 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #fbfbfc;
+  background: rd-sys-color('background-on-base');
 }
 .es-overlay-loading {
-  gap: 14px;
+  gap: $rd-spacing--d;
   pointer-events: none;
 }
 .es-overlay-error {
-  gap: 10px;
-  color: #c0392b;
-  padding: 24px;
+  gap: $rd-spacing--c;
+  color: rd-sys-color('content-failure');
+  padding: $rd-spacing--f;
   text-align: center;
 }
 .es-spinner {
   width: 34px;
   height: 34px;
-  border: 3px solid #e4e7ec;
+  border: 3px solid rd-sys-color('border-subtle');
   border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: tsSpin 0.8s linear infinite;
+  border-radius: $rd-layout--radius-round;
+  animation: tsSpin $rd-animation--slowly linear infinite;
 }
 .es-loading-msg {
-  font-size: 13px;
-  color: #7a8694;
-  font-weight: 500;
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+  color: rd-sys-color('content-secondary');
 }
 .es-error-icon {
-  font-size: 26px;
+  @include rd-font--page-title;
 }
 .es-error-msg {
-  font-size: 14px;
-  font-weight: 600;
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
 }
 .es-container {
   position: absolute;
   inset: 0;
+}
+
+/* Shown under a build/render failure — the actionable half of the message. */
+.es-error-sub {
+  max-width: 380px;
+  margin-top: $rd-spacing--b;
+  text-align: center;
+  @include rd-font--size($rd-font--footnote, 1.55);
+  color: rd-sys-color('content-secondary');
 }

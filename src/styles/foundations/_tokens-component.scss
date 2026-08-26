@@ -1,0 +1,188 @@
+// Radiant design system — Layer 3: component tokens.
+//
+// Vendored from @thoughtspot/radiant-styles (css/foundations/_tokens-component*.scss).
+// Only the three component families this app has surfaces for are carried over —
+// button, chip and segmented control. Upstream also ships toggle, progress and
+// chart maps; add them here if those components ever land.
+//
+// This layer exists so a component's states can be themed without widening the
+// system palette: 'button-primary-hover' is a real design decision, but it has no
+// business being a semantic role every other component can see.
+
+@use 'sass:map';
+@use './tokens-reference' as *;
+
+// ---------------------------------------------------------------------------
+// BUTTON
+// ---------------------------------------------------------------------------
+// Tertiary has no default fill — transparent is handled in the component sheet.
+$rd-comp-button-color-map: (
+  'button-bg-overlay': $rd-ref-gray-60-alpha,
+
+  'button-primary-default': $rd-ref-brand-60,
+  'button-primary-hover': $rd-ref-brand-70,
+  'button-primary-pressed': $rd-ref-brand-80,
+
+  // For a primary button sitting on a coloured/brand surface.
+  'button-primary-on-color-default': $rd-ref-gray-00,
+  'button-primary-on-color-hover': $rd-ref-brand-20,
+  'button-primary-on-color-pressed': $rd-ref-brand-30,
+
+  'button-secondary-default': $rd-ref-gray-20,
+  'button-secondary-hover': $rd-ref-gray-30,
+  'button-secondary-pressed': $rd-ref-gray-40,
+
+  'button-tertiary-hover': $rd-ref-gray-10-alpha,
+  'button-tertiary-pressed': $rd-ref-brand-10-alpha
+);
+
+$rd-comp-button-color-map-dark: (
+  'button-bg-overlay': $rd-ref-gray-20-alpha,
+
+  'button-primary-default': $rd-ref-brand-50,
+  'button-primary-hover': $rd-ref-brand-40,
+  'button-primary-pressed': $rd-ref-brand-30,
+
+  'button-primary-on-color-default': $rd-ref-dark-gray-05,
+  'button-primary-on-color-hover': $rd-ref-dark-gray-15,
+  'button-primary-on-color-pressed': $rd-ref-dark-gray-30,
+
+  'button-secondary-default': $rd-ref-dark-gray-20,
+  'button-secondary-hover': $rd-ref-dark-gray-30,
+  'button-secondary-pressed': $rd-ref-dark-gray-40,
+
+  // Both tertiary states are theme-agnostic by design.
+  'button-tertiary-hover': $rd-ref-gray-10-alpha,
+  'button-tertiary-pressed': $rd-ref-brand-10-alpha
+);
+
+// ---------------------------------------------------------------------------
+// CHIP
+// ---------------------------------------------------------------------------
+// Variants are semantic in ThoughtSpot's data model: attribute=blue,
+// measure=green, date=purple, filter=gray. Dark inverts each ramp (20/30/40/60
+// becomes 90/80/70/50) so contrast survives the flip.
+$rd-comp-chip-color-map: (
+  'chip-loading-default': $rd-ref-gray-10,
+
+  'chip-attribute-default': $rd-ref-blue-20,
+  'chip-attribute-hover': $rd-ref-blue-30,
+  'chip-attribute-pressed': $rd-ref-blue-40,
+  'chip-attribute-icon': $rd-ref-blue-60,
+  'chip-attribute-active-border': $rd-ref-blue-30,
+
+  'chip-measure-default': $rd-ref-green-20,
+  'chip-measure-hover': $rd-ref-green-30,
+  'chip-measure-pressed': $rd-ref-green-40,
+  'chip-measure-icon': $rd-ref-green-60,
+  'chip-measure-active-border': $rd-ref-green-30,
+
+  'chip-filter-default': $rd-ref-gray-20,
+  'chip-filter-hover': $rd-ref-gray-30,
+  'chip-filter-pressed': $rd-ref-gray-40,
+  'chip-filter-icon': $rd-ref-gray-60,
+  'chip-filter-active-border': $rd-ref-gray-30,
+
+  'chip-date-default': $rd-ref-purple-20,
+  'chip-date-hover': $rd-ref-purple-30,
+  'chip-date-pressed': $rd-ref-purple-40,
+  'chip-date-icon': $rd-ref-purple-60,
+  'chip-date-active-border': $rd-ref-purple-30,
+
+  'chip-input-default': $rd-ref-gray-00,
+  'chip-input-hover': $rd-ref-gray-10,
+  'chip-input-pressed': $rd-ref-gray-20,
+  'chip-input-selected-default': $rd-ref-gray-70,
+  'chip-input-selected-hover': $rd-ref-gray-80,
+  'chip-input-selected-pressed': $rd-ref-gray-90,
+
+  'chip-error-default': $rd-ref-red-20,
+  'chip-error-hover': $rd-ref-red-30,
+  'chip-error-active-border': $rd-ref-gray-30
+);
+
+$rd-comp-chip-color-map-dark: (
+  'chip-loading-default': $rd-ref-dark-gray-10,
+
+  'chip-attribute-default': $rd-ref-blue-90,
+  'chip-attribute-hover': $rd-ref-blue-80,
+  'chip-attribute-pressed': $rd-ref-blue-70,
+  'chip-attribute-icon': $rd-ref-blue-50,
+  'chip-attribute-active-border': $rd-ref-blue-80,
+
+  'chip-measure-default': $rd-ref-green-90,
+  'chip-measure-hover': $rd-ref-green-80,
+  'chip-measure-pressed': $rd-ref-green-70,
+  'chip-measure-icon': $rd-ref-green-50,
+  'chip-measure-active-border': $rd-ref-green-80,
+
+  'chip-filter-default': $rd-ref-dark-gray-15,
+  'chip-filter-hover': $rd-ref-dark-gray-20,
+  'chip-filter-pressed': $rd-ref-dark-gray-30,
+  'chip-filter-icon': $rd-ref-dark-gray-50,
+  'chip-filter-active-border': $rd-ref-dark-gray-20,
+
+  'chip-date-default': $rd-ref-purple-90,
+  'chip-date-hover': $rd-ref-purple-80,
+  'chip-date-pressed': $rd-ref-purple-70,
+  'chip-date-icon': $rd-ref-purple-50,
+  'chip-date-active-border': $rd-ref-purple-80,
+
+  'chip-input-default': $rd-ref-dark-gray-00,
+  'chip-input-hover': $rd-ref-dark-gray-10,
+  'chip-input-pressed': $rd-ref-dark-gray-15,
+  'chip-input-selected-default': $rd-ref-dark-gray-70,
+  'chip-input-selected-hover': $rd-ref-dark-gray-80,
+  'chip-input-selected-pressed': $rd-ref-dark-gray-90,
+
+  'chip-error-default': $rd-ref-red-90,
+  'chip-error-hover': $rd-ref-red-80,
+  'chip-error-active-border': $rd-ref-dark-gray-20
+);
+
+// ---------------------------------------------------------------------------
+// SEGMENTED CONTROL
+// ---------------------------------------------------------------------------
+// Light signals selection with brand blue; dark switches to a light neutral,
+// because brand-on-dark-surface reads as an accent rather than a selection.
+$rd-comp-segmented-control-color-map: (
+  'segmented-control-content-active': $rd-ref-blue-60
+);
+
+$rd-comp-segmented-control-color-map-dark: (
+  'segmented-control-content-active': $rd-ref-dark-gray-90
+);
+
+// ---------------------------------------------------------------------------
+// Merged maps + accessors
+// ---------------------------------------------------------------------------
+$rd-comp-color-map: map.merge(
+  map.merge($rd-comp-chip-color-map, $rd-comp-button-color-map),
+  $rd-comp-segmented-control-color-map
+);
+
+$rd-comp-color-map-dark: map.merge(
+  map.merge($rd-comp-chip-color-map-dark, $rd-comp-button-color-map-dark),
+  $rd-comp-segmented-control-color-map-dark
+);
+
+/// Same shape as rd-sys-color: a custom property with the light value inlined.
+@function rd-comp-color($name) {
+  $fallback: map.get($rd-comp-color-map, $name);
+
+  @if $fallback {
+    @return var(--rd-comp-color-#{$name}, #{$fallback});
+  } @else {
+    @error 'Unknown rd-comp-color token "#{$name}".';
+  }
+}
+
+@function rd-comp-color-alpha($name, $alpha) {
+  @return color-mix(in srgb, #{rd-comp-color($name)} #{$alpha * 100%}, transparent);
+}
+
+@mixin rd-component-theme-init($theme-map: $rd-comp-color-map) {
+  @each $name, $value in $theme-map {
+    --rd-comp-color-#{$name}: #{$value};
+  }
+}

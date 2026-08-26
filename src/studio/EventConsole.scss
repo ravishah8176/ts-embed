@@ -1,354 +1,416 @@
-/* Styles specific to EventConsole. Add your custom console tweaks here. */
+@use '../styles/base' as *;
 
-/* Scrollbars — dark surfaces */
-.tssd {
-  &::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(150, 165, 200, 0.22);
-    border-radius: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-}
+/* Styles specific to EventConsole — the embed event log, third tab of the left panel.
+   Deliberately built from the same parts as EmbedConfigPanel and ComposerPanel: same
+   header block, same label/link/footer treatment, same button weights. */
 
-/* Dark icon button (export / clear / resize) */
-.ts-dark-btn {
-  display: flex;
-  align-items: center;
-  background: #161b26;
-  border: 1px solid #232a38;
-  border-radius: 7px;
-  color: #aeb6c2;
-  transition: color 0.15s, border-color 0.15s;
+/* ── Header ───────────────────────────────────────────────────────── */
 
-  &:hover {
-    color: #fff;
-  }
-}
-
-/* Dark filter input */
-.ts-dark-input {
-  background: #161b26;
-  border: 1px solid #232a38;
-  border-radius: 7px;
-  color: #e6e9ef;
-  outline: none;
-  transition: border-color 0.15s;
-
-  &:focus {
-    border-color: var(--accent);
-  }
-}
-
-/* Log row hover */
-.log-row:hover {
-  background: #11161f;
-}
-
-/* Reaction chip in the react picker */
-.react-chip:hover {
-  border-color: var(--accent);
-  color: #fff;
-}
-
-/* ── EventConsole: extracted static inline styles ─────────────── */
-
-/* Right-side console panel (width stays inline — depends on console state) */
-.ec-console {
-  flex-shrink: 0;
-  height: 100%;
-  background: #0b0e14;
-  border-left: 1px solid #1c2230;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: width 0.22s ease;
-}
-
-/* Collapsed rail — narrow vertical strip with a vertical label + expand */
-.ec-rail {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 0;
-  background: transparent;
-  border: none;
-  color: #aeb6c2;
-  transition: color 0.15s;
-
-  &:hover {
-    color: #fff;
-  }
-}
-.ec-rail-text {
-  writing-mode: vertical-rl;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #8a94a2;
-}
-
-/* Shared flex spacer */
-.ec-spacer {
-  flex: 1;
-}
-
-/* Header bar — wraps within the narrow panel width */
 .ec-header {
   flex-shrink: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 10px;
-  padding: 9px 13px;
-  border-bottom: 1px solid #1c2230;
+  padding: $rd-spacing--c $rd-spacing--d $rd-spacing--c;
+  border-bottom: 1px solid rd-sys-color('border-subtle');
 }
-.ec-header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-/* live dot: background + box-shadow stay inline (paused state) */
-.ec-live-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-}
+
 .ec-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #e6e9ef;
-}
-.ec-count {
-  font-size: 11px;
-  color: #8a94a2;
-  background: #161b26;
-  border-radius: 6px;
-  padding: 2px 8px;
-}
-
-/* Search field */
-.ec-search {
-  position: relative;
-  flex: 1 1 100%;
-  min-width: 120px;
-}
-.ec-search-icon {
-  position: absolute;
-  left: 9px;
-  top: 7px;
-}
-.ec-search-input {
-  width: 100%;
-  padding: 5px 8px 5px 28px;
-  font-size: 12px;
-}
-
-/* Pause button: background + color stay inline (paused state) */
-.ec-pause-btn {
   display: flex;
   align-items: center;
-  gap: 5px;
-  border: 1px solid #232a38;
-  border-radius: 7px;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 600;
+  gap: $rd-spacing--b;
+  @include rd-font--body-normal;
+  @include rd-font--bold;
+  letter-spacing: -0.01em;
 }
 
-/* Icon buttons (export / clear / resize) */
-.ec-icon-btn {
-  padding: 6px 9px;
+/* Green while capturing, amber while paused — the one piece of live state up here. */
+.ec-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: $rd-layout--radius-round;
+  background: $rd-ref-green-60;
+  box-shadow: 0 0 0 3px rd-sys-color-alpha('border-accent-green', 0.16);
+
+  &.paused {
+    background: $rd-ref-yellow-60;
+    box-shadow: 0 0 0 3px rd-sys-color-alpha('border-warning', 0.18);
+  }
 }
 
-/* Reactions bar */
+.ec-meta {
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  margin-top: $rd-spacing--a;
+}
+
+.ec-meta-text {
+  flex: 1;
+  min-width: 0;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--fine-prints;
+  @include rd-font--normal;
+  color: rd-sys-color('content-secondary');
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ec-status {
+  flex-shrink: 0;
+  @include rd-font--fine-prints;
+  color: rd-sys-color('content-success');
+
+  &.paused {
+    color: $rd-ref-yellow-70;
+  }
+}
+
+/* Geometry comes from `.ts-search`; only its place in the header is local. */
+.ec-search {
+  margin-top: $rd-spacing--c;
+}
+
+/* ── Reactions ────────────────────────────────────────────────────── */
+
 .ec-reactions {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 13px;
-  border-bottom: 1px solid #1c2230;
+  gap: $rd-spacing--b;
+  padding: $rd-spacing--b $rd-spacing--d;
+  border-bottom: 1px solid rd-sys-color('border-subtle');
   overflow-x: auto;
 }
+
 .ec-reactions-label {
-  font-size: 11px;
-  font-weight: 700;
+  flex-shrink: 0;
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #6b7686;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  color: rd-sys-color('content-tertiary');
 }
+
 .ec-reaction-chip {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 7px;
-  background: #161b26;
-  border: 1px solid #2a3344;
-  border-radius: 999px;
-  padding: 4px 7px 4px 11px;
-  font-size: 12px;
-  color: #d6dbe4;
-}
-.ec-reaction-text {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-}
-.ec-reaction-remove {
-  background: transparent;
-  border: none;
-  color: #6b7686;
-  line-height: 0;
-  padding: 2px;
+  gap: $rd-spacing--a;
+  background: rd-sys-color('background-warning');
+  border: 1px solid rd-sys-color('border-warning');
+  border-radius: 100vh;
+  padding: $rd-spacing--a $rd-spacing--a $rd-spacing--a $rd-spacing--b;
 }
 
-/* Log body */
+.ec-reaction-text {
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--fine-prints;
+  @include rd-font--normal;
+  color: $rd-ref-yellow-80;
+}
+
+.ec-reaction-remove {
+  border: none;
+  background: transparent;
+  padding: rd-utility--get-scaling-rem(1px);
+  line-height: 0;
+  color: $rd-ref-yellow-70;
+
+  &:hover {
+    color: rd-sys-color('content-primary');
+  }
+}
+
+/* ── List ─────────────────────────────────────────────────────────── */
+
+.ec-list-head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $rd-spacing--c $rd-spacing--d $rd-spacing--b;
+}
+
+.ec-label {
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: rd-sys-color('content-primary');
+}
+
+.ec-hint-inline {
+  @include rd-font--fine-prints;
+  color: rd-sys-color('content-tertiary');
+}
+
 .ec-body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 6px 0;
+  /* Expanding a row corrects the scroll position itself; the browser's own
+     anchoring would then correct it a second time. */
+  overflow-anchor: none;
+  /* Vertical only: `overflow-y: auto` alone resolves overflow-x to `auto` too, so
+     a row that outgrew the panel grew a sideways scrollbar instead of adapting. */
+  overflow-x: hidden;
+  padding: 0 $rd-spacing--d $rd-spacing--d;
 }
+
+.ec-row-wrap + .ec-row-wrap {
+  margin-top: $rd-spacing--a;
+}
+
+/* Open row and its payload are one card, so the two share a border and a radius. */
+.ec-row-wrap.open {
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: $rd-layout--radius-xlarge;
+  overflow: hidden;
+}
+
+/* The whole row is the disclosure control, so it is a button rather than a div. */
+.ec-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  padding: $rd-spacing--b $rd-spacing--b $rd-spacing--b $rd-spacing--b;
+  border: 1px solid rd-sys-color('border-subtle');
+  border-left-width: 3px;
+  border-radius: $rd-layout--radius-xlarge;
+  background: rd-sys-color('background-base');
+  text-align: left;
+  transition: border-color $rd-animation--quickly, background $rd-animation--quickly;
+
+  &.embed {
+    border-left-color: rd-sys-color('border-accent-green');
+  }
+  &.host {
+    border-left-color: var(--accent);
+  }
+  &:hover {
+    background: rd-sys-color('background-on-base');
+    border-color: rd-sys-color('border-subtle-hover');
+  }
+  /* Left edge keeps its direction colour; the wrapper draws the rest. */
+  .ec-row-wrap.open & {
+    background: rd-sys-color('background-on-base');
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: rd-sys-color('border-subtle');
+    border-radius: 0;
+  }
+  .ec-row-wrap.open & .ec-row-chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.ec-row-time {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--fine-prints;
+  color: rd-sys-color('content-tertiary');
+}
+
+.ec-row-badge {
+  flex-shrink: 0;
+  border-radius: $rd-layout--radius-large;
+  padding: rd-utility--get-scaling-rem(1px) $rd-spacing--a;
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
+  letter-spacing: 0.04em;
+
+  .ec-row.embed & {
+    background: rd-sys-color('background-success');
+    color: rd-sys-color('content-success');
+  }
+  .ec-row.host & {
+    background: rd-sys-color('background-ghost-highlight');
+    color: var(--accent);
+  }
+}
+
+/* The name is the row, so it takes the space the pinned items leave and is the
+   last thing to be given up. */
+.ec-row-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-primary');
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Both carry an event name, so both are as long as the name is. Pinned, they
+   were what stopped a narrow panel from adapting — now they ellipsize, and they
+   shrink before the row's own name does. */
+.ec-row-reacted,
+.ec-row-via {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ec-row-reacted {
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
+  color: $rd-ref-yellow-70;
+}
+
+.ec-row-via {
+  @include rd-font--fine-prints;
+  color: rd-sys-color('content-tertiary');
+}
+
+/* Only earns width once everything else has what it needs. */
+.ec-row-spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.ec-row-react {
+  flex-shrink: 0;
+  line-height: 0;
+  color: rd-sys-color('content-tertiary');
+  transition: color $rd-animation--quickly;
+
+  &:hover {
+    color: var(--accent);
+  }
+  &.on {
+    color: rd-sys-color('content-warning');
+  }
+}
+
+.ec-row-chevron {
+  flex-shrink: 0;
+  color: rd-sys-color('content-tertiary');
+  transition: transform $rd-animation--quickly;
+}
+
+/* No scroller of its own: the payload is as tall as it is, and the list scrolls.
+   Long lines wrap for the same reason — a second scrollbar inside a row is worse
+   than a wrapped value. */
+.ec-payload {
+  margin: 0;
+  padding: $rd-spacing--b $rd-spacing--c $rd-spacing--c;
+  background: rd-sys-color('background-base');
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--size($rd-font--size-fine-prints, 1.6);
+  @include rd-font--normal;
+  color: rd-sys-color('content-primary');
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+
+/* ── React picker ─────────────────────────────────────────────────── */
+
+.ec-react-panel {
+  margin-top: $rd-spacing--a;
+  margin-left: $rd-spacing--c;
+  padding: $rd-spacing--b $rd-spacing--c $rd-spacing--c;
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  background: rd-sys-color('background-on-base');
+}
+
+.ec-react-prompt {
+  @include rd-font--footnote;
+  color: rd-sys-color('content-secondary');
+}
+
+.ec-react-prompt-name {
+  font-family: 'JetBrains Mono', monospace;
+  color: rd-sys-color('content-primary');
+}
+
+.ec-react-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $rd-spacing--a;
+  margin-top: $rd-spacing--b;
+}
+
+.ec-react-choice {
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: 100vh;
+  background: rd-sys-color('background-base');
+  padding: $rd-spacing--a $rd-spacing--c;
+  @include rd-font--footnote;
+  @include rd-font--semibold;
+  color: rd-sys-color('content-secondary');
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+
+/* ── Empty state ──────────────────────────────────────────────────── */
+
 .ec-empty {
   height: 100%;
+  min-height: 140px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  color: #4a5365;
-  padding: 24px;
-  text-align: center;
-}
-.ec-empty-text {
-  font-size: 13px;
+  gap: $rd-spacing--b;
+  color: rd-sys-color('content-tertiary');
 }
 
-/* Log row */
-.ec-row-wrap {
-  animation: tsRow 0.22s ease backwards;
+.ec-empty-text {
+  max-width: 240px;
+  text-align: center;
+  @include rd-font--size($rd-font--footnote, 1.55);
+  color: rd-sys-color('content-tertiary');
 }
-/* row: border-left color stays inline (per-event color) */
-.ec-row {
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+
+.ec-footer {
+  flex-shrink: 0;
+  padding: $rd-spacing--c $rd-spacing--d $rd-spacing--c;
+  border-top: 1px solid rd-sys-color('border-subtle');
+  background: rd-sys-color('background-base');
+}
+
+.ec-footer-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 13px;
-  cursor: pointer;
+  justify-content: space-between;
+  margin-bottom: $rd-spacing--b;
 }
-.ec-row-time {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: #5a6473;
-  flex-shrink: 0;
-  width: 84px;
+
+.ec-footer-note {
+  @include rd-font--footnote;
+  color: rd-sys-color('content-secondary');
 }
-/* badge: background + color stay inline (embed vs host) */
-.ec-row-badge {
-  flex-shrink: 0;
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  border-radius: 4px;
-  padding: 2px 6px;
-}
-/* dot: background stays inline (per-event color) */
-.ec-row-dot {
-  flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-.ec-row-name {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #e6e9ef;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 240px;
-}
-.ec-row-reacted {
-  flex-shrink: 0;
-  font-size: 10.5px;
-  color: #fab005;
-  white-space: nowrap;
-}
-.ec-row-via {
-  flex-shrink: 0;
-  font-size: 10.5px;
-  color: #6b7686;
-  white-space: nowrap;
-}
-/* react button: color stays inline (embed / reacted state) */
-.ec-row-react {
-  flex-shrink: 0;
-  background: transparent;
+
+.ec-link {
   border: none;
-  line-height: 0;
-  padding: 3px;
-}
-/* chevron: transform stays inline (expanded state) */
-.ec-row-chevron {
-  flex-shrink: 0;
+  background: transparent;
+  padding: 0;
+  @include rd-font--footnote;
+  @include rd-font--semibold;
+  color: var(--accent);
+
+  &:disabled {
+    color: rd-sys-color('content-tertiary');
+    cursor: default;
+    text-decoration: none;
+  }
 }
 
-/* React picker panel */
-.ec-react-panel {
-  padding: 8px 13px 11px 50px;
-  background: #0e121b;
-}
-.ec-react-prompt {
-  font-size: 11px;
-  color: #8a94a2;
-  margin-bottom: 8px;
-}
-.ec-react-prompt-name {
-  font-family: 'JetBrains Mono', monospace;
-  color: #e6e9ef;
-}
-.ec-react-choices {
+/* Export and Pause are one decision with two answers, so they share a width:
+   flex-basis 0 splits the row evenly instead of letting the longer label win. */
+.ec-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.ec-react-choice {
-  background: #161b26;
-  border: 1px solid #2a3344;
-  border-radius: 7px;
-  padding: 5px 10px;
-  color: #d6dbe4;
-  font-size: 12px;
-  font-weight: 500;
-}
+  gap: $rd-spacing--b;
 
-/* Expanded payload panel */
-.ec-expand-panel {
-  padding: 4px 13px 12px 50px;
-  background: #0e121b;
-}
-.ec-payload {
-  margin: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11.5px;
-  line-height: 1.55;
-  color: #9fd0a8;
-  background: #0a0d14;
-  border: 1px solid #1c2230;
-  border-radius: 8px;
-  padding: 11px 13px;
-  overflow-x: auto;
-  white-space: pre;
+  > * {
+    flex: 1 1 0;
+  }
 }

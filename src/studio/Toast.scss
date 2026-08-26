@@ -1,3 +1,5 @@
+@use '../styles/base' as *;
+
 /* Styles specific to Toast.
    This component currently styles itself with inline styles + shared classes
    from studio.scss. Add your custom Toast overrides here. */
@@ -11,28 +13,45 @@
   z-index: 90;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #0e1116;
-  color: #fff;
-  border-radius: 11px;
-  padding: 11px 16px;
-  box-shadow: 0 12px 34px rgba(14, 17, 22, 0.32);
+  gap: $rd-spacing--c;
+  background: rd-sys-color('background-inverse');
+  color: rd-sys-color('content-inverse');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--c $rd-spacing--d;
+  @include rd-elevation--menu;
   max-width: 540px;
 }
 .toast-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: $rd-layout--radius-round;
   flex-shrink: 0;
 }
 .toast-text {
-  font-size: 13px;
-  font-weight: 600;
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
 }
+.toast-close {
+  flex-shrink: 0;
+  margin-left: rd-utility--get-scaling-rem(2px);
+  padding: $rd-spacing--a;
+  border: none;
+  border-radius: $rd-layout--radius-xlarge;
+  background: transparent;
+  line-height: 0;
+  color: rd-sys-color-alpha('content-inverse', 0.45);
+  transition: background $rd-animation--quickly, color $rd-animation--quickly;
+
+  &:hover {
+    background: rd-sys-color('background-ghost-hover');
+    color: rd-sys-color('content-inverse');
+  }
+}
+
 .toast-sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.55);
+  @include rd-font--footnote;
+  color: rd-sys-color-alpha('content-inverse', 0.55);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

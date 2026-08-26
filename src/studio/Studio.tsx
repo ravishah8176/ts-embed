@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './Studio.scss'
 import { useAuth } from '../auth/AuthContext'
 import {
+  EMBED_CLASS_NAME,
   SAMPLE,
   allowedHostEvents,
   jstr,
@@ -14,33 +15,61 @@ import {
 import { useStudioEmbed, type EmbedEventInfo } from './useStudioEmbed'
 import TopBar from './TopBar'
 import ComposerPanel from './ComposerPanel'
+import EmbedConfigPanel from './EmbedConfigPanel'
+import PanelRail from './PanelRail'
+import SidePanel from './SidePanel'
+import SidePanelTabs, { type SidePanelTab } from './SidePanelTabs'
+import { usePanelWidth } from './usePanelWidth'
 import EmbedSurface from './EmbedSurface'
-import EventConsole, { type ConsoleState } from './EventConsole'
+import EventConsole from './EventConsole'
 import ProfileView from './ProfileView'
 import RestTab from './rest/RestTab'
 import Welcome from './Welcome'
 import Toast, { type ToastData } from './Toast'
+import { appliedConfig as runStored, loadApplied, saveApplied, type AppliedSource } from './embeds/embedSource'
+import { setStoredWorkspace, storedWorkspace } from './workspacePrefs'
+import { NPM_PACKAGE, takeSdkSwitch } from '../thoughtspot/sdkLoader'
 
-const LOG_CAP = 400
+/** How far off the bottom still counts as "following the tail", in px. */
+const LOG_TAIL_SLACK = 48
 
 interface TriggerMeta {
   viaReaction?: string
 }
 
 export default function Studio() {
-  const { username, displayName, profile, host, logout } = useAuth()
+  const { username, displayName, profile, host, restAuthMode, orgs, currentOrg, canSwitchOrg, switchOrg, logout } = useAuth()
 
   // ── core view state ──
-  // Nothing is embedded on load — the Welcome screen prompts the user to pick.
-  const [embedType, setEmbedType] = useState<EmbedType | null>(null)
+  /**
+   * A first visit starts on the Welcome screen; a reload comes back to whatever was
+   * open, which is what makes switching the SDK version (a reload, necessarily)
+   * feel like a switch rather than a restart.
+   */
+  const restored = useRef(storedWorkspace()).current
+  const [embedType, setEmbedType] = useState<EmbedType | null>(restored.embedType)
   // The REST API SDK explorer is a top-bar tab too, but it's not an iframe embed,
   // so it overlays the workspace rather than swapping the live embed.
-  const [restMode, setRestMode] = useState(false)
+  const [restMode, setRestMode] = useState(restored.restMode)
   const [view, setView] = useState<'workspace' | 'profile'>('workspace')
   const [avatarOpen, setAvatarOpen] = useState(false)
 
-  // ── composer ──
-  const [panelCollapsed, setPanelCollapsed] = useState(true)
+  // ── left panel: embed config + host event composer + embed event log ──
+  const [panelCollapsed, setPanelCollapsed] = useState(false)
+  const [panelTab, setPanelTab] = useState<SidePanelTab>(restored.panelTab)
+  const panel = usePanelWidth()
+
+  /**
+   * View configs, per embed type.
+   *
+   * `applied` is what the mounted embed was built with — its object identity is the
+   * signal that rebuilds the iframe, so it changes only on Apply. `drafts` is what
+   * the panel is editing. Both are seeded from the store (the user's saved config,
+   * or the built-in defaults) the first time an embed is opened.
+   */
+  const [appliedSources, setAppliedSources] = useState<Partial<Record<EmbedType, AppliedSource>>>({})
+  /** Embeds whose stored source has been read back, so it is only read once each. */
+  const sourceRestored = useRef<Set<EmbedType>>(new Set())
   const [composerKey, setComposerKey] = useState('UpdateRuntimeFilters')
   const [composerOpen, setComposerOpen] = useState(false)
   const [composerSearch, setComposerSearch] = useState('')
@@ -50,7 +79,6 @@ export default function Studio() {
   const [log, setLog] = useState<LogRow[]>([])
   const [paused, setPaused] = useState(false)
   const [logFilter, setLogFilter] = useState('')
-  const [consoleState, setConsoleState] = useState<ConsoleState>('collapsed')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [reactPickerFor, setReactPickerFor] = useState<string | null>(null)
   const [reactions, setReactions] = useState<Reaction[]>([])
@@ -79,6 +107,37 @@ export default function Studio() {
     if (username) setUserEmail(username)
   }, [username])
 
+  useEffect(() => {
+    setStoredWorkspace({ embedType, restMode, panelTab })
+  }, [embedType, restMode, panelTab])
+
+  /** Say so once, on the far side of an SDK-version reload — it is not a restart. */
+  useEffect(() => {
+    const switched = takeSdkSwitch()
+    if (switched) {
+      showToast(`Loaded ${NPM_PACKAGE[switched.sdk]}`, `version ${switched.version}`, 'var(--rd-sys-color-content-success)')
+    }
+  }, [])
+
+  /**
+   * Restores what was applied to this embed last, if anything ever was.
+   *
+   * Nothing is applied until the user writes source and applies it, so an embed with
+   * no stored source mounts nothing — there is no default config to fall back on.
+   */
+  useEffect(() => {
+    if (!embedType || sourceRestored.current.has(embedType)) return
+    sourceRestored.current.add(embedType)
+    const stored = loadApplied(embedType)
+    if (!stored) return
+    /* Stored source is re-run here, because what it builds may differ from last time. */
+    const { config, error } = runStored(stored)
+    if (error) {
+      showToast('Stored source failed to run', error, 'var(--rd-sys-color-content-failure)')
+    }
+    setAppliedSources((c) => ({ ...c, [embedType]: { code: stored.code, config } }))
+  }, [embedType])
+
   const hostShort = useMemo(() => (host ?? '').replace(/^https?:\/\//, ''), [host])
   const allowed = embedType ? allowedHostEvents(embedType) : []
   const effectiveKey = allowed.includes(composerKey) ? composerKey : (allowed[0] ?? composerKey)
@@ -94,7 +153,9 @@ export default function Studio() {
   function onEmbedEvent(e: EmbedEventInfo) {
     addLog('embed', e.name, e.payload)
   }
-  const { containerRef, status, trigger } = useStudioEmbed(embedType, onEmbedEvent)
+  const appliedSource = embedType ? (appliedSources[embedType] ?? null) : null
+  const appliedConfig = appliedSource?.config ?? null
+  const { containerRef, status, error: embedError, trigger } = useStudioEmbed(embedType, appliedConfig, onEmbedEvent)
 
   function addLog(dir: LogDir, name: string, payload: unknown, meta?: TriggerMeta) {
     if (pausedRef.current) return
@@ -125,11 +186,7 @@ export default function Studio() {
       }
     }
 
-    setLog((prev) => {
-      const next = [...prev, row]
-      if (next.length > LOG_CAP) next.splice(0, next.length - LOG_CAP)
-      return next
-    })
+    setLog((prev) => [...prev, row])
   }
 
   function triggerHost(key: string, params: unknown, meta?: TriggerMeta) {
@@ -137,19 +194,36 @@ export default function Studio() {
     showToast(
       'HostEvent.' + key,
       meta?.viaReaction ? 'reaction · on ' + meta.viaReaction : 'embed.trigger() dispatched',
-      '#7c5cfc',
+      'var(--rd-sys-color-content-brand)',
     )
     trigger(key, params).catch((err) => {
       console.warn('[Studio] trigger failed:', key, err)
     })
   }
 
-  // Autoscroll the console to the newest event (unless paused).
+  /**
+   * Follow the newest event, the way a tailed log does — but only while the user is
+   * already at the bottom. Someone scrolled up reading an expanded payload is not
+   * yanked away from it by the next event.
+   */
   useEffect(() => {
-    if (consoleElRef.current && !paused) {
-      consoleElRef.current.scrollTop = consoleElRef.current.scrollHeight
+    const el = consoleElRef.current
+    if (!el || pausedRef.current) return
+    if (el.scrollHeight - el.scrollTop - el.clientHeight <= LOG_TAIL_SLACK) {
+      el.scrollTop = el.scrollHeight
     }
-  }, [log, paused])
+  }, [log])
+
+  /**
+   * Stable on purpose: an inline callback here is a new function every render, which
+   * makes React detach and re-attach the ref — and this used to scroll the log to the
+   * bottom on every state change, expanding a row included.
+   */
+  const attachConsoleEl = useCallback((el: HTMLDivElement | null) => {
+    consoleElRef.current = el
+    // Coming back to the tab should land on the newest event, not where it left.
+    if (el && !pausedRef.current) el.scrollTop = el.scrollHeight
+  }, [])
 
   useEffect(() => () => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
@@ -179,7 +253,7 @@ export default function Studio() {
       try {
         params = JSON.parse(raw)
       } catch {
-        showToast('Invalid JSON in params', 'Fix the JSON to trigger ' + effectiveKey, '#EF4444')
+        showToast('Invalid JSON in params', 'Fix the JSON to trigger ' + effectiveKey, 'var(--rd-sys-color-content-failure)')
         return
       }
     } else {
@@ -188,10 +262,25 @@ export default function Studio() {
     triggerHost(effectiveKey, params)
   }
 
-  // ── console actions ──
-  function onCycleConsole() {
-    setConsoleState((s) => (s === 'collapsed' ? 'normal' : 'collapsed'))
+  // ── embed config actions ──
+  /**
+   * Rebuilds the embed from source the panel has just run, and remembers it.
+   *
+   * The entry comes in as an argument rather than off state: the panel ran the source
+   * itself, and what it built has not reached this component yet.
+   */
+  function onApplyConfig(entry: AppliedSource) {
+    if (!embedType) return
+    saveApplied(embedType, entry)
+    setAppliedSources((c) => ({ ...c, [embedType]: entry }))
+    showToast('Config applied', EMBED_CLASS_NAME[embedType] + ' rebuilt', 'var(--rd-sys-color-content-brand)')
   }
+  function onCollapsePanel() {
+    setPanelCollapsed(true)
+    setComposerOpen(false)
+  }
+
+  // ── console actions ──
   function onClear() {
     setLog([])
     setExpandedId(null)
@@ -215,7 +304,7 @@ export default function Studio() {
     } catch {
       /* download blocked */
     }
-    showToast('Exported ' + data.length + ' events', 'thoughtspot-embed-events.json', '#34D399')
+    showToast('Exported ' + data.length + ' events', 'thoughtspot-embed-events.json', 'var(--rd-sys-color-content-success)')
   }
   function onToggleExpand(id: string) {
     setExpandedId((cur) => (cur === id ? null : id))
@@ -232,8 +321,7 @@ export default function Studio() {
         : [...rs, { embedEvent, hostEvent }],
     )
     setReactPickerFor(null)
-    if (consoleState === 'collapsed') setConsoleState('normal')
-    showToast('Reaction saved', embedEvent + ' → ' + hostEvent, '#FAB005')
+    showToast('Reaction saved', embedEvent + ' → ' + hostEvent, 'var(--rd-sys-color-content-warning)')
   }
 
   // ── avatar / profile ──
@@ -277,6 +365,10 @@ export default function Studio() {
             setAvatarOpen(false)
           }}
           onSignOut={onSignOut}
+          orgs={orgs}
+          currentOrg={currentOrg}
+          canSwitchOrg={canSwitchOrg}
+          onSwitchOrg={switchOrg}
         />
 
         {/*
@@ -291,54 +383,72 @@ export default function Studio() {
               <Welcome userName={userName} hostShort={hostShort} onSelect={onSwitchTab} />
             ) : (
             <>
-            <ComposerPanel
-              collapsed={panelCollapsed}
-              onTogglePanel={() => {
-                setPanelCollapsed((c) => !c)
-                setComposerOpen(false)
-              }}
-              embedType={embedType}
-              composerKey={effectiveKey}
-              onPickEvent={pickEvent}
-              composerOpen={composerOpen}
-              onToggleComposer={() => {
-                setComposerOpen((o) => !o)
-                setComposerSearch('')
-              }}
-              onCloseComposer={() => setComposerOpen(false)}
-              composerSearch={composerSearch}
-              onComposerSearch={setComposerSearch}
-              draft={draft}
-              onDraftChange={onDraftChange}
-              onReset={onReset}
-              onTrigger={onComposerTrigger}
-            />
+            {panelCollapsed ? (
+              <PanelRail onExpand={() => setPanelCollapsed(false)} />
+            ) : (
+              <SidePanel width={panel.width} resizing={panel.resizing} handleProps={panel.handleProps}>
+                {/* The strip and the collapse control act on the panel, not on the open tab. */}
+                <SidePanelTabs
+                  active={panelTab}
+                  onSwitch={setPanelTab}
+                  onCollapse={onCollapsePanel}
+                  logCount={log.length}
+                />
+                {panelTab === 'config' ? (
+                  <EmbedConfigPanel
+                    key={embedType}
+                    embedType={embedType}
+                    applied={appliedSource}
+                    onApply={onApplyConfig}
+                  />
+                ) : panelTab === 'log' ? (
+                  <EventConsole
+                    log={log}
+                    logFilter={logFilter}
+                    onLogFilter={setLogFilter}
+                    paused={paused}
+                    onPause={() => setPaused((p) => !p)}
+                    onClear={onClear}
+                    onExport={onExport}
+                    reactions={reactions}
+                    onRemoveReaction={(idx) => setReactions((rs) => rs.filter((_, i) => i !== idx))}
+                    expandedId={expandedId}
+                    onToggleExpand={onToggleExpand}
+                    reactPickerFor={reactPickerFor}
+                    onOpenReactPicker={onOpenReactPicker}
+                    onAddReaction={onAddReaction}
+                    setConsoleEl={attachConsoleEl}
+                  />
+                ) : (
+                  <ComposerPanel
+                    embedType={embedType}
+                    composerKey={effectiveKey}
+                    onPickEvent={pickEvent}
+                    composerOpen={composerOpen}
+                    onToggleComposer={() => {
+                      setComposerOpen((o) => !o)
+                      setComposerSearch('')
+                    }}
+                    onCloseComposer={() => setComposerOpen(false)}
+                    composerSearch={composerSearch}
+                    onComposerSearch={setComposerSearch}
+                    draft={draft}
+                    onDraftChange={onDraftChange}
+                    onReset={onReset}
+                    onTrigger={onComposerTrigger}
+                  />
+                )}
+              </SidePanel>
+            )}
 
             <div className="studio-embed-col">
-              <EmbedSurface embedType={embedType} status={status} containerRef={containerRef} />
+              <EmbedSurface
+                embedType={embedType}
+                status={status}
+                error={embedError}
+                containerRef={containerRef}
+              />
             </div>
-
-            <EventConsole
-              consoleState={consoleState}
-              onCycleConsole={onCycleConsole}
-              log={log}
-              logFilter={logFilter}
-              onLogFilter={setLogFilter}
-              paused={paused}
-              onPause={() => setPaused((p) => !p)}
-              onClear={onClear}
-              onExport={onExport}
-              reactions={reactions}
-              onRemoveReaction={(idx) => setReactions((rs) => rs.filter((_, i) => i !== idx))}
-              expandedId={expandedId}
-              onToggleExpand={onToggleExpand}
-              reactPickerFor={reactPickerFor}
-              onOpenReactPicker={onOpenReactPicker}
-              onAddReaction={onAddReaction}
-              setConsoleEl={(el) => {
-                consoleElRef.current = el
-              }}
-            />
             </>
             )}
           </div>
@@ -348,7 +458,7 @@ export default function Studio() {
             workspace, keeping the live embed iframe mounted underneath. Profile
             sits above it via higher z-index.
           */}
-          {restMode && <RestTab host={host ?? ''} />}
+          {restMode && <RestTab host={host ?? ''} authMode={restAuthMode} />}
 
           {view === 'profile' && (
             <>
@@ -372,7 +482,13 @@ export default function Studio() {
         </div>
       </div>
 
-      <Toast toast={toast} />
+      <Toast
+        toast={toast}
+        onClose={() => {
+          if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+          setToast(null)
+        }}
+      />
     </div>
   )
 }

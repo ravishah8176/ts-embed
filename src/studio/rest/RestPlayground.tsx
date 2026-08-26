@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import './RestPlayground.scss'
-import { embedConfig } from '../config'
+import { playgroundOrigin } from './restPrefs'
 
 /**
  * The hosted ThoughtSpot REST API playground (an embeddable APIMatic dev
@@ -11,16 +11,24 @@ import { embedConfig } from '../config'
  *   1. iframe → parent:  { type: 'api-playground-ready' }   (+ a MessageChannel port)
  *   2. parent → iframe:  { type: 'api-playground-config', baseUrl, accessToken }
  * The playground then patches its base-url + bearer-token config form.
+ *
+ * `url` is a runtime setting (see `restPrefs`), so it can point at another
+ * environment's playground without a rebuild. Its origin gates the handshake in both
+ * directions, and a URL that does not parse is reported rather than loaded.
  */
-const PLAYGROUND_URL = embedConfig.playgroundUrl
-const PLAYGROUND_ORIGIN = new URL(PLAYGROUND_URL).origin
-
-export default function RestPlayground({ host }: { host: string }) {
+export default function RestPlayground({ host, url }: { host: string; url: string }) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const origin = playgroundOrigin(url)
 
   useEffect(() => {
     let cancelled = false
+    if (!origin) {
+      setStatus('error')
+      return
+    }
+    const targetOrigin = origin
+    setStatus('loading')
 
     async function sendConfig(port?: MessagePort) {
       try {
@@ -30,7 +38,7 @@ export default function RestPlayground({ host }: { host: string }) {
         if (cancelled) return
         const config = { type: 'api-playground-config', baseUrl: host, accessToken }
         // Primary path: the playground listens for this on its window.
-        iframeRef.current?.contentWindow?.postMessage(config, PLAYGROUND_ORIGIN)
+        iframeRef.current?.contentWindow?.postMessage(config, targetOrigin)
         // Belt-and-suspenders: also reply on the transferred channel port (test.html style).
         port?.postMessage({ baseUrl: host, accessToken })
         setStatus('ready')
@@ -40,7 +48,7 @@ export default function RestPlayground({ host }: { host: string }) {
     }
 
     function onMessage(e: MessageEvent) {
-      if (e.origin !== PLAYGROUND_ORIGIN) return
+      if (e.origin !== targetOrigin) return
       if (e.data?.type === 'api-playground-ready') {
         sendConfig(e.ports?.[0])
       }
@@ -51,7 +59,7 @@ export default function RestPlayground({ host }: { host: string }) {
       cancelled = true
       window.removeEventListener('message', onMessage)
     }
-  }, [host])
+  }, [host, origin])
 
   return (
     <div className="rest-playground">
@@ -66,7 +74,9 @@ export default function RestPlayground({ host }: { host: string }) {
             <>
               <span className="rest-playground-error-icon">⚠</span>
               <div className="rest-playground-msg rest-playground-error-msg">
-                Couldn’t fetch a session token to configure the playground.
+                {origin
+                  ? 'Couldn’t fetch a session token to configure the playground.'
+                  : `“${url}” is not a valid URL.`}
               </div>
             </>
           )}
@@ -74,7 +84,7 @@ export default function RestPlayground({ host }: { host: string }) {
       )}
       <iframe
         ref={iframeRef}
-        src={PLAYGROUND_URL}
+        src={origin ? url : 'about:blank'}
         title="ThoughtSpot REST API Playground"
         className="rest-playground-frame"
       />

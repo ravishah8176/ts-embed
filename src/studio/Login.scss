@@ -1,3 +1,5 @@
+@use '../styles/base' as *;
+
 /* Styles specific to Login.
    This component currently styles itself with inline styles + shared classes
    from studio.scss. Add your custom Login overrides here. */
@@ -11,9 +13,9 @@
 /* ── Brand panel ── */
 .login-brand {
   flex: 1.05;
-  background: #0E1116;
-  color: #fff;
-  padding: 56px 60px;
+  background: $rd-ref-gray-90;
+  color: $rd-ref-white;
+  padding: $rd-spacing--k;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -27,7 +29,7 @@
   height: 560px;
   right: -180px;
   top: -200px;
-  background: radial-gradient(circle at center, rgba(43, 91, 244, .5), transparent 60%);
+  background: radial-gradient(circle at center, rd-sys-color-alpha('background-brand', 0.5), transparent 60%);
   pointer-events: none;
 }
 
@@ -37,14 +39,14 @@
   height: 360px;
   left: -130px;
   bottom: -150px;
-  background: radial-gradient(circle at center, rgba(124, 92, 252, .3), transparent 64%);
+  background: radial-gradient(circle at center, rd-sys-color-alpha('background-accent-purple-bold', 0.3), transparent 64%);
   pointer-events: none;
 }
 
 .login-brand-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: $rd-spacing--c;
   position: relative;
   z-index: 2;
 }
@@ -52,8 +54,8 @@
 .login-logo-badge {
   width: 36px;
   height: 36px;
-  border-radius: 9px;
-  background: #fff;
+  border-radius: $rd-layout--radius-xlarge;
+  background: $rd-ref-white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,25 +64,25 @@
 .login-logo-dot {
   width: 14px;
   height: 14px;
-  border-radius: 50%;
-  background: #0E1116;
+  border-radius: $rd-layout--radius-round;
+  background: $rd-ref-gray-90;
 }
 
 .login-logo-text {
-  font-weight: 800;
-  font-size: 19px;
+  @include rd-font--section-label;
+  @include rd-font--bold;
   letter-spacing: -.02em;
 }
 
 .login-logo-tag {
-  font-size: 11px;
-  font-weight: 700;
+  @include rd-font--footnote;
+  @include rd-font--bold;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: #6b94ff;
-  border: 1px solid rgba(43, 91, 244, .5);
-  padding: 3px 8px;
-  border-radius: 6px;
+  color: $rd-ref-brand-50;
+  border: 1px solid rd-sys-color-alpha('border-brand', 0.5);
+  padding: $rd-spacing--a $rd-spacing--b;
+  border-radius: $rd-layout--radius-xlarge;
 }
 
 /* ── Brand hero ── */
@@ -91,45 +93,43 @@
 }
 
 .login-hero-eyebrow {
-  font-size: 13px;
-  font-weight: 700;
+  @include rd-font--body-normal;
+  @include rd-font--bold;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: #5B6472;
-  margin-bottom: 22px;
+  color: rd-sys-color('content-secondary');
+  margin-bottom: $rd-spacing--f;
 }
 
 .login-hero-title {
-  font-size: 46px;
-  line-height: 1.05;
-  font-weight: 800;
+  @include rd-font--size($rd-font--headline-large, 1.05);
+  @include rd-font--bold;
   letter-spacing: -.03em;
-  margin: 0 0 20px;
+  margin: 0 0 $rd-spacing--e;
 }
 
 .login-hero-copy {
-  font-size: 16px;
-  line-height: 1.55;
-  color: #9aa3b2;
-  margin: 0 0 32px;
+  @include rd-font--size($rd-font--body-large, 1.55);
+  color: $rd-ref-gray-40;
+  margin: 0 0 $rd-spacing--h;
   max-width: 410px;
 }
 
 .login-footer {
   position: relative;
   z-index: 2;
-  font-size: 12.5px;
-  color: #5B6472;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-secondary');
 }
 
 /* ── Form panel ── */
 .login-form-panel {
   flex: 1;
-  background: #fff;
+  background: rd-sys-color('background-base');
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: $rd-spacing--i;
 }
 
 .login-form {
@@ -138,131 +138,339 @@
 }
 
 .login-form-title {
-  font-size: 27px;
-  font-weight: 800;
+  @include rd-font--page-title;
+  @include rd-font--bold;
   letter-spacing: -.02em;
-  margin: 0 0 7px;
+  margin: 0 0 $rd-spacing--b;
 }
 
 .login-form-subtitle {
-  font-size: 14px;
-  color: #5A6573;
-  margin: 0 0 26px;
-  line-height: 1.5;
+  @include rd-font--size($rd-font--body-normal, 1.5);
+  color: rd-sys-color('content-secondary');
+  margin: 0 0 $rd-spacing--g;
 }
 
-.login-strong {
-  font-weight: 600;
-  color: #0E1116;
+/* ── Auth method picker (custom listbox — see Login.tsx) ── */
+.login-rel {
+  position: relative;
+  margin-bottom: $rd-spacing--d;
 }
 
-/* ── Auth method card ── */
-.login-auth-card {
+/* Trigger — matches .ts-input so it reads as one of the form's own fields. */
+.login-select {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 11px;
-  background: #F4F5F7;
-  border: 1px solid #E4E7EC;
-  border-radius: 11px;
-  padding: 11px 13px;
-  margin-bottom: 20px;
+  gap: $rd-spacing--c;
+  border: 1px solid rd-sys-color('border-subtle-hover');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--c;
+  background: rd-sys-color('background-base');
+  text-align: left;
+  transition: border-color $rd-animation--quickly, box-shadow $rd-animation--quickly;
+
+  &:hover:not(:disabled) {
+    border-color: rd-sys-color('border-bold');
+  }
+  &[aria-expanded='true'] {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rd-sys-color-alpha('border-focus', 0.12);
+  }
+  &:disabled {
+    background: rd-sys-color('background-sunken');
+    cursor: not-allowed;
+  }
 }
 
-.login-auth-icon {
+.login-select-icon {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
-  background: #0E1116;
+  border-radius: $rd-layout--radius-xlarge;
+  background: rd-sys-color('background-inverse');
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.login-auth-body {
+/* Grow-to-fill text column inside the trigger and each option. */
+.login-grow {
   flex: 1;
   min-width: 0;
 }
 
-.login-auth-method {
-  font-size: 13px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
+.login-select-top {
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
 }
 
-.login-auth-note {
-  font-size: 12px;
-  color: #7A8694;
+.login-select-label {
+  flex: 1;
+  min-width: 0;
+  @include rd-font--size($rd-font--body-normal, 1.3);
+  @include rd-font--bold;
+  font-family: 'JetBrains Mono', monospace;
+  color: rd-sys-color('content-primary');
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login-select-sub {
+  display: block;
+  @include rd-font--size($rd-font--footnote, 1.35);
+  color: rd-sys-color('content-secondary');
+}
+
+.login-chevron {
+  flex-shrink: 0;
+  transition: transform $rd-animation--quickly;
+}
+
+/* Full-screen click-catcher behind the open dropdown. */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+}
+
+.login-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 26;
+  background: rd-sys-color('background-base');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  @include rd-elevation--menu;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 340px;
+}
+
+.login-dropdown-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: $rd-spacing--a;
+}
+
+.login-opt {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  border: none;
+  background: transparent;
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--b;
+  text-align: left;
+
+  &:hover {
+    background: rd-sys-color('background-ghost-highlight');
+  }
+  &.selected {
+    background: rd-sys-color('background-ghost-highlight');
+  }
+}
+
+.login-opt-label {
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  @include rd-font--size($rd-font--body-normal, 1.2);
+  @include rd-font--semibold;
+  font-family: 'JetBrains Mono', monospace;
+  color: rd-sys-color('content-primary');
+}
+
+.login-opt-sub {
+  display: block;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-tertiary');
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login-opt-badge {
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
+  font-family: $rd-font--family-regular;
+  letter-spacing: .04em;
+  color: rd-sys-color('content-success');
+  background: rd-sys-color('background-success');
+  border-radius: $rd-layout--radius-large;
+  padding: rd-utility--get-scaling-rem(2px) $rd-spacing--a;
+  flex-shrink: 0;
+}
+
+.login-opt-badge-warn {
+  color: $rd-ref-yellow-80;
+  background: rd-sys-color('background-warning');
 }
 
 .login-auth-pill {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #12875A;
-  background: #E7F6EE;
-  border-radius: 6px;
-  padding: 3px 8px;
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
+  letter-spacing: .04em;
+  color: rd-sys-color('content-success');
+  background: rd-sys-color('background-success');
+  border-radius: $rd-layout--radius-large;
+  padding: rd-utility--get-scaling-rem(2px) $rd-spacing--b;
   flex-shrink: 0;
 }
 
 /* ── Form fields ── */
 .login-label {
   display: block;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #3A4452;
-  margin-bottom: 6px;
+  @include rd-font--footnote;
+  @include rd-font--semibold;
+  color: rd-sys-color('content-primary');
+  margin-bottom: $rd-spacing--b;
 }
 
 .login-field {
-  margin-bottom: 15px;
+  margin-bottom: $rd-spacing--d;
 }
 
 /* Password field bottom margin depends on whether an error is shown. */
 .login-field-tight {
-  margin-bottom: 12px;
+  margin-bottom: $rd-spacing--c;
 }
 
 .login-field-loose {
-  margin-bottom: 22px;
+  margin-bottom: $rd-spacing--f;
 }
 
 /* ── Error banner ── */
 .login-error {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #C0392B;
-  background: #FDECEA;
-  border: 1px solid #F1C9C4;
-  border-radius: 9px;
-  padding: 9px 12px;
-  margin-bottom: 18px;
+  gap: $rd-spacing--b;
+  @include rd-font--body-normal;
+  color: rd-sys-color('content-failure');
+  background: rd-sys-color('background-failure');
+  border: 1px solid $rd-ref-red-30;
+  border-radius: $rd-layout--radius-xlarge;
+  padding: $rd-spacing--b $rd-spacing--c;
+  margin-bottom: $rd-spacing--e;
 }
 
 .login-error-dot {
   width: 7px;
   height: 7px;
-  border-radius: 50%;
-  background: #C0392B;
+  border-radius: $rd-layout--radius-round;
+  background: $rd-ref-red-60;
   flex-shrink: 0;
 }
 
 /* ── Submit button ── */
 .login-submit {
   width: 100%;
-  font-size: 15px;
-  padding: 13px;
-  box-shadow: 0 6px 18px rgba(43, 91, 244, .26);
 }
 
 .login-spinner {
   width: 15px;
   height: 15px;
-  border: 2px solid rgba(255, 255, 255, .4);
-  border-top-color: #fff;
-  border-radius: 50%;
+  border: 2px solid $rd-ref-white-alpha-42;
+  border-top-color: $rd-ref-white;
+  border-radius: $rd-layout--radius-round;
   display: inline-block;
-  animation: tsSpin .7s linear infinite;
+  animation: tsSpin $rd-animation--slowly linear infinite;
+}
+
+.login-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .92em;
+  background: rd-sys-color('background-sunken');
+  border: 1px solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-large;
+  padding: rd-utility--get-scaling-rem(1px) $rd-spacing--a;
+}
+
+.login-auth-pill-warn {
+  color: $rd-ref-yellow-80;
+  background: rd-sys-color('background-warning');
+}
+
+/* Cluster-side prerequisite for the selected method. */
+.login-method-wire {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  @include rd-font--fine-prints;
+  @include rd-font--normal;
+  color: rd-sys-color('content-tertiary');
+  margin-bottom: $rd-spacing--a;
+}
+
+.login-method-note {
+  @include rd-font--size($rd-font--footnote, 1.5);
+  color: rd-sys-color('content-secondary');
+  margin: -$rd-spacing--a 0 $rd-spacing--e;
+  padding-left: $rd-spacing--c;
+  border-left: 2px solid rd-sys-color('border-subtle');
+}
+
+/* ── inPopup toggle ── */
+.login-check {
+  display: flex;
+  align-items: flex-start;
+  gap: $rd-spacing--b;
+  @include rd-font--body-normal;
+  color: rd-sys-color('content-primary');
+  margin-bottom: $rd-spacing--e;
+  cursor: pointer;
+
+  input {
+    margin-top: rd-utility--get-scaling-rem(2px);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+}
+
+.login-check-hint {
+  display: block;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-secondary');
+  margin-top: rd-utility--get-scaling-rem(2px);
+}
+
+/* Holds the button the SDK injects for inPopup SSO; collapsed until it does. */
+.login-sso-trigger:not(:empty) {
+  display: flex;
+  margin-bottom: $rd-spacing--e;
+}
+
+.ts-auth-btn {
+  width: 100%;
+  padding: $rd-spacing--c;
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+  color: $rd-ref-white;
+  background: $rd-ref-gray-90;
+  border: 0;
+  border-radius: $rd-layout--radius-xlarge;
+  cursor: pointer;
+
+  &:hover {
+    background: $rd-ref-gray-85;
+  }
+}
+
+/* Escape hatch when a stored SDK version cannot be fetched, so sign-in is not
+   a dead end with the Studio's own picker out of reach. */
+.login-sdk-recover {
+  display: block;
+  margin-top: $rd-spacing--b;
+  border: none;
+  background: transparent;
+  padding: 0;
+  @include rd-font--footnote;
+  @include rd-font--bold;
+  color: var(--accent);
+  text-align: left;
 }

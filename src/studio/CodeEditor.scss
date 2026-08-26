@@ -1,0 +1,105 @@
+@use '../styles/base' as *;
+
+/* Styles specific to CodeEditor. The editor paints itself from its Monaco theme
+   (see monacoSetup.ts); this is only the box it fills, and the copy control that
+   is ours rather than Monaco's. */
+
+.ce-host {
+  flex: 1;
+  min-height: 160px;
+  min-width: 0;
+  display: flex;
+  overflow: hidden;
+
+  .monaco-editor {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Flush, unframed, square — the playground's code block sits in its panel this way,
+     and a border around a dark block inside a light panel only fights it. */
+  .monaco-editor,
+  .monaco-editor .overflow-guard {
+    border-radius: 0;
+  }
+}
+
+/**
+ * Brackets take the colour of the code around them.
+ *
+ * Monaco colours bracket *pairs* gold, orchid and blue by depth, which the
+ * playground's older build does not do and which reads as syntax that is not there.
+ * The editor option for it reports itself off and the model paints them anyway, so
+ * the colour is taken back here instead.
+ */
+.ce-host .monaco-editor [class*='bracket-highlighting-'] {
+  color: inherit;
+}
+
+/* Read-only preview: no caret, and no line highlight to suggest one. */
+.ce-readonly {
+  .monaco-editor .cursors-layer {
+    display: none;
+  }
+}
+
+/* Auto-height: sized by its content, so it drops the filling box's floor and stretch. */
+.ce-auto {
+  flex: none;
+  min-height: 0;
+  display: block;
+
+  .monaco-editor {
+    width: 100%;
+  }
+}
+
+/**
+ * Per-key copy control, at the end of the key's line.
+ *
+ * It is a content widget, so it exists only while the key it belongs to encloses the
+ * pointer — a key several lines above the value being read included, which is a
+ * relation no selector can express.
+ */
+.ce-copy-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: $rd-spacing--d;
+  margin-left: $rd-spacing--a;
+  vertical-align: middle;
+  color: rd-sys-color('content-tertiary');
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity $rd-animation--quickly, color $rd-animation--quickly;
+
+  svg {
+    width: rd-utility--get-scaling-rem(11px);
+    height: rd-utility--get-scaling-rem(11px);
+  }
+}
+
+/* Every key enclosing the pointer, from the leaf it is on out to the root. */
+.ce-copy-value.shown {
+  opacity: 0.75;
+}
+
+.ce-copy-value:hover {
+  opacity: 1;
+  color: rd-sys-color('content-brand');
+}
+
+/* Held briefly after a copy, so it confirms even once the pointer has moved on. */
+.ce-copy-value.copied {
+  opacity: 1;
+  color: rd-sys-color('content-success');
+}
+
+/* Shown by callers while the editor chunk is still in flight. */
+.ce-loading {
+  align-items: center;
+  justify-content: center;
+  background: rd-sys-color('background-on-base');
+  color: rd-sys-color('content-tertiary');
+  @include rd-font--footnote;
+}

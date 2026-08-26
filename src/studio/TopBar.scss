@@ -1,21 +1,29 @@
+@use '../styles/base' as *;
+
 /* Styles specific to TopBar. Add your custom top-bar tweaks here. */
 
 /* Avatar button hover */
 .hover-soft:hover {
-  background: #f4f5f7;
+  background: rd-sys-color('background-ghost-hover');
 }
 
 /* ---- Header layout ---- */
 .tb-header {
-  height: 57px;
+  height: $rd-spacing--k;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 13px;
-  padding: 0 16px;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ec;
-  z-index: 30;
+  gap: $rd-spacing--c;
+  padding: 0 $rd-spacing--d;
+  background: rd-sys-color('background-base');
+  border-bottom: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  /* Positioned so the z-index applies at all — static, it did nothing, which left
+     the avatar menu tying with .rest-tab (also 40) and losing on DOM order. The
+     header now owns a stacking context above every in-workspace overlay: the REST
+     shell (40), the profile sheet (51) and the anchored version popovers (56, 61).
+     Toast (90) and the resize shield (100) still sit above it, as they should. */
+  position: relative;
+  z-index: 70;
 }
 
 .tb-spacer {
@@ -26,109 +34,77 @@
 .tb-home {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: $rd-spacing--b;
   background: transparent;
   border: none;
-  padding: 4px 6px;
-  border-radius: 8px;
-  margin: 0 -2px;
+  padding: $rd-spacing--a $rd-spacing--b;
+  border-radius: $rd-layout--radius-xlarge;
+  margin: 0 rd-utility--get-scaling-rem(-2px);
 }
 
 .tb-logo {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: #0e1116;
+  width: $rd-spacing--g;
+  height: $rd-spacing--g;
+  border-radius: $rd-layout--radius-xlarge;
+  background: rd-sys-color('background-inverse');
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .tb-logo-dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: #fff;
+  width: rd-utility--get-scaling-rem(11px);
+  height: rd-utility--get-scaling-rem(11px);
+  border-radius: $rd-layout--radius-round;
+  background: rd-sys-color('background-base');
 }
 
 .tb-brand {
-  font-size: 15.5px;
-  font-weight: 800;
+  @include rd-font--body-large;
+  @include rd-font--bold;
   letter-spacing: -0.02em;
 }
 
 .tb-brand-sub {
-  font-weight: 500;
-  color: #9aa4b2;
+  @include rd-font--semibold;
+  color: rd-sys-color('content-tertiary');
 }
 
 /* ---- Tab switcher ---- */
+/* Radiant's segment control: a $rd-spacing--d radius on a 2px inset, no border of
+   its own, and the selected item drawn as a background-base pill with elevation.
+   Hover and selection both go to content-brand — the item is saying it is
+   selectable, and Radiant says that in the brand colour. */
 .tb-tabs {
   display: flex;
-  gap: 3px;
-  background: #f0f1f4;
-  border: 1px solid #e4e7ec;
-  border-radius: 10px;
-  padding: 3px;
-  margin-left: 6px;
+  background: rd-sys-color('background-secondary-action');
+  border-radius: $rd-spacing--d;
+  padding: rd-utility--get-scaling-rem(2px);
+  margin-left: $rd-spacing--b;
 }
 
 .tb-tab {
   border: none;
   background: transparent;
-  color: #6b7686;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 7px;
+  color: rd-sys-color('content-secondary');
+  @include rd-font--body-normal;
+  padding: $rd-spacing--a $rd-spacing--d;
+  border-radius: $rd-spacing--d;
   display: flex;
   align-items: center;
-  gap: 6px;
   box-shadow: none;
+  transition: background $rd-animation--quickly, color $rd-animation--quickly;
+
+  &:hover:not(.tb-tab-on) {
+    background: rd-sys-color('background-ghost-hover');
+    color: rd-sys-color('content-brand');
+  }
 }
 
 .tb-tab-on {
-  background: #fff;
-  color: #0e1116;
-  box-shadow: 0 1px 2px rgba(14, 17, 22, 0.14);
-}
-
-.tb-tab-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 2px;
-  background: var(--tb-dot);
-}
-
-/* ---- Host pill ---- */
-.tb-host {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: #f4f5f7;
-  border: 1px solid #e4e7ec;
-  border-radius: 9px;
-  padding: 6px 11px;
-  font-size: 12.5px;
-  color: #3a4452;
-  max-width: 300px;
-}
-
-.tb-host-pulse {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #12875a;
-  box-shadow: 0 0 0 3px rgba(18, 135, 90, 0.16);
-  flex-shrink: 0;
-}
-
-.tb-host-text {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  background: rd-sys-color('background-base');
+  color: rd-sys-color('content-brand');
+  @include rd-elevation--surface;
 }
 
 /* ---- Avatar button ---- */
@@ -139,27 +115,28 @@
 .tb-avatar-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: $rd-spacing--b;
   background: transparent;
-  border: 1px solid #e4e7ec;
-  border-radius: 999px;
-  padding: 4px 6px 4px 11px;
+  border: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  border-radius: 100vh;
+  padding: $rd-spacing--a $rd-spacing--b $rd-spacing--a $rd-spacing--c;
 }
 
 .tb-avatar-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #3a4452;
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+  color: rd-sys-color('content-primary');
 }
 
+/* $rd-spacing--h is Radiant's avatar size (`avatar.module.scss`). */
 .tb-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), #7c5cfc);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  width: $rd-spacing--h;
+  height: $rd-spacing--h;
+  border-radius: $rd-layout--radius-round;
+  background: linear-gradient(135deg, var(--accent), $rd-ref-purple-60);
+  color: rd-sys-color('content-inverse');
+  @include rd-font--footnote;
+  @include rd-font--bold;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,31 +146,31 @@
 .tb-menu {
   position: absolute;
   right: 0;
-  top: 46px;
-  width: 236px;
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 12px;
-  box-shadow: 0 16px 40px rgba(14, 17, 22, 0.16);
-  padding: 7px;
+  top: $rd-spacing--j;
+  width: rd-utility--get-scaling-rem(260px);
+  background: rd-sys-color('background-base');
+  border: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  border-radius: $rd-layout--radius-xlarge;
+  @include rd-elevation--menu;
+  padding: $rd-spacing--b;
   z-index: 40;
 }
 
 .tb-menu-head {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 9px 11px;
+  gap: $rd-spacing--c;
+  padding: $rd-spacing--b $rd-spacing--b $rd-spacing--c;
 }
 
 .tb-menu-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), #7c5cfc);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
+  width: $rd-spacing--i;
+  height: $rd-spacing--i;
+  border-radius: $rd-layout--radius-round;
+  background: linear-gradient(135deg, var(--accent), $rd-ref-purple-60);
+  color: rd-sys-color('content-inverse');
+  @include rd-font--body-normal;
+  @include rd-font--bold;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,34 +182,239 @@
 }
 
 .tb-menu-name {
-  font-size: 13.5px;
-  font-weight: 700;
+  @include rd-font--body-normal;
+  @include rd-font--bold;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .tb-menu-email {
-  font-size: 12px;
-  color: #7a8694;
+  @include rd-font--footnote;
+  color: rd-sys-color('content-secondary');
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .tb-menu-sep {
-  height: 1px;
-  background: #eef0f3;
-  margin: 3px 0;
+  height: rd-utility--get-scaling-rem(1px);
+  background: rd-sys-color('background-secondary-action');
+  margin: $rd-spacing--a 0;
 }
 
 .tb-menu-item {
-  padding: 9px 10px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: #3a4452;
+  padding: $rd-spacing--b $rd-spacing--c;
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+  color: rd-sys-color('content-primary');
 }
 
 .tb-menu-item-danger {
-  color: #c0392b;
+  color: rd-sys-color('content-failure');
+}
+
+/* Appearance control in the avatar menu. A 3-up segmented row rather than a
+   toggle, because 'Auto' is a third state and not the midpoint of the other two.
+   The label sits above the control rather than beside it: Radiant's segment
+   control has one size, and squeezing it into the remainder of a menu row is what
+   had it running at a smaller type step and tighter padding than the identical
+   control in the header. Stacked, it gets the full width and the real spec. */
+.tb-menu-theme {
+  display: flex;
+  flex-direction: column;
+  gap: $rd-spacing--b;
+  padding: $rd-spacing--b $rd-spacing--c;
+}
+
+.tb-theme-seg {
+  display: flex;
+  width: 100%;
+  padding: rd-utility--get-scaling-rem(2px);
+  background: rd-sys-color('background-secondary-action');
+  border-radius: $rd-spacing--d;
+}
+
+/* Equal thirds, the same treatment the header's tab switcher gets. */
+.tb-theme-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: rd-sys-color('content-secondary');
+  padding: $rd-spacing--a $rd-spacing--b;
+  border-radius: $rd-spacing--d;
+  transition: background $rd-animation--quickly, color $rd-animation--quickly;
+  @include rd-font--body-normal;
+
+  &:hover:not(.tb-theme-btn-on) {
+    background: rd-sys-color('background-ghost-hover');
+    color: rd-sys-color('content-brand');
+  }
+}
+
+.tb-theme-btn-on {
+  background: rd-sys-color('background-base');
+  color: rd-sys-color('content-brand');
+  @include rd-elevation--surface;
+}
+
+/* ---- Org switcher in the avatar menu ----
+   Laid out like .tb-menu-theme (stacked label + control) so the two menu sections
+   read as one system. The control is a disclosure rather than a segment: the Org
+   count is unbounded, and the list has to be able to scroll. */
+.tb-menu-org {
+  display: flex;
+  flex-direction: column;
+  gap: $rd-spacing--b;
+  padding: $rd-spacing--b $rd-spacing--c;
+}
+
+.tb-org-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $rd-spacing--b;
+  width: 100%;
+  padding: $rd-spacing--a $rd-spacing--c;
+  background: rd-sys-color('background-secondary-action');
+  border: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  border-radius: $rd-spacing--d;
+  color: rd-sys-color('content-primary');
+  transition: background $rd-animation--quickly;
+
+  &:hover:not(:disabled) {
+    background: rd-sys-color('background-ghost-hover');
+  }
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.tb-org-name {
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tb-org-caret {
+  flex-shrink: 0;
+  color: rd-sys-color('content-secondary');
+  transition: transform $rd-animation--quickly;
+}
+
+.tb-org-caret-open {
+  transform: rotate(180deg);
+}
+
+/* Capped so a tenant with many Orgs scrolls the list instead of the whole menu. */
+.tb-org-list {
+  display: flex;
+  flex-direction: column;
+  max-height: rd-utility--get-scaling-rem(184px);
+  overflow-y: auto;
+}
+
+.tb-org-item {
+  display: flex;
+  align-items: center;
+  gap: $rd-spacing--b;
+  width: 100%;
+  text-align: left;
+  padding: $rd-spacing--a $rd-spacing--b;
+  background: transparent;
+  border: none;
+  border-radius: $rd-layout--radius-xlarge;
+  color: rd-sys-color('content-secondary');
+  @include rd-font--body-normal;
+  transition: background $rd-animation--quickly, color $rd-animation--quickly;
+
+  &:hover:not(:disabled) {
+    background: rd-sys-color('background-ghost-hover');
+    color: rd-sys-color('content-brand');
+  }
+}
+
+.tb-org-item-on {
+  color: rd-sys-color('content-primary');
+  @include rd-font--semibold;
+}
+
+/* Fixed-width gutter so the names line up whether or not a row is the current Org. */
+.tb-org-check {
+  width: rd-utility--get-scaling-rem(12px);
+  flex-shrink: 0;
+  color: rd-sys-color('content-brand');
+}
+
+.tb-org-item-name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tb-org-auth {
+  display: flex;
+  flex-direction: column;
+  gap: $rd-spacing--b;
+  padding-top: $rd-spacing--a;
+}
+
+.tb-org-password {
+  width: 100%;
+  padding: $rd-spacing--a $rd-spacing--b;
+  background: rd-sys-color('background-base');
+  border: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  border-radius: $rd-spacing--d;
+  color: rd-sys-color('content-primary');
+  @include rd-font--body-normal;
+
+  &:focus {
+    outline: none;
+    border-color: rd-sys-color('border-brand');
+  }
+}
+
+.tb-org-auth-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $rd-spacing--b;
+}
+
+.tb-org-cancel,
+.tb-org-confirm {
+  padding: $rd-spacing--a $rd-spacing--c;
+  border-radius: $rd-spacing--d;
+  border: none;
+  @include rd-font--body-normal;
+  @include rd-font--semibold;
+}
+
+.tb-org-cancel {
+  background: transparent;
+  color: rd-sys-color('content-secondary');
+
+  &:hover {
+    background: rd-sys-color('background-ghost-hover');
+  }
+}
+
+.tb-org-confirm {
+  background: rd-sys-color('background-brand');
+  color: rd-sys-color('content-inverse');
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.tb-org-error {
+  @include rd-font--footnote;
+  color: rd-sys-color('content-failure');
 }

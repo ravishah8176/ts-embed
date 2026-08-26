@@ -1,0 +1,154 @@
+// Radiant design system — font families, weights and the V2 type scale.
+//
+// Vendored from @thoughtspot/radiant-styles (css/foundations/_fonts.scss +
+// _typography.scss). Only the current "Radiant V2" scale is carried over; the
+// legacy h0-h6 / p-small / p-large ladder is deliberately left behind, and the
+// IE branch of truncate-multi is dropped.
+//
+// Line heights are not tokens — rd-font--size derives them from the 4px
+// baseline grid, which is why $modifier appears on some variants.
+
+@use './settings' as *;
+@use './tools' as *;
+
+// ---------------------------------------------------------------------------
+// Families
+// ---------------------------------------------------------------------------
+$rd-font--family-regular: optimo-plain, helvetica neue, helvetica, arial, sans-serif;
+$rd-font--family-mono: bb-roller-regular, courrier, sans-serif;
+$rd-font--family-bb-roller-mono: bb-roller-mono-semibold;
+
+// ---------------------------------------------------------------------------
+// Weights. Optimo-Plain ships Light at 400, Regular at 600 and Medium at 700,
+// so `medium` is an alias of `semibold` upstream — kept as-is for parity.
+// ---------------------------------------------------------------------------
+@mixin rd-font--normal {
+  font-weight: 400;
+  font-variant-ligatures: none;
+}
+
+@mixin rd-font--375 {
+  font-weight: 375;
+  font-variant-ligatures: none;
+}
+
+@mixin rd-font--semibold {
+  font-weight: 600;
+  font-variant-ligatures: none;
+}
+
+@mixin rd-font--medium {
+  font-weight: 600;
+  font-variant-ligatures: none;
+}
+
+@mixin rd-font--bold {
+  font-weight: 700;
+  font-variant-ligatures: none;
+}
+
+/// Tabular figures — for anything where digits must not shift between renders.
+@mixin rd-font--numeric-monospaces-setting {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+// ---------------------------------------------------------------------------
+// Scale
+// ---------------------------------------------------------------------------
+$rd-font--headline-large: 32px !default;
+$rd-font--page-title: 24px !default;
+$rd-font--modal-title: 20px !default;
+$rd-font--section-label: 18px !default;
+$rd-font--content-label: 16px !default;
+$rd-font--content-label-subhead: 14px !default;
+$rd-font--body-large: 16px !default;
+$rd-font--body-normal: 14px !default;
+$rd-font--footnote: 12px !default;
+$rd-font--caption: 12px !default;
+$rd-font--overline: 12px !default;
+$rd-font--size-fine-prints: 10px !default;
+
+// Display
+@mixin rd-font--headline-large {
+  @include rd-font--size($rd-font--headline-large, $modifier: 1);
+  @include rd-font--medium;
+}
+
+// Titles
+@mixin rd-font--page-title {
+  @include rd-font--size($rd-font--page-title, $modifier: 1);
+  @include rd-font--medium;
+}
+
+@mixin rd-font--modal-title {
+  @include rd-font--size($rd-font--modal-title, $modifier: 1);
+  @include rd-font--medium;
+}
+
+// Labels
+@mixin rd-font--section-label {
+  @include rd-font--size($rd-font--section-label);
+  @include rd-font--medium;
+}
+
+@mixin rd-font--content-label {
+  @include rd-font--size($rd-font--content-label, $modifier: 1);
+  @include rd-font--medium;
+}
+
+@mixin rd-font--content-label-subhead {
+  @include rd-font--size($rd-font--content-label-subhead);
+  @include rd-font--medium;
+
+  font-family: $rd-font--family-regular;
+  text-transform: unset;
+}
+
+// Body
+@mixin rd-font--body-large {
+  @include rd-font--size($rd-font--body-large, $modifier: 1);
+}
+
+@mixin rd-font--body-normal {
+  @include rd-font--size($rd-font--body-normal);
+}
+
+// Supporting text
+@mixin rd-font--footnote {
+  @include rd-font--size($rd-font--footnote, $modifier: 0.75);
+}
+
+@mixin rd-font--caption {
+  @include rd-font--size($rd-font--caption, $modifier: 0.75);
+}
+
+@mixin rd-font--overline {
+  @include rd-font--size($rd-font--overline, $modifier: 0.75);
+}
+
+@mixin rd-font--fine-prints {
+  @include rd-font--size($rd-font--size-fine-prints, $modifier: 0);
+  @include rd-font--semibold;
+}
+
+@mixin rd-font--fine-prints-bold {
+  @include rd-font--size($rd-font--size-fine-prints, $modifier: 0);
+  @include rd-font--bold;
+}
+
+// ---------------------------------------------------------------------------
+// Truncation
+// ---------------------------------------------------------------------------
+@mixin rd-font--truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin rd-font--truncate-multi($number-lines: 3) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $number-lines;
+  overflow: hidden;
+}

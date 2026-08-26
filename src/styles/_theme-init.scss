@@ -1,0 +1,20 @@
+// Emits the system tokens as CSS custom properties. Import exactly once, from
+// the app's global stylesheet — every other file should @use '../styles/base',
+// which forwards the variables and functions but writes no CSS.
+//
+// Theme switching is a single attribute on <html>:
+//   document.documentElement.setAttribute('data-theme', 'dark')
+// Upstream puts it there rather than on <body> so portalled overlays inherit it.
+
+@use './foundations/tokens-system' as sys;
+@use './foundations/tokens-component' as comp;
+
+:root {
+  @include sys.rd-system-theme-init();
+  @include comp.rd-component-theme-init();
+}
+
+[data-theme='dark'] {
+  @include sys.rd-system-theme-init(sys.$rd-sys-color-map-dark);
+  @include comp.rd-component-theme-init(comp.$rd-comp-color-map-dark);
+}

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { Suspense, lazy, useMemo } from 'react'
 import './ComposerPanel.scss'
 import type { EmbedType } from './constants'
 import {
@@ -6,10 +6,12 @@ import {
   composerCodeFor,
   humanize,
 } from './constants'
+import Button from './Button'
+
+/** Shared with the config panel, so this tab adds no download of its own. */
+const CodeEditor = lazy(() => import('./CodeEditor'))
 
 interface Props {
-  collapsed: boolean
-  onTogglePanel: () => void
   embedType: EmbedType
   composerKey: string
   onPickEvent: (key: string) => void
@@ -26,8 +28,6 @@ interface Props {
 
 export default function ComposerPanel(props: Props) {
   const {
-    collapsed,
-    onTogglePanel,
     embedType,
     composerKey,
     onPickEvent,
@@ -42,7 +42,7 @@ export default function ComposerPanel(props: Props) {
     onTrigger,
   } = props
 
-  const composerColor = '#7c5cfc'
+  const composerColor = 'var(--rd-sys-color-content-brand)'
 
   const opts = useMemo(() => {
     const q = composerSearch.trim().toLowerCase()
@@ -55,57 +55,24 @@ export default function ComposerPanel(props: Props) {
   const noResults = opts.length === 0
 
   let validStatus = 'valid JSON'
-  let validColor = '#12875A'
+  let validColor = 'var(--rd-sys-color-content-success)'
   if (draft.trim() === '') {
     validStatus = 'no params → {}'
-    validColor = '#9AA4B2'
+    validColor = 'var(--rd-sys-color-content-tertiary)'
   } else {
     try {
       JSON.parse(draft)
     } catch {
       validStatus = 'invalid JSON'
-      validColor = '#EF4444'
+      validColor = 'var(--rd-sys-color-content-failure)'
     }
   }
 
-  const panelW = collapsed ? 56 : 320
-
   return (
-    <aside
-      className="cp-aside"
-      style={{ flex: `0 0 ${panelW}px` }}
-    >
-      {collapsed ? (
-        <div className="cp-collapsed-rail">
-          <button
-            className="ts-btn-primary cp-expand-btn"
-            onClick={onTogglePanel}
-            title="Expand composer"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="13 17 18 12 13 7" />
-              <polyline points="6 17 11 12 6 7" />
-            </svg>
-          </button>
-          <div className="cp-dot-8" style={{ background: composerColor }} />
-        </div>
-      ) : (
-        <>
-          {/* Header + event selector */}
+    <>
+      {/* Header + event selector */}
           <div className="cp-header">
-            <div className="cp-header-row">
-              <div className="cp-header-title">Host event composer</div>
-              <button
-                className="ts-icon-btn cp-collapse-btn"
-                onClick={onTogglePanel}
-                title="Collapse panel"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="11 17 6 12 11 7" />
-                  <polyline points="18 17 13 12 18 7" />
-                </svg>
-              </button>
-            </div>
+            <div className="cp-header-title">Host event composer</div>
             <div className="cp-subtitle">
               Configure &amp; fire{' '}
               <span className="cp-trigger-code">
@@ -134,7 +101,7 @@ export default function ComposerPanel(props: Props) {
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#7A8694"
+                  stroke="var(--rd-sys-color-content-secondary)"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -150,13 +117,13 @@ export default function ComposerPanel(props: Props) {
                   <div onClick={onCloseComposer} className="cp-overlay" />
                   <div className="anim-fade cp-dropdown">
                     <div className="cp-dropdown-head">
-                      <div className="cp-rel">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9AA4B2" strokeWidth="2" strokeLinecap="round" className="cp-search-icon">
+                      <div className="ts-search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="ts-search-icon" aria-hidden>
                           <circle cx="11" cy="11" r="7" />
                           <path d="m20 20-3-3" />
                         </svg>
                         <input
-                          className="ts-input cp-search-input"
+                          className="ts-input"
                           value={composerSearch}
                           onChange={(e) => onComposerSearch(e.target.value)}
                           placeholder="Search host events…"
@@ -175,9 +142,9 @@ export default function ComposerPanel(props: Props) {
                             key={k}
                             className="hover-opt cp-opt"
                             onClick={() => onPickEvent(k)}
-                            style={{ background: selected ? '#F4F6FF' : 'transparent' }}
+                            style={{ background: selected ? 'var(--rd-sys-color-background-ghost-highlight)' : 'transparent' }}
                           >
-                            <span className="cp-dot-6 cp-dot-shrink" style={{ background: '#7c5cfc' }} />
+                            <span className="cp-dot-6 cp-dot-shrink" style={{ background: 'var(--rd-sys-color-content-brand)' }} />
                             <span className="cp-select-text">
                               <span className="cp-opt-name">
                                 {humanize(k)}
@@ -220,35 +187,35 @@ export default function ComposerPanel(props: Props) {
                 </button>
               </div>
             </div>
-            <textarea
-              className="tss cp-textarea"
-              value={draft}
-              onChange={(e) => onDraftChange(e.target.value)}
-              spellCheck={false}
-              placeholder="{}"
-            />
+            <Suspense fallback={<div className="ce-host ce-loading">Loading editor…</div>}>
+              <CodeEditor value={draft} language="json" onChange={onDraftChange} />
+            </Suspense>
 
             <label className="cp-field-label cp-result-label">
               Resulting call
             </label>
-            <pre className="tss cp-result-pre">
-              {composerCodeFor(composerKey, draft)}
-            </pre>
+            <div className="cp-result-box">
+              <Suspense fallback={<div className="ce-host ce-loading">Loading editor…</div>}>
+                <CodeEditor value={composerCodeFor(composerKey, draft)} language="typescript" />
+              </Suspense>
+            </div>
           </div>
 
           <div className="cp-footer">
-            <button
-              className="ts-btn-primary cp-trigger-btn"
+            <Button
+              variant="primary"
+              size="m"
+              className="cp-trigger-btn"
+              icon={
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              }
               onClick={onTrigger}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
               Trigger event
-            </button>
+            </Button>
           </div>
-        </>
-      )}
-    </aside>
+    </>
   )
 }

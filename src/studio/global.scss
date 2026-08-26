@@ -3,9 +3,74 @@
    several components. Per-component styles live in each component's own .scss
    (e.g. ComposerPanel.scss). Imported once from App.tsx. */
 
+/* Radiant system tokens (--rd-sys-color-*) + the dark-theme override block.
+   The legacy :root palette below is being re-pointed at these token by token. */
+@use '../styles/theme-init';
+@use '../styles/fontfaces';
+@use '../styles/base' as *;
+
 :root {
-  --accent: #7c5cfc;
-  --accent-strong: #1b43c8;
+  /* Bridge layer. These are the app's original variable names, re-pointed at
+     Radiant system tokens so the ~60 existing var() call sites keep working and
+     pick up dark mode for free (rd-sys-color emits a var() reference, so the
+     [data-theme='dark'] block downstream re-resolves them).
+
+     New code should call rd-sys-color() directly; this block shrinks as
+     component sheets are migrated off the aliases. */
+
+  /* Brand. Was #7c5cfc (purple) plus a second inline blue — both collapse onto
+     the one brand ramp, which is what every ThoughtSpot surface uses. */
+  --accent: #{rd-sys-color('content-brand')};
+  --accent-strong: #{$rd-ref-brand-70};
+  --accent-blue: #{rd-sys-color('content-brand')};
+  --accent-blue-12: #{rd-sys-color('background-ghost-highlight')};
+  --accent-blue-ring: 0 0 0 3px #{$rd-ref-brand-10-alpha};
+
+  /* Ink. Twelve hand-tuned steps collapse onto Radiant's three content roles;
+     that collapse is the point — the old ramp had no semantics. */
+  --ink: #{rd-sys-color('content-primary')};
+  --ink-2: #{rd-sys-color('content-primary')};
+  --ink-3: #{rd-sys-color('content-primary')};
+  --ink-4: #{rd-sys-color('content-secondary')};
+  --ink-5: #{rd-sys-color('content-secondary')};
+  --ink-6: #{rd-sys-color('content-secondary')};
+  --ink-7: #{rd-sys-color('content-secondary')};
+  --ink-8: #{rd-sys-color('content-secondary')};
+  --ink-9: #{rd-sys-color('content-tertiary')};
+  --ink-10: #{rd-sys-color('content-tertiary')};
+  --ink-11: #{rd-sys-color('content-tertiary')};
+
+  /* Surfaces */
+  --bg: #{rd-sys-color('background-sunken')};
+  --surface: #{rd-sys-color('background-base')};
+  --surface-2: #{rd-sys-color('background-on-base')};
+  --surface-3: #{rd-sys-color('background-secondary-action')};
+  --surface-4: #{rd-sys-color('background-on-base')};
+  --surface-5: #{rd-sys-color('background-secondary-action')};
+  --tint-row: #{rd-sys-color('background-ghost-highlight')};
+
+  /* Lines */
+  --line: #{rd-sys-color('border-subtle')};
+  --line-soft: #{rd-sys-color('border-subtle')};
+  --line-strong: #{rd-sys-color('border-subtle-hover')};
+  --line-edge: #{rd-sys-color('border-subtle-hover')};
+
+  /* Status */
+  --ok: #{rd-sys-color('content-success')};
+  --ok-bright: #{rd-sys-color('content-success')};
+  --ok-deep: #{rd-sys-color('content-success')};
+  --ok-bg: #{rd-sys-color('background-success')};
+  --warn: #{rd-sys-color('content-warning')};
+  /* Radiant has no dark-yellow content token, and content-warning (#fcc838) is
+     illegible on background-warning. Reference primitive until one exists. */
+  --warn-ink: #{$rd-ref-yellow-80};
+  --warn-bg: #{rd-sys-color('background-warning')};
+  --danger: #{rd-sys-color('content-failure')};
+  --danger-deep: #{rd-sys-color('content-failure')};
+  --danger-bg: #{rd-sys-color('background-failure')};
+  /* Likewise: border-failure is the bold #e22b3d, too heavy for a hairline. */
+  --danger-line: #{$rd-ref-red-30};
+  --violet: #{rd-sys-color('content-accent-purple')};
 }
 
 * {
@@ -18,17 +83,26 @@ body,
   padding: 0;
   height: 100%;
 }
+/* Radiant sizes everything in rem against a 14px root, so the root has to be
+   pinned to 14/16em — otherwise every $rd-spacing--* and type mixin lands 14%
+   oversized. Existing rules are all px and unaffected. */
+html {
+  font-size: 0.875em;
+}
 body {
-  font-family: 'Schibsted Grotesk', system-ui, -apple-system, sans-serif;
+  font-family: $rd-font--family-regular;
   -webkit-font-smoothing: antialiased;
-  color: #0e1116;
-  background: #f4f5f7;
+  color: var(--ink);
+  background: var(--bg);
 }
 input,
 textarea,
 button,
 select {
   font-family: inherit;
+  /* Without this, `currentColor` inside a button resolves to the UA's
+     `buttontext`, which ignores the theme — so icons could not inherit. */
+  color: inherit;
 }
 button {
   cursor: pointer;
@@ -74,7 +148,7 @@ button {
 }
 
 .anim-fade {
-  animation: tsFade 0.24s ease both;
+  animation: tsFade $rd-animation--promptly $rd-animation--ease both;
 }
 
 /* Scrollbars — light surfaces (used across multiple panels) */
@@ -84,54 +158,87 @@ button {
     height: 10px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(120, 130, 150, 0.32);
-    border-radius: 6px;
+    background: rd-sys-color-alpha('content-secondary', 0.32);
+    border-radius: $rd-layout--radius-xlarge;
   }
   &::-webkit-scrollbar-track {
     background: transparent;
   }
 }
 
-/* Text input — Login, ComposerPanel, ProfileView */
+/* Text input at Radiant's spec: 32px tall, 6px radius, and a four-step border
+   ladder — bold at rest, bold-hover on hover, brand on focus, failure/warning
+   when the field is in a state. Radiant carries the focus on the border colour
+   rather than a ring, so the field does not grow when focused. */
 .ts-input {
   width: 100%;
-  border: 1px solid #d7dce3;
-  border-radius: 10px;
-  padding: 11px 13px;
-  font-size: 14px;
+  height: $rd-spacing--h;
+  border: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-bold');
+  border-radius: $rd-layout--radius-xlarge;
+  padding: 0 $rd-spacing--d;
   outline: none;
-  color: #0e1116;
-  background: #fff;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  @include rd-font--body-normal;
+  color: rd-sys-color('content-primary');
+  background: rd-sys-color('background-base');
+  transition: border-color $rd-animation--quickly;
 
   &::placeholder {
-    color: #9aa4b2;
+    color: rd-sys-color('content-tertiary');
+  }
+  &:hover:not(:disabled, :read-only) {
+    border-color: rd-sys-color('border-bold-hover');
   }
   &:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(43, 91, 244, 0.13);
+    border-color: rd-sys-color('border-brand');
+  }
+  &:disabled {
+    opacity: $rd-layout--disabled-opacity;
+    cursor: not-allowed;
+  }
+  /* Read-only reads as a surface rather than a control: no border, sunk fill. */
+  &:read-only {
+    background: rd-sys-color('background-on-base');
+    border-color: transparent;
   }
 }
 
-/* Primary accent button — Login, ComposerPanel */
-.ts-btn-primary {
-  border: none;
-  border-radius: 10px;
-  background: var(--accent);
-  color: #fff;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  transition: background 0.15s, transform 0.06s;
+/**
+ * Search field — a `.ts-input` with room for a leading icon.
+ *
+ * The gutter is set from the wrapper rather than on the input's own class. A
+ * component sheet cannot win it on `.ts-input` alone: those sheets are imported
+ * before this one and the selectors tie on specificity, so `.ts-input`'s own
+ * `padding` was silently overriding every per-field gutter and dropping the
+ * placeholder under the icon. The descendant selector settles it regardless of order.
+ */
+.ts-search {
+  position: relative;
+}
 
-  &:hover {
-    background: var(--accent-strong);
-  }
-  &:active {
-    transform: scale(0.99);
-  }
+/* Not a hit target: clicking the icon should focus the field behind it. */
+.ts-search-icon {
+  position: absolute;
+  left: $rd-spacing--c;
+  top: 50%;
+  transform: translateY(-50%);
+  width: $rd-spacing--d;
+  height: $rd-spacing--d;
+  color: rd-sys-color('content-tertiary');
+  pointer-events: none;
+}
+
+.ts-search .ts-input {
+  padding-left: $rd-spacing--c + $rd-spacing--d + $rd-spacing--b;
+}
+
+.ts-input-error,
+.ts-input-error:focus {
+  border-color: rd-sys-color('border-failure');
+}
+
+.ts-input-warning,
+.ts-input-warning:focus {
+  border-color: rd-sys-color('border-warning');
 }
 
 /* Dropdown menu item — TopBar, ProfileView */
@@ -140,16 +247,127 @@ button {
   text-align: left;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: $rd-layout--radius-xlarge;
   display: flex;
   align-items: center;
-  gap: 9px;
-  transition: background 0.12s;
+  gap: $rd-spacing--b;
+  transition: background $rd-animation--quickly;
 
   &:hover {
-    background: #f4f5f7;
+    background: rd-sys-color('background-ghost-hover');
   }
   &.danger:hover {
-    background: #fdecea;
+    background: rd-sys-color('background-failure');
   }
+}
+
+/* Left-panel tab strip — ComposerPanel, EmbedConfigPanel */
+/* Radiant's small horizontal tab header: the row is pinned to 32px on both axes
+   rather than sized by its contents, and its items share the width equally
+   (`flex: 1 1 0`), so a wrapping label can no longer change the row's height. */
+.spt-strip {
+  flex: 0 0 $rd-spacing--h;
+  width: 100%;
+  height: $rd-spacing--h;
+  display: flex;
+  align-items: stretch;
+  gap: $rd-spacing--b;
+  padding: 0 $rd-spacing--c;
+  border-bottom: rd-utility--get-scaling-rem(1px) solid rd-sys-color('border-subtle');
+  background: rd-sys-color('background-base');
+}
+
+.spt-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $rd-spacing--b;
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0 $rd-spacing--c;
+  color: rd-sys-color('content-secondary');
+  transition: color $rd-animation--quickly;
+  @include rd-font--body-normal;
+
+  /* Radiant animates the indicator's opacity rather than swapping a border
+     colour, so the strip's own hairline is never displaced. */
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: rd-utility--get-scaling-rem(2px);
+    background: rd-sys-color('background-brand');
+    opacity: 0;
+    transition: opacity $rd-animation--quickly;
+  }
+
+  /* Hover goes to brand, not to a darker grey — the tab is telling you it is
+     selectable, and Radiant says that in the brand colour. */
+  &:hover {
+    color: rd-sys-color('content-brand');
+  }
+  &.on {
+    color: rd-sys-color('content-brand');
+
+    &::after {
+      opacity: 1;
+    }
+  }
+  &:disabled {
+    opacity: $rd-layout--disabled-opacity;
+    pointer-events: none;
+  }
+}
+
+/* Radiant draws a tab strip's own controls as a 20px circle centred on the row.
+   Was an icon button stretched by the flex row and pulled back into place with a
+   bottom margin, which is what left the strip a pixel taller than the tabs. */
+.spt-tab-label {
+  @include rd-font--truncate;
+}
+
+.spt-collapse {
+  flex: 0 0 auto;
+  align-self: center;
+  width: rd-utility--get-scaling-rem(20px);
+  height: rd-utility--get-scaling-rem(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: rd-utility--get-scaling-rem(3px);
+  border: none;
+  border-radius: $rd-layout--radius-round;
+  background: rd-sys-color('background-secondary-action');
+  color: rd-sys-color('content-secondary');
+  line-height: 0;
+  transition: background $rd-animation--quickly, color $rd-animation--quickly;
+
+  &:hover {
+    background: rd-sys-color('background-ghost-hover');
+    color: rd-sys-color('content-primary');
+  }
+}
+
+/* Neutral by default; the active tab's own badge picks up the accent below. */
+/* No left margin: the tab's own gap spaces it. */
+.spt-badge {
+  flex-shrink: 0;
+  padding: rd-utility--get-scaling-rem(1px) $rd-spacing--a;
+  border-radius: 100vh;
+  background: rd-comp-color('chip-filter-default');
+  color: rd-sys-color('content-secondary');
+  @include rd-font--fine-prints;
+  @include rd-font--bold;
+  @include rd-font--numeric-monospaces-setting;
+}
+
+.spt-tab.on .spt-badge {
+  background: rd-sys-color('background-ghost-highlight');
+  color: rd-sys-color('content-brand');
 }

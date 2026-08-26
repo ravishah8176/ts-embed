@@ -1,0 +1,188 @@
+// Radiant design system — Layer 1: reference primitives.
+//
+// Vendored verbatim from @thoughtspot/radiant-styles
+// (js/ts-packages/radiant-styles/css/foundations/_tokens-reference.scss) because
+// that package is workspace-only and cannot be installed here. Names and values
+// are kept byte-identical so this file can be diffed against upstream.
+//
+// These are the immutable palette. Components must never reference them
+// directly — they exist only to build the semantic maps in _tokens-system.scss.
+// Scale runs lightest (00/10) to darkest (100).
+
+// ---------------------------------------------------------------------------
+// GRAY
+// ---------------------------------------------------------------------------
+$rd-ref-gray-00: #ffffff;
+$rd-ref-gray-10: #f6f8fa;
+$rd-ref-gray-20: #eaedf2;
+$rd-ref-gray-30: #dbdfe7;
+$rd-ref-gray-40: #c0c6cf;
+$rd-ref-gray-50: #a5acb9;
+$rd-ref-gray-60: #777e8b;
+$rd-ref-gray-70: #4a515e;
+$rd-ref-gray-80: #323946;
+$rd-ref-gray-85: #29303d;
+$rd-ref-gray-90: #1d232f;
+$rd-ref-gray-100: #000000;
+
+// ---------------------------------------------------------------------------
+// DARK GRAY — neutrals for the dark theme only
+// ---------------------------------------------------------------------------
+$rd-ref-dark-gray-00: #18191b;
+$rd-ref-dark-gray-05: #1f2024;
+$rd-ref-dark-gray-10: #26282c;
+$rd-ref-dark-gray-15: #2f3137;
+$rd-ref-dark-gray-20: #34363c;
+$rd-ref-dark-gray-30: #464a4e;
+$rd-ref-dark-gray-40: #60656c;
+$rd-ref-dark-gray-50: #808389;
+$rd-ref-dark-gray-60: #9c9ea5;
+$rd-ref-dark-gray-70: #afb2b6;
+$rd-ref-dark-gray-80: #c7c9cc;
+$rd-ref-dark-gray-90: #dfe0e2;
+
+// ---------------------------------------------------------------------------
+// RED
+// ---------------------------------------------------------------------------
+$rd-ref-red-10: #fff0f0;
+$rd-ref-red-20: #ffebec;
+$rd-ref-red-30: #fcd4d7;
+$rd-ref-red-40: #f9b3b9;
+$rd-ref-red-50: #f47e89;
+$rd-ref-red-60: #e22b3d;
+$rd-ref-red-70: #b6313e;
+$rd-ref-red-80: #721f27;
+$rd-ref-red-90: #3d090e;
+$rd-ref-red-100: #1f0003;
+
+// ---------------------------------------------------------------------------
+// PURPLE
+// ---------------------------------------------------------------------------
+$rd-ref-purple-10: #f7f5ff;
+$rd-ref-purple-20: #f0ebff;
+$rd-ref-purple-30: #e3d9fc;
+$rd-ref-purple-40: #d1c0fb;
+$rd-ref-purple-50: #b094f8;
+$rd-ref-purple-60: #8c62f5;
+$rd-ref-purple-70: #6847ba;
+$rd-ref-purple-80: #422e75;
+$rd-ref-purple-90: #210f4f;
+$rd-ref-purple-100: #0d0030;
+
+// ---------------------------------------------------------------------------
+// BLUE — the brand hue
+// ---------------------------------------------------------------------------
+$rd-ref-blue-10: #f2f7ff;
+$rd-ref-blue-20: #dee8fa;
+$rd-ref-blue-30: #cedcf5;
+$rd-ref-blue-40: #abc7f9;
+$rd-ref-blue-50: #71a1f4;
+$rd-ref-blue-60: #2770ef;
+$rd-ref-blue-70: #2359b6;
+$rd-ref-blue-80: #163772;
+$rd-ref-blue-90: #082559;
+$rd-ref-blue-100: #001740;
+
+// ---------------------------------------------------------------------------
+// TEAL
+// ---------------------------------------------------------------------------
+$rd-ref-teal-10: #edfdff;
+$rd-ref-teal-20: #e1f7fa;
+$rd-ref-teal-30: #c9f0f5;
+$rd-ref-teal-40: #b5ecf2;
+$rd-ref-teal-50: #82dfe9;
+$rd-ref-teal-60: #48d1e0;
+$rd-ref-teal-70: #359faa;
+$rd-ref-teal-80: #22636b;
+$rd-ref-teal-90: #0c3f45;
+$rd-ref-teal-100: #002d33;
+
+// ---------------------------------------------------------------------------
+// YELLOW
+// ---------------------------------------------------------------------------
+$rd-ref-yellow-10: #fffbf0;
+$rd-ref-yellow-20: #fff8e5;
+$rd-ref-yellow-30: #fcf1d1;
+$rd-ref-yellow-40: #fde9af;
+$rd-ref-yellow-50: #fcd977;
+$rd-ref-yellow-60: #fcc838;
+$rd-ref-yellow-70: #bf982a;
+$rd-ref-yellow-80: #785f1a;
+$rd-ref-yellow-90: #4f3d09;
+$rd-ref-yellow-100: #2e2200;
+
+// ---------------------------------------------------------------------------
+// GREEN
+// ---------------------------------------------------------------------------
+$rd-ref-green-10: #edfff9;
+$rd-ref-green-20: #e0f8ef;
+$rd-ref-green-30: #c7f2e3;
+$rd-ref-green-40: #9be5cb;
+$rd-ref-green-50: #56d3a8;
+$rd-ref-green-60: #06bf7f;
+$rd-ref-green-70: #049160;
+$rd-ref-green-80: #025b3c;
+$rd-ref-green-90: #003b26;
+$rd-ref-green-100: #001f14;
+
+// ---------------------------------------------------------------------------
+// ORANGE
+// ---------------------------------------------------------------------------
+$rd-ref-orange-10: #fff5f0;
+$rd-ref-orange-20: #ffeee5;
+$rd-ref-orange-30: #ffddcc;
+$rd-ref-orange-40: #ffccb3;
+$rd-ref-orange-50: #ffa97e;
+$rd-ref-orange-60: #ff8142;
+$rd-ref-orange-70: #c26232;
+$rd-ref-orange-80: #7a3d1f;
+$rd-ref-orange-90: #471f0b;
+$rd-ref-orange-100: #331100;
+
+// ---------------------------------------------------------------------------
+// NEUTRAL
+// ---------------------------------------------------------------------------
+$rd-ref-black: #000000;
+$rd-ref-white: #ffffff;
+
+// ---------------------------------------------------------------------------
+// BRAND — aliases blue at compile time. Upstream overrides the corresponding
+// custom properties at runtime from a tenant's brand hex; we keep the aliases
+// so the semantic maps read the same as upstream.
+// ---------------------------------------------------------------------------
+$rd-ref-brand-10: $rd-ref-blue-10;
+$rd-ref-brand-20: $rd-ref-blue-20;
+$rd-ref-brand-30: $rd-ref-blue-30;
+$rd-ref-brand-40: $rd-ref-blue-40;
+$rd-ref-brand-50: $rd-ref-blue-50;
+$rd-ref-brand-60: $rd-ref-blue-60;
+$rd-ref-brand-70: $rd-ref-blue-70;
+$rd-ref-brand-80: $rd-ref-blue-80;
+$rd-ref-brand-90: $rd-ref-blue-90;
+$rd-ref-brand-100: $rd-ref-blue-100;
+
+// ---------------------------------------------------------------------------
+// ALPHA — pre-composed translucent primitives. Radiant forbids wrapping a
+// semantic token in rgba(), so any translucent fill has to start from one of
+// these (or rd-sys-color-alpha()).
+// ---------------------------------------------------------------------------
+$rd-ref-gray-10-alpha: rgba(#c0c6cf, 0.12);
+$rd-ref-gray-20-alpha: rgba($rd-ref-gray-20, 0.6);
+$rd-ref-gray-40-alpha: rgba(#16223a, 0.26);
+$rd-ref-gray-60-alpha: rgba(#20293a, 0.6);
+$rd-ref-gray-70-alpha: rgba(#1f2632, 0.8);
+$rd-ref-gray-shimmer-alpha-14: rgba(#8c9196, 0.14);
+
+$rd-ref-dark-gray-30-alpha: rgba(#00030a, 0.73);
+$rd-ref-dark-gray-10-alpha-40: rgba($rd-ref-dark-gray-10, 0.4);
+$rd-ref-dark-gray-10-alpha-75: rgba($rd-ref-dark-gray-10, 0.75);
+
+$rd-ref-brand-10-alpha: rgba($rd-ref-brand-50, 0.12);
+$rd-ref-brand-60-alpha-20: rgba($rd-ref-brand-60, 0.2);
+$rd-ref-brand-60-alpha-50: rgba($rd-ref-brand-60, 0.5);
+
+$rd-ref-white-alpha-04: rgba($rd-ref-white, 0.04);
+$rd-ref-white-alpha-08: rgba($rd-ref-white, 0.08);
+$rd-ref-white-alpha-25: rgba($rd-ref-white, 0.25);
+$rd-ref-white-alpha-42: rgba($rd-ref-white, 0.42);
+$rd-ref-white-alpha-80: rgba($rd-ref-white, 0.8);

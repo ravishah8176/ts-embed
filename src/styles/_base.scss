@@ -1,0 +1,15 @@
+// The single entry point for component stylesheets:
+//
+//   @use '../styles/base' as *;
+//
+// Forwards variables, functions and mixins only — importing this emits no CSS,
+// so it is safe from every file. CSS output lives in _theme-init.scss, which is
+// imported once from src/studio/global.scss.
+
+@forward './foundations/tokens-reference';
+@forward './foundations/tokens-system';
+@forward './foundations/tokens-component';
+@forward './foundations/settings';
+@forward './foundations/tools';
+@forward './foundations/typography';
+@forward './foundations/elevations';

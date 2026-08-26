@@ -1,34 +1,12 @@
-import {
-  AppEmbed,
-  HomePage,
-  HomePageSearchBarMode,
-  PrimaryNavbarVersion,
-} from '@thoughtspot/visual-embed-sdk'
+import type { AppEmbed, AppViewConfig } from '../../thoughtspot/sdkTypes'
+import { embedSdk } from '../../thoughtspot/sdkLoader'
 
 /**
- * Full-application embed (AppEmbed).
+ * Full-application embed (AppEmbed) — it embeds the whole ThoughtSpot app.
  *
- * Edit the view config below to test changes — anything in `AppViewConfig`
- * is fair game. The Studio handles event wiring + rendering, so just return
- * the configured instance.
+ * The config is whatever the user's source builds; this only constructs the embed
+ * from it, against whichever SDK version is loaded.
  */
-export function createAppEmbed(container: HTMLDivElement): AppEmbed {
-  return new AppEmbed(container, {
-    frameParams: { width: '100%', height: '100%' },
-
-    // ───────── customize from here ─────────
-    // V3 discovery experience: sliding navbar + modular home page.
-    discoveryExperience: {
-      primaryNavbarVersion: PrimaryNavbarVersion.Sliding,
-      homePage: HomePage.ModularWithStylingChanges,
-    },
-    isUnifiedSearchExperienceEnabled: false,
-    homePageSearchBarMode: HomePageSearchBarMode.AI_ANSWER,
-    spotterSidebarConfig: {
-      enablePastConversationsSidebar: true,
-      spotterSidebarTitle: 'TS Assistant',
-    },
-    updatedSpotterChatPrompt: true,
-    // ───────────────────────────────────────
-  })
+export function createAppEmbed(container: HTMLDivElement, config: AppViewConfig): AppEmbed {
+  return new (embedSdk().AppEmbed)(container, config)
 }
